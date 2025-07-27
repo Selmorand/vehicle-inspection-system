@@ -15,7 +15,7 @@
         <div class="col-lg-4 col-md-6">
             <div class="card action-card h-100">
                 <div class="card-body">
-                    <h5 class="card-title">🚗 New Inspection</h5>
+                    <h5 class="card-title">New Inspection</h5>
                     <p class="card-text">Start a new vehicle inspection report. Capture photos, fill out forms, and generate professional reports.</p>
                     <a href="{{ url('/inspection/visual') }}" class="btn btn-primary">Start New Inspection</a>
                 </div>
@@ -25,7 +25,7 @@
         <div class="col-lg-4 col-md-6">
             <div class="card action-card h-100">
                 <div class="card-body">
-                    <h5 class="card-title">📋 View All Reports</h5>
+                    <h5 class="card-title">View All Reports</h5>
                     <p class="card-text">Browse all completed inspections. Search by VIN, client name, date, or inspector.</p>
                     <a href="#" class="btn btn-secondary">View Reports</a>
                 </div>
@@ -35,7 +35,7 @@
         <div class="col-lg-4 col-md-6">
             <div class="card action-card h-100">
                 <div class="card-body">
-                    <h5 class="card-title">🔍 Quick Search</h5>
+                    <h5 class="card-title">Quick Search</h5>
                     <p class="card-text">Find a specific inspection report quickly using various search criteria.</p>
                     <a href="#" class="btn btn-secondary">Search Reports</a>
                 </div>

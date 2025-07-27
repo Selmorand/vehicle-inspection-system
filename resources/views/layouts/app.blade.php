@@ -21,7 +21,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{{ url('/dashboard') }}">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" height="100" class="me-2">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" height="200" class="me-2">
                 <span style="color: #4f959b; font-weight: 600;">Vehicle Inspection</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

@@ -1,0 +1,54 @@
+npx @anthropic-ai/claude-code
+F:\Xampp\htdocs\vehicle-inspection> php artisan serve
+
+● To view your project in the browser:
+
+  1. Start XAMPP - Make sure Apache and MySQL are running
+  2. Open terminal in VS Code (or Command Prompt):
+    - Navigate to your project: cd F:\xampp\htdocs\vehicle-inspection
+    - Run: php artisan serve
+  3. Open your browser and go to: http://127.0.0.1:8000
+
+  Available pages to view:
+  - http://127.0.0.1:8000/dashboard - Main dashboard
+  - http://127.0.0.1:8000/inspection/visual - Visual inspection form
+  - http://127.0.0.1:8000/inspection/body-panel - Body panel assessment (in progress)
+  - http://127.0.0.1:8000/test - Test panel page
+  - http://127.0.0.1:8000/positioning-tool - Panel positioning tool
+
+   Project Status Summary:
+  Working on vehicle inspection system - Body Panel Assessment feature
+  - Using Laravel 12, PHP 8.2, Bootstrap 5.3.2
+  - Frontend-only implementation (no backend yet)
+  - Location: F:\xampp\htdocs\vehicle-inspection\
+
+  Current Implementation:
+  - Base vehicle image: FullVehicle.jpg (1005x1353px)
+  - Windscreen panel positioned and working with color changes
+  - Interactive two-way highlighting between panel and form
+  - Responsive design implemented
+
+  Panel Positioning Formula:
+  - CorelDraw uses bottom-left origin (0,0)
+  - CSS uses top-left origin
+  - Conversion: CSS Y = 1353 - CorelDraw Y
+  - Example: Windscreen Y in CorelDraw = 1003, CSS Y = 350
+
+  Color System:
+  - Good: #277020 (green)
+  - Average: #f5a409 (orange)
+  - Bad: #c62121 (red)
+  - Colors persist after selection
+
+  Files to Reference:
+  - /resources/views/body-panel-assessment.blade.php
+  - /public/images/panels/ (contains FullVehicle.jpg and panel images)
+  - /panelImages.csv (contains panel coordinates from CorelDraw)
+
+  Next Steps:
+  1. Add remaining panel images from CSV
+  2. Apply same positioning formula for each panel
+  3. Create form fields for each panel assessment
+  4. Implement backend when frontend is complete
+
+  This summary should help you continue seamlessly in the next chat!

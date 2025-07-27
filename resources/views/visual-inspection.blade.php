@@ -16,7 +16,7 @@
         
         <!-- Inspector Details Section -->
         <div class="form-section">
-            <h3>👤 Inspector Details</h3>
+            <h3>Inspector Details</h3>
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-row">
@@ -35,7 +35,7 @@
 
         <!-- Vehicle Images Section -->
         <div class="form-section">
-            <h3>📸 Vehicle Images</h3>
+            <h3>Vehicle Images</h3>
             <p class="text-muted mb-3">Take photos of the vehicle from different angles. Images will be automatically cropped to square format.</p>
             
             <div class="image-upload-grid" id="imageGrid">
@@ -48,7 +48,7 @@
 
         <!-- Vehicle Details Section -->
         <div class="form-section">
-            <h3>🚗 Vehicle Details</h3>
+            <h3>Vehicle Details</h3>
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-row">
@@ -161,7 +161,7 @@
 
         <!-- Diagnostic Report Section -->
         <div class="form-section">
-            <h3>🔧 Diagnostic Report</h3>
+            <h3>Diagnostic Report</h3>
             <div class="form-row">
                 <label for="diagnostic_report" class="form-label fw-bold">Diagnostic Report:</label>
                 <textarea class="form-control" id="diagnostic_report" name="diagnostic_report" rows="3" 
@@ -179,10 +179,10 @@
         <!-- Action buttons -->
         <div class="text-center mb-4">
             <button type="button" class="btn btn-secondary me-3" onclick="saveDraft()">
-                💾 Save Draft
+                Save Draft
             </button>
             <button type="button" class="btn btn-primary" onclick="continueToNext()">
-                ➡️ Continue to Next Section
+                Continue to Next Section
             </button>
         </div>
     </form>
