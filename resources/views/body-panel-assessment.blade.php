@@ -4,6 +4,19 @@
 
 @section('content')
 <div class="container-fluid px-4">
+    <!-- Progress Breadcrumb -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center">
+                    <li class="breadcrumb-item"><a href="/inspection/visual" style="color: var(--primary-color);">Visual Inspection</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Body Panel Assessment</li>
+                    <li class="breadcrumb-item text-muted">Specific Area Images</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
     <div class="row mb-4">
         <div class="col-12">
             <h2 class="text-center" style="color: var(--primary-color);">Body Panel Assessment</h2>
@@ -212,9 +225,16 @@
                             <!-- Panel forms will be added here -->
                         </div>
 
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary">Save Assessment</button>
-                            <button type="button" class="btn btn-secondary ms-2" id="clearAllBtn">Clear All</button>
+                        <div class="mt-4 d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" id="backBtn">
+                                <i class="bi bi-arrow-left me-1"></i>Back to Visual Inspection
+                            </button>
+                            <div>
+                                <button type="button" class="btn btn-secondary me-2" id="saveDraftBtn">Save Draft</button>
+                                <button type="submit" class="btn btn-primary" id="nextBtn">
+                                    Continue to Specific Areas <i class="bi bi-arrow-right ms-1"></i>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -333,6 +353,9 @@
 @section('additional-js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Load previous inspection data if available
+    loadPreviousData();
+    
     // Panel names for form generation
     const panelNames = [
         { id: 'windscreen', name: 'Windscreen' },
@@ -507,16 +530,98 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Assessment saved! (Frontend only - backend integration pending)');
     });
 
-    // Clear all button
-    document.getElementById('clearAllBtn').addEventListener('click', function() {
-        if (confirm('Clear all assessments?')) {
-            document.getElementById('panelAssessmentForm').reset();
-            panelOverlays.forEach(p => {
-                p.classList.remove('active', 'condition-good', 'condition-average', 'condition-bad');
-            });
-            formLabels.forEach(l => l.classList.remove('active'));
-        }
+    // Navigation button handlers
+    document.getElementById('backBtn').addEventListener('click', function() {
+        // Save current progress before going back
+        saveCurrentProgress();
+        window.location.href = '/inspection/visual';
+    });
+
+    document.getElementById('saveDraftBtn').addEventListener('click', function() {
+        saveCurrentProgress();
+        alert('Assessment draft saved successfully!');
+    });
+
+    // Update form submission to proceed to next section
+    document.getElementById('panelAssessmentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Save the panel assessment data
+        saveCurrentProgress();
+        
+        // Navigate to specific area images section
+        window.location.href = '/inspection/specific-areas';
     });
 });
+
+// Load previous visual inspection data and display summary
+function loadPreviousData() {
+    const visualData = sessionStorage.getItem('visualInspectionData');
+    if (visualData) {
+        const data = JSON.parse(visualData);
+        
+        // Display inspection summary at top of page
+        displayInspectionSummary(data);
+        
+        // Load any existing panel assessment data
+        const panelData = sessionStorage.getItem('panelAssessmentData');
+        if (panelData) {
+            restorePanelAssessments(JSON.parse(panelData));
+        }
+    }
+}
+
+// Display summary of visual inspection data
+function displayInspectionSummary(data) {
+    const breadcrumbContainer = document.querySelector('.breadcrumb').parentElement.parentElement;
+    const summaryDiv = document.createElement('div');
+    summaryDiv.className = 'row mb-3';
+    summaryDiv.innerHTML = `
+        <div class="col-12">
+            <div class="alert alert-info">
+                <strong>Inspection Details:</strong>
+                ${data.manufacturer} ${data.model} (${data.vehicle_type}) | 
+                VIN: ${data.vin} | 
+                Inspector: ${data.inspector_name} |
+                Images: ${data.images ? data.images.length : 0} uploaded
+            </div>
+        </div>
+    `;
+    breadcrumbContainer.parentNode.insertBefore(summaryDiv, breadcrumbContainer.nextSibling);
+}
+
+// Save current panel assessment progress
+function saveCurrentProgress() {
+    const formData = new FormData(document.getElementById('panelAssessmentForm'));
+    const panelData = {};
+    
+    for (let [key, value] of formData.entries()) {
+        if (value && key !== '_token') {
+            panelData[key] = value;
+        }
+    }
+    
+    sessionStorage.setItem('panelAssessmentData', JSON.stringify(panelData));
+}
+
+// Restore previous panel assessments
+function restorePanelAssessments(data) {
+    Object.keys(data).forEach(key => {
+        const field = document.querySelector(`[name="${key}"]`);
+        if (field) {
+            field.value = data[key];
+            
+            // If it's a condition field, update panel color
+            if (key.endsWith('-condition') && data[key]) {
+                const panelName = key.replace('-condition', '');
+                const panel = document.querySelector(`.panel-overlay[data-panel="${panelName}"]`);
+                if (panel) {
+                    panel.classList.remove('condition-good', 'condition-average', 'condition-bad');
+                    panel.classList.add(`condition-${data[key]}`);
+                }
+            }
+        }
+    });
+}
 </script>
 @endsection

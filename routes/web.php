@@ -14,6 +14,9 @@ Route::get('/inspection/visual', function () {
 Route::get('/inspection/body-panel', function () {
     return view('body-panel-assessment');
 });
+Route::get('/inspection/specific-areas', function () {
+    return view('specific-area-images');
+});
 Route::get('/test', function () {
     return view('test-panel');
 });
