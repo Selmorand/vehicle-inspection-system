@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Specific Area Images')
+@section('title', 'Interior Specific Area Images')
 
 @section('content')
 <div class="container">
@@ -11,7 +11,9 @@
                 <ol class="breadcrumb justify-content-center">
                     <li class="breadcrumb-item"><a href="/inspection/visual" style="color: var(--primary-color);">Visual Inspection</a></li>
                     <li class="breadcrumb-item"><a href="/inspection/body-panel" style="color: var(--primary-color);">Body Panel Assessment</a></li>
-                    <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Specific Area Images</li>
+                    <li class="breadcrumb-item"><a href="/inspection/specific-areas" style="color: var(--primary-color);">Specific Area Images</a></li>
+                    <li class="breadcrumb-item"><a href="/inspection/interior" style="color: var(--primary-color);">Interior Assessment</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Interior Specific Images</li>
                     <li class="breadcrumb-item text-muted">Final Report</li>
                 </ol>
             </nav>
@@ -21,23 +23,23 @@
     <!-- Header -->
     <div class="text-center mb-4">
         <h1 class="display-5 text-gradient mb-2">ALPHA Inspection</h1>
-        <h2 class="h4">Specific Area Images</h2>
-        <p class="text-muted">Take photos of specific vehicle areas using your tablet camera. Each area should have one clear photo.</p>
+        <h2 class="h4">Interior Specific Area Images</h2>
+        <p class="text-muted">Take photos of specific interior components using your tablet camera. Each component should have one clear photo.</p>
     </div>
 
-    <form id="specific-area-form" enctype="multipart/form-data">
+    <form id="interior-specific-form" enctype="multipart/form-data">
         @csrf
         
-        <!-- Vehicle Images - Specific Areas Section -->
+        <!-- Interior Images - Specific Areas Section -->
         <div class="form-section">
-            <h3>Vehicle Images - Specific Areas</h3>
-            <p class="text-muted mb-3">Take photos of specific vehicle areas using your tablet camera. Each area should have one clear photo.</p>
+            <h3>Interior Images - Specific Components</h3>
+            <p class="text-muted mb-3">Take photos of specific interior components using your tablet camera. Each component should have one clear photo.</p>
             
             <!-- Responsive image grid - 3 per row portrait, 6 per row landscape -->
-            <div class="row g-3" id="specificImageGrid">
+            <div class="row g-3" id="interiorImageGrid">
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="front-bumper">
-                        <span class="area-label">Front Bumper</span>
+                    <div class="image-slot" data-area="dash">
+                        <span class="area-label">Dash</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -45,8 +47,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="bonnet">
-                        <span class="area-label">Bonnet</span>
+                    <div class="image-slot" data-area="steering-wheel">
+                        <span class="area-label">Steering Wheel</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -54,8 +56,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="lf-fender">
-                        <span class="area-label">LF Fender</span>
+                    <div class="image-slot" data-area="buttons">
+                        <span class="area-label">Buttons</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -63,8 +65,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="lf-mirror">
-                        <span class="area-label">LF Mirror</span>
+                    <div class="image-slot" data-area="driver-seat">
+                        <span class="area-label">Driver Seat</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -72,8 +74,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="lf-door">
-                        <span class="area-label">LF Door</span>
+                    <div class="image-slot" data-area="passenger-seat">
+                        <span class="area-label">Passenger Seat</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -81,8 +83,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="lr-door">
-                        <span class="area-label">LR Door</span>
+                    <div class="image-slot" data-area="rooflining">
+                        <span class="area-label">Rooflining</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -90,8 +92,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="lr-quarter-panel">
-                        <span class="area-label">LR Quarter Panel</span>
+                    <div class="image-slot" data-area="fr-door-panel">
+                        <span class="area-label">FR Door Panel</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -99,8 +101,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="rear-bumper">
-                        <span class="area-label">Rear Bumper</span>
+                    <div class="image-slot" data-area="fl-door-panel">
+                        <span class="area-label">FL Door Panel</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -108,8 +110,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="boot">
-                        <span class="area-label">Boot</span>
+                    <div class="image-slot" data-area="rear-seat">
+                        <span class="area-label">Rear Seat</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -117,8 +119,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="rr-quarter-panel">
-                        <span class="area-label">RR Quarter Panel</span>
+                    <div class="image-slot" data-area="additional-seats">
+                        <span class="area-label">Additional Seats</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -126,8 +128,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="rr-door">
-                        <span class="area-label">RR Door</span>
+                    <div class="image-slot" data-area="backboard">
+                        <span class="area-label">Backboard</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -135,8 +137,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="fr-door">
-                        <span class="area-label">FR Door</span>
+                    <div class="image-slot" data-area="rr-door-panel">
+                        <span class="area-label">RR Door Panel</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -144,8 +146,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="fr-mirror">
-                        <span class="area-label">FR Mirror</span>
+                    <div class="image-slot" data-area="lr-door-panel">
+                        <span class="area-label">LR Door Panel</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -153,8 +155,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="fr-fender">
-                        <span class="area-label">FR Fender</span>
+                    <div class="image-slot" data-area="boot-interior">
+                        <span class="area-label">Boot Interior</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -162,8 +164,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="roof">
-                        <span class="area-label">Roof</span>
+                    <div class="image-slot" data-area="centre-console">
+                        <span class="area-label">Centre Console</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -171,8 +173,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="windscreen">
-                        <span class="area-label">Windscreen</span>
+                    <div class="image-slot" data-area="gear-lever">
+                        <span class="area-label">Gear Lever</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -180,8 +182,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="engine-compartment">
-                        <span class="area-label">Engine Compartment</span>
+                    <div class="image-slot" data-area="air-vents">
+                        <span class="area-label">Air Vents</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -189,8 +191,8 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-2">
-                    <div class="image-slot" data-area="additional">
-                        <span class="area-label">Additional</span>
+                    <div class="image-slot" data-area="additional-interior">
+                        <span class="area-label">Additional Interior</span>
                         <div class="upload-placeholder">
                             <i class="bi bi-camera"></i>
                             <small>Tap to capture</small>
@@ -200,19 +202,19 @@
             </div>
             
             <!-- Hidden file input optimized for tablet camera -->
-            <input type="file" id="specificCameraInput" accept="image/*" capture="environment" style="display: none;">
+            <input type="file" id="interiorCameraInput" accept="image/*" capture="environment" style="display: none;">
         </div>
 
         <!-- Action buttons -->
         <div class="text-center mb-4">
             <button type="button" class="btn btn-outline-secondary me-3" onclick="goBack()">
-                <i class="bi bi-arrow-left me-1"></i>Back to Body Panel Assessment
+                <i class="bi bi-arrow-left me-1"></i>Back to Interior Assessment
             </button>
             <button type="button" class="btn btn-secondary me-3" onclick="saveDraft()">
                 Save Draft
             </button>
-            <button type="button" class="btn btn-primary" onclick="continueToInterior()">
-                Continue to Interior Assessment <i class="bi bi-arrow-right ms-1"></i>
+            <button type="button" class="btn btn-primary" onclick="continueToFinalReport()">
+                Continue to Service Booklet <i class="bi bi-arrow-right ms-1"></i>
             </button>
         </div>
     </form>
@@ -222,23 +224,23 @@
 @section('additional-js')
 <script>
 // Image management
-let specificAreaImages = {}; // Store images by area
+let interiorSpecificImages = {}; // Store images by area
 let currentCaptureArea = null; // Track which area is being captured
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
-    initializeSpecificImageGrid();
+    initializeInteriorImageGrid();
     loadPreviousData();
 });
 
-function initializeSpecificImageGrid() {
-    // Add click handlers to all specific image slots
+function initializeInteriorImageGrid() {
+    // Add click handlers to all interior image slots
     const imageSlots = document.querySelectorAll('.image-slot');
     imageSlots.forEach(slot => {
         slot.addEventListener('click', function() {
             if (!this.classList.contains('has-image')) {
                 currentCaptureArea = this.dataset.area;
-                triggerSpecificCamera();
+                triggerInteriorCamera();
             }
         });
         
@@ -247,23 +249,23 @@ function initializeSpecificImageGrid() {
             e.preventDefault();
             if (!this.classList.contains('has-image')) {
                 currentCaptureArea = this.dataset.area;
-                triggerSpecificCamera();
+                triggerInteriorCamera();
             }
         });
     });
 }
 
-function triggerSpecificCamera() {
-    const input = document.getElementById('specificCameraInput');
+function triggerInteriorCamera() {
+    const input = document.getElementById('interiorCameraInput');
     input.click();
 }
 
-// Handle specific area camera input
-document.getElementById('specificCameraInput').addEventListener('change', function(e) {
+// Handle interior camera input
+document.getElementById('interiorCameraInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     
     if (file && file.type.startsWith('image/') && currentCaptureArea) {
-        processSpecificAreaImage(file, currentCaptureArea);
+        processInteriorImage(file, currentCaptureArea);
     }
     
     // Clear the input to allow taking the same photo again if needed
@@ -271,7 +273,7 @@ document.getElementById('specificCameraInput').addEventListener('change', functi
     currentCaptureArea = null;
 });
 
-function processSpecificAreaImage(file, areaName) {
+function processInteriorImage(file, areaName) {
     const reader = new FileReader();
     
     reader.onload = function(e) {
@@ -294,7 +296,7 @@ function processSpecificAreaImage(file, areaName) {
             
             // Convert to blob and display
             canvas.toBlob(function(blob) {
-                displaySpecificAreaImage(URL.createObjectURL(blob), blob, areaName);
+                displayInteriorImage(URL.createObjectURL(blob), blob, areaName);
             }, 'image/jpeg', 0.8);
         };
         img.src = e.target.result;
@@ -303,33 +305,33 @@ function processSpecificAreaImage(file, areaName) {
     reader.readAsDataURL(file);
 }
 
-function displaySpecificAreaImage(imageSrc, blob, areaName) {
+function displayInteriorImage(imageSrc, blob, areaName) {
     const slot = document.querySelector(`[data-area="${areaName}"]`);
     if (slot) {
         slot.innerHTML = `
             <span class="area-label">${slot.querySelector('.area-label').textContent}</span>
             <img src="${imageSrc}" alt="${areaName}">
-            <button type="button" class="remove-image" onclick="removeSpecificAreaImage('${areaName}', this)">
+            <button type="button" class="remove-image" onclick="removeInteriorImage('${areaName}', this)">
                 <i class="bi bi-x"></i>
             </button>
         `;
         slot.classList.add('has-image');
         
         // Store the image data
-        specificAreaImages[areaName] = {
+        interiorSpecificImages[areaName] = {
             src: imageSrc,
             blob: blob
         };
     }
 }
 
-function removeSpecificAreaImage(areaName, button) {
+function removeInteriorImage(areaName, button) {
     const slot = button.closest('.image-slot');
     
     // Revoke the object URL to free memory
-    if (specificAreaImages[areaName]) {
-        URL.revokeObjectURL(specificAreaImages[areaName].src);
-        delete specificAreaImages[areaName];
+    if (interiorSpecificImages[areaName]) {
+        URL.revokeObjectURL(interiorSpecificImages[areaName].src);
+        delete interiorSpecificImages[areaName];
     }
     
     // Reset the slot
@@ -347,7 +349,7 @@ function removeSpecificAreaImage(areaName, button) {
     slot.addEventListener('click', function() {
         if (!this.classList.contains('has-image')) {
             currentCaptureArea = this.dataset.area;
-            triggerSpecificCamera();
+            triggerInteriorCamera();
         }
     });
 }
@@ -355,17 +357,17 @@ function removeSpecificAreaImage(areaName, button) {
 function loadPreviousData() {
     // Display summary of inspection progress
     const visualData = sessionStorage.getItem('visualInspectionData');
-    const panelData = sessionStorage.getItem('panelAssessmentData');
+    const interiorData = sessionStorage.getItem('interiorAssessmentData');
     
     if (visualData) {
         const data = JSON.parse(visualData);
         displayInspectionSummary(data);
     }
 
-    // Load any existing specific area images
-    const specificData = sessionStorage.getItem('specificAreaImagesData');
-    if (specificData) {
-        restoreSpecificAreaImages(JSON.parse(specificData));
+    // Load any existing interior specific images
+    const interiorSpecificData = sessionStorage.getItem('interiorSpecificImagesData');
+    if (interiorSpecificData) {
+        restoreInteriorImages(JSON.parse(interiorSpecificData));
     }
 }
 
@@ -380,41 +382,41 @@ function displayInspectionSummary(data) {
                 ${data.manufacturer} ${data.model} (${data.vehicle_type}) | 
                 VIN: ${data.vin} | 
                 Inspector: ${data.inspector_name} |
-                General Images: ${data.images ? data.images.length : 0} uploaded
+                Progress: Visual ✓ | Body Panels ✓ | Specific Areas ✓ | Interior Assessment ✓ | Interior Images
             </div>
         </div>
     `;
     breadcrumbContainer.parentNode.insertBefore(summaryDiv, breadcrumbContainer.nextSibling);
 }
 
-function restoreSpecificAreaImages(data) {
+function restoreInteriorImages(data) {
     Object.keys(data).forEach(areaName => {
         const imageData = data[areaName];
         if (imageData && imageData.src) {
-            displaySpecificAreaImage(imageData.src, imageData.blob, areaName);
+            displayInteriorImage(imageData.src, imageData.blob, areaName);
         }
     });
 }
 
 function saveCurrentProgress() {
-    sessionStorage.setItem('specificAreaImagesData', JSON.stringify(specificAreaImages));
+    sessionStorage.setItem('interiorSpecificImagesData', JSON.stringify(interiorSpecificImages));
 }
 
 function goBack() {
     saveCurrentProgress();
-    window.location.href = '/inspection/body-panel';
+    window.location.href = '/inspection/interior';
 }
 
 function saveDraft() {
     saveCurrentProgress();
-    alert('Specific area images draft saved successfully!');
+    alert('Interior specific images draft saved successfully!');
 }
 
-function continueToInterior() {
+function continueToFinalReport() {
     saveCurrentProgress();
     
-    // Navigate to interior assessment section
-    window.location.href = '/inspection/interior';
+    // Navigate to service booklet section
+    window.location.href = '/inspection/service-booklet';
 }
 </script>
 @endsection

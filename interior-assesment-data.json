@@ -1,0 +1,245 @@
+{
+    "moduleName": "InteriorAssessment",
+    "moduleType": "vehicleInspection",
+    "extractedFrom": {
+        "source": "AI vehicle inspection report 1.xlsx",
+        "sheet": "Technical Inspection report 1",
+        "range": "A76:M93",
+        "extractedRows": 17
+    },
+    "fieldDefinitions": {
+        "category": {
+            "type": "text",
+            "label": "Category",
+            "required": true,
+            "readonly": true
+        },
+        "colour": {
+            "type": "dropdown",
+            "label": "Colour",
+            "required": false,
+            "options": [
+                "Red & Black",
+                "Black",
+                "Grey",
+                "Beige",
+                "Brown",
+                "Blue",
+                "Other"
+            ],
+            "allowCustom": true
+        },
+        "condition": {
+            "type": "dropdown",
+            "label": "Condition",
+            "required": true,
+            "options": [
+                "Excellent",
+                "Good",
+                "Average",
+                "Poor",
+                "Bad",
+                "N/A"
+            ],
+            "default": "Good"
+        },
+        "comments": {
+            "type": "textarea",
+            "label": "Comments",
+            "required": false,
+            "placeholder": "Enter any additional observations or damage details"
+        }
+    },
+    "assessmentItems": [
+        {
+            "id": "interior_77",
+            "category": "Dash",
+            "colour": "Red & Black",
+            "condition": "Average",
+            "comments": "",
+            "sourceRow": 77
+        },
+        {
+            "id": "interior_78",
+            "category": "Steering wheel",
+            "colour": "",
+            "condition": "bad",
+            "comments": "",
+            "sourceRow": 78
+        },
+        {
+            "id": "interior_79",
+            "category": "buttons",
+            "colour": "",
+            "condition": "",
+            "comments": "Moving part damage",
+            "sourceRow": 79
+        },
+        {
+            "id": "interior_80",
+            "category": "driver seat",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 80
+        },
+        {
+            "id": "interior_81",
+            "category": "passanger seat",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 81
+        },
+        {
+            "id": "interior_82",
+            "category": "rooflining",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 82
+        },
+        {
+            "id": "interior_83",
+            "category": "FR door panel",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 83
+        },
+        {
+            "id": "interior_84",
+            "category": "FL door panel",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 84
+        },
+        {
+            "id": "interior_85",
+            "category": "Rear seat",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 85
+        },
+        {
+            "id": "interior_86",
+            "category": "additional seats",
+            "colour": "",
+            "condition": "N/A",
+            "comments": "",
+            "sourceRow": 86
+        },
+        {
+            "id": "interior_87",
+            "category": "Backboard",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 87
+        },
+        {
+            "id": "interior_88",
+            "category": "RR door panel",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 88
+        },
+        {
+            "id": "interior_89",
+            "category": "LR door panel",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 89
+        },
+        {
+            "id": "interior_90",
+            "category": "Boot",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 90
+        },
+        {
+            "id": "interior_91",
+            "category": "Centre console",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 91
+        },
+        {
+            "id": "interior_92",
+            "category": "Gearlever",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 92
+        },
+        {
+            "id": "interior_93",
+            "category": "Air vents",
+            "colour": "",
+            "condition": "",
+            "comments": "",
+            "sourceRow": 93
+        }
+    ],
+    "validationRules": {
+        "colour": {
+            "allowEmpty": true,
+            "message": "Select a colour or leave blank if not applicable"
+        },
+        "condition": {
+            "allowEmpty": false,
+            "message": "Condition assessment is required for all interior components"
+        }
+    },
+    "uiConfiguration": {
+        "displayOrder": [
+            "category",
+            "colour",
+            "condition",
+            "comments"
+        ],
+        "grouping": {
+            "seating": [
+                "driver seat",
+                "passanger seat",
+                "Rear seat",
+                "additional seats"
+            ],
+            "dashboard": [
+                "Dash",
+                "Steering wheel",
+                "buttons",
+                "Centre console",
+                "Gearlever",
+                "Air vents"
+            ],
+            "panels": [
+                "FR door panel",
+                "FL door panel",
+                "RR door panel",
+                "LR door panel",
+                "rooflining",
+                "Backboard"
+            ],
+            "storage": [
+                "Boot"
+            ]
+        },
+        "conditionalFields": {
+            "additional seats": {
+                "condition": [
+                    "Good",
+                    "Average",
+                    "Poor"
+                ]
+            }
+        }
+    }
+}

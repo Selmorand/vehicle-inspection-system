@@ -1,5 +1,23 @@
 /* Custom Vehicle Inspection System Styles */
 
+/* Global Square Image Styling */
+.square-image, 
+.image-slot, 
+.image-upload-slot, 
+.captured-image {
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+
+/* Ensure all inspection images maintain square aspect ratio */
+.inspection-image,
+.vehicle-image,
+.assessment-image {
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
 /* Brand Colors */
 :root {
     --primary-color: #4f959b;
@@ -23,9 +41,9 @@
 }
 
 .dashboard-header h1 {
-    font-weight: 300;
+    font-weight: 700 !important;
     margin-bottom: 0.5rem;
-    color: white;
+    color: white !important;
 }
 
 .dashboard-header p {
@@ -144,8 +162,8 @@
 }
 
 .recent-reports h2 {
-    color: var(--text-color);
-    font-weight: 600;
+    color: #4f959b !important;
+    font-weight: 600 !important;
     margin-bottom: 1.5rem;
     border-bottom: 3px solid var(--primary-color);
     padding-bottom: 0.5rem;
@@ -191,6 +209,35 @@
 
 body {
     color: var(--text-color);
+}
+
+/* Global heading styles - h1 white, h2-h6 primary color (except text-gradient) */
+h1:not(.text-gradient) {
+    font-weight: bold !important;
+    color: white !important;
+}
+
+h2:not(.text-gradient), h3:not(.text-gradient), h4:not(.text-gradient), h5:not(.text-gradient), h6:not(.text-gradient) {
+    font-weight: bold !important;
+    color: #4f959b !important;
+}
+
+/* Specific heading overrides for consistency (exclude text-gradient as it sets its own weight) */
+h1:not(.text-gradient) {
+    font-weight: 700 !important;
+}
+
+h2:not(.text-gradient) {
+    font-weight: 600 !important;
+}
+
+h3:not(.text-gradient), h4:not(.text-gradient), h5:not(.text-gradient), h6:not(.text-gradient) {
+    font-weight: 600 !important;
+}
+
+/* Override for headings in card headers - keep them white */
+.card-header h1, .card-header h2, .card-header h3, .card-header h4, .card-header h5, .card-header h6 {
+    color: white !important;
 }
 
 /* Navbar styles */
@@ -272,10 +319,12 @@ body {
 
 /* Utility classes */
 .text-gradient {
-    background: linear-gradient(45deg, #007bff, #0056b3);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    background: linear-gradient(45deg, #4f959b, #3a7177) !important;
+    color: white !important; /* White text on gradient background */
+    font-weight: bold !important; /* Ensure gradient headings are also bold */
+    padding: 10px 20px; /* Add some padding around the text */
+    border-radius: 5px; /* Rounded corners for the gradient bar */
+    display: inline-block; /* Make background fit text width */
 }
 
 .shadow-custom {
@@ -416,8 +465,8 @@ body {
 }
 
 .form-section h3 {
-    color: var(--primary-color);
-    font-weight: 600;
+    color: #4f959b !important;
+    font-weight: 600 !important;
     margin-bottom: 20px;
     border-bottom: 2px solid var(--primary-color);
     padding-bottom: 10px;

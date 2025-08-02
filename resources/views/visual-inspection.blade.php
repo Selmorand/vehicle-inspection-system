@@ -6,8 +6,8 @@
 <div class="container">
     <!-- Header -->
     <div class="text-center mb-4">
-        <h1 class="display-5 text-gradient mb-2">AlPHA Inspection</h1>
-        <h2 class="h4" style="color: var(--text-color);">Vehicle Inspection Report</h2>
+        <h1 class="display-5 text-gradient mb-2">ALPHA Inspection</h1>
+        <h2 class="h4">Vehicle Inspection Report</h2>
     </div>
 
     <!-- TODO: Add 'required' attributes back to all form fields before production deployment -->
@@ -166,7 +166,7 @@
             <div class="form-row">
                 <label for="diagnostic_report" class="form-label fw-bold">Diagnostic Report:</label>
                 <textarea class="form-control" id="diagnostic_report" name="diagnostic_report" rows="3" 
-                    placeholder="During the diagnostic report no active messages of the vehicle manufacture or Alpha Inspections."></textarea>
+                    placeholder="During the diagnostic report no active messages of the vehicle manufacture or ALPHA Inspections."></textarea>
             </div>
             
             <!-- File upload for diagnostic report -->
@@ -346,6 +346,9 @@ function saveDraft() {
 }
 
 function continueToNext() {
+    // TESTING: Validation disabled for testing purposes
+    // TODO: Re-enable validation before production
+    /*
     // Basic validation - ensure required fields are filled
     const requiredFields = [
         'inspection_datetime',
@@ -368,6 +371,7 @@ function continueToNext() {
         alert(`Please fill in the following required fields:\n• ${missingFields.join('\n• ')}`);
         return;
     }
+    */
     
     // Store form data in sessionStorage for next section
     const formData = new FormData(document.getElementById('visual-inspection-form'));

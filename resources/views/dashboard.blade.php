@@ -6,7 +6,7 @@
 <div class="container">
     <!-- Dashboard Header -->
     <div class="dashboard-header">
-        <h1 class="display-4">Alpha Vehicle Inspection System</h1>
+        <h1 class="display-4">ALPHA Vehicle Inspection System</h1>
         <p class="lead">Inspector Dashboard</p>
     </div>
 

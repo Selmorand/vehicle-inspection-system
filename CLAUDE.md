@@ -246,3 +246,8 @@ php artisan make:controller ReportController
 - **Images**: kebab-case (front-bumper.png)
 
 Remember: Provide explanations suitable for someone learning Laravel, not assumptions about advanced development knowledge. Always include the "why" behind technical decisions and Laravel-specific concepts.
+# Interior Assessment Module
+- Data source: interior-assessment-data.json
+- Structure: Similar to Body Panel Assessment
+- Dropdown fields: colour, condition
+- Total items: 17 interior components

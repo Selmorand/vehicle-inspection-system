@@ -17,11 +17,11 @@
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="text-center" style="color: var(--primary-color);">Body Panel Assessment</h2>
-            <p class="text-center text-muted">Click on vehicle panels or hover over form labels to highlight areas</p>
-        </div>
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <h1 class="display-5 text-gradient mb-2">ALPHA Inspection</h1>
+        <h2 class="h4">Body Panel Assessment</h2>
+        <p class="text-muted">Click on vehicle panels or hover over form labels to highlight areas</p>
     </div>
 
     <div class="row">
@@ -255,6 +255,8 @@
     background-color: #f8f9fa;
     padding: 0;
     overflow: visible; /* Allow panels to show outside container if needed */
+    /* Create a scaling context for overlays */
+    transform-origin: top left;
 }
 
 /* Base vehicle image - responsive */
@@ -265,11 +267,13 @@
     max-width: 1005px;
 }
 
-/* Panel overlay base styling */
+/* Panel overlay base styling - responsive positioning */
 .panel-overlay {
     cursor: pointer;
     transition: all 0.3s ease;
     opacity: 0; /* Start invisible */
+    position: absolute !important;
+    /* Scale with the base vehicle image */
 }
 
 /* Hover effects for panels - red highlight when hovering (only if no condition set) */
@@ -355,6 +359,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Load previous inspection data if available
     loadPreviousData();
+    
+    // Initialize responsive overlay scaling
+    initializeResponsiveOverlays();
     
     // Panel names for form generation
     const panelNames = [
@@ -553,6 +560,47 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = '/inspection/specific-areas';
     });
 });
+
+// Initialize responsive overlay scaling
+function initializeResponsiveOverlays() {
+    const baseVehicle = document.getElementById('baseVehicle');
+    const vehicleContainer = document.querySelector('.vehicle-container');
+    const overlays = document.querySelectorAll('.panel-overlay');
+    
+    function scaleOverlays() {
+        if (!baseVehicle || overlays.length === 0) return;
+        
+        // Wait for image to load
+        if (baseVehicle.naturalWidth === 0) {
+            setTimeout(scaleOverlays, 100);
+            return;
+        }
+        
+        // Calculate scaling factor based on actual vs natural image size
+        const naturalWidth = 1005; // Original design width
+        const actualWidth = baseVehicle.offsetWidth;
+        const scaleFactor = actualWidth / naturalWidth;
+        
+        // Apply scaling to container and all overlays
+        vehicleContainer.style.transform = `scale(${scaleFactor})`;
+        vehicleContainer.style.transformOrigin = 'top left';
+        vehicleContainer.style.width = `${naturalWidth}px`;
+        vehicleContainer.style.height = `${baseVehicle.naturalHeight}px`;
+        
+        // Adjust container wrapper to account for scaling
+        const scaledHeight = baseVehicle.naturalHeight * scaleFactor;
+        vehicleContainer.parentElement.style.height = `${scaledHeight}px`;
+    }
+    
+    // Scale on load and resize
+    if (baseVehicle.complete) {
+        scaleOverlays();
+    } else {
+        baseVehicle.addEventListener('load', scaleOverlays);
+    }
+    
+    window.addEventListener('resize', scaleOverlays);
+}
 
 // Load previous visual inspection data and display summary
 function loadPreviousData() {
