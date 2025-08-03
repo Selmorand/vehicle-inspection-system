@@ -362,7 +362,7 @@
                 </button>
                 <button type="button" class="btn btn-secondary me-3" id="saveDraftBtn">Save Draft</button>
                 <button type="submit" class="btn btn-primary" id="nextBtn" form="engineCompartmentForm">
-                    Continue to Final Report <i class="bi bi-arrow-right ms-1"></i>
+                    Continue to Physical Hoist Inspection <i class="bi bi-arrow-right ms-1"></i>
                 </button>
             </div>
         </div>
@@ -622,9 +622,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Save the data
         saveCurrentProgress();
         
-        // Navigate to final report section
-        alert('Engine compartment assessment saved! (Final report navigation pending)');
-        // window.location.href = '/inspection/final-report';
+        // Navigate to physical hoist inspection section
+        window.location.href = '/inspection/physical-hoist';
     });
 
     // Navigation button handlers

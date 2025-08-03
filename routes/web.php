@@ -23,6 +23,7 @@ Route::controller(InspectionController::class)->group(function () {
     Route::get('/inspection/tyres-rims', 'tyresRimsAssessment')->name('inspection.tyres-rims');
     Route::get('/inspection/mechanical-report', 'mechanicalReport')->name('inspection.mechanical-report');
     Route::get('/inspection/engine-compartment', 'engineCompartmentAssessment')->name('inspection.engine-compartment');
+    Route::get('/inspection/physical-hoist', 'physicalHoistInspection')->name('inspection.physical-hoist');
     
     // API routes for saving data
     Route::post('/api/inspection/visual', 'saveVisualInspection')->name('api.inspection.visual');
@@ -34,6 +35,7 @@ Route::controller(InspectionController::class)->group(function () {
     Route::post('/api/inspection/tyres-rims', 'saveTyresRimsAssessment')->name('api.inspection.tyres-rims');
     Route::post('/api/inspection/mechanical-report', 'saveMechanicalReport')->name('api.inspection.mechanical-report');
     Route::post('/api/inspection/engine-compartment', 'saveEngineCompartmentAssessment')->name('api.inspection.engine-compartment');
+    Route::post('/api/inspection/physical-hoist', 'savePhysicalHoistInspection')->name('api.inspection.physical-hoist');
     Route::post('/api/inspection/upload-image', 'uploadImage')->name('api.inspection.upload-image');
 });
 

@@ -59,6 +59,11 @@ class InspectionController extends Controller
         return view('engine-compartment-assessment');
     }
 
+    public function physicalHoistInspection()
+    {
+        return view('physical-hoist-inspection');
+    }
+
     public function saveVisualInspection(Request $request)
     {
         // TESTING: All fields made optional for testing navigation
@@ -661,6 +666,70 @@ class InspectionController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error saving engine compartment assessment: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function savePhysicalHoistInspection(Request $request)
+    {
+        $validated = $request->validate([
+            'suspension' => 'nullable|array',
+            'suspension.*.primary_condition' => 'nullable|in:Good,Average,Bad,N/A',
+            'suspension.*.secondary_condition' => 'nullable|in:Good,Average,Bad,N/A',
+            'suspension.*.comments' => 'nullable|string|max:1000',
+            'engine' => 'nullable|array',
+            'engine.*.primary_condition' => 'nullable|in:Good,Average,Bad,N/A',
+            'engine.*.secondary_condition' => 'nullable|in:Good,Average,Bad,N/A',
+            'engine.*.comments' => 'nullable|string|max:1000',
+            'drivetrain' => 'nullable|array',
+            'drivetrain.*.primary_condition' => 'nullable|in:Good,Average,Bad,N/A',
+            'drivetrain.*.secondary_condition' => 'nullable|in:Good,Average,Bad,N/A',
+            'drivetrain.*.comments' => 'nullable|string|max:1000',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Create or find inspection record
+            $inspection = Inspection::firstOrCreate(
+                ['id' => session('current_inspection_id', 1)], // Use session or default for testing
+                [
+                    'client_id' => 1, // Default for testing
+                    'vehicle_id' => 1, // Default for testing
+                    'inspector_name' => 'Default Inspector',
+                    'status' => 'in_progress'
+                ]
+            );
+
+            // Store physical hoist inspection data
+            if (!empty($validated['suspension']) || !empty($validated['engine']) || !empty($validated['drivetrain'])) {
+                $hoistData = [
+                    'suspension' => $validated['suspension'] ?? [],
+                    'engine' => $validated['engine'] ?? [],
+                    'drivetrain' => $validated['drivetrain'] ?? []
+                ];
+                
+                $inspection->update([
+                    'physical_hoist_data' => json_encode($hoistData),
+                    'status' => 'completed', // Mark as completed since this is final section
+                    'completed_at' => now()
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Physical hoist inspection completed successfully',
+                'inspection_id' => $inspection->id
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error saving physical hoist inspection: ' . $e->getMessage()
             ], 500);
         }
     }
