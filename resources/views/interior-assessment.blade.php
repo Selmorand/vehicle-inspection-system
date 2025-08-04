@@ -245,9 +245,9 @@
                             <button type="button" class="btn btn-outline-secondary" id="backBtn">
                                 <i class="bi bi-arrow-left me-1"></i>Back to Specific Areas
                             </button>
-                            <div>
-                                <button type="button" class="btn btn-secondary me-2" id="saveDraftBtn">Save Draft</button>
-                                <button type="submit" class="btn btn-primary" id="nextBtn">
+                            <div class="button-group-responsive">
+                                <button type="button" class="btn btn-secondary me-2 mb-2" id="saveDraftBtn">Save Draft</button>
+                                <button type="submit" class="btn btn-primary mb-2" id="nextBtn">
                                     Continue to Next Section <i class="bi bi-arrow-right ms-1"></i>
                                 </button>
                             </div>
@@ -402,6 +402,37 @@
     .row.g-2 > div {
         margin-bottom: 5px;
     }
+}
+
+/* Button responsive layout for tablets - Interior Assessment */
+@media (max-width: 768px) {
+    .button-group-responsive {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .button-group-responsive .btn {
+        width: 100%;
+        margin-right: 0 !important;
+    }
+    
+    /* Make the button container stack vertically on tablets */
+    .mt-4.d-flex.justify-content-between {
+        flex-direction: column !important;
+        gap: 10px;
+    }
+    
+    #backBtn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+}
+
+/* Ensure 5px margin bottom for Save Draft on all screen sizes */
+#saveDraftBtn {
+    margin-bottom: 5px !important;
 }
 </style>
 @endsection

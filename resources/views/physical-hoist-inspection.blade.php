@@ -1071,7 +1071,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show completion message
         alert('Vehicle inspection completed successfully! All data has been saved.');
         
-        // Redirect to dashboard or report view
+        // Redirect to dashboard
         window.location.href = '/dashboard';
     });
 

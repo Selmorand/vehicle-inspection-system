@@ -106,15 +106,9 @@ git commit -m "change the png for full vehicle"
 git push origin main
 
 ```
+## When I make simple changes
 
-### Step 2: Add to .gitignore
-
-Add this line to your `.gitignore`:
-```
-claude-deployment-config.json
-```
-
-## Daily Workflow with Claude Code
+claude-code "Deploy to staging: commit changes and push to GitHub. My GitHub Actions will automatically deploy to alpha.selpro.co.za. Then check the staging URL to verify deployment."
 
 ### Method 1: Simple Deploy Command
 
