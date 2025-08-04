@@ -1,0 +1,1788 @@
+@extends('layouts.app')
+
+@section('title', 'Mechanical Report')
+
+@section('content')
+<div class="container-fluid px-4">
+    <!-- Progress Breadcrumb -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center">
+                    <li class="breadcrumb-item"><a href="/inspection/visual" style="color: var(--primary-color);">Visual Inspection</a></li>
+                    <li class="breadcrumb-item"><a href="/inspection/body-panel" style="color: var(--primary-color);">Body Panel Assessment</a></li>
+                    <li class="breadcrumb-item"><a href="/inspection/specific-areas" style="color: var(--primary-color);">Specific Area Images</a></li>
+                    <li class="breadcrumb-item"><a href="/inspection/interior" style="color: var(--primary-color);">Interior Assessment</a></li>
+                    <li class="breadcrumb-item"><a href="/inspection/interior-images" style="color: var(--primary-color);">Interior Specific Images</a></li>
+                    <li class="breadcrumb-item"><a href="/inspection/service-booklet" style="color: var(--primary-color);">Service Booklet</a></li>
+                    <li class="breadcrumb-item"><a href="/inspection/tyres-rims" style="color: var(--primary-color);">Tyres & Rims Assessment</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Mechanical Report</li>
+                    <li class="breadcrumb-item text-muted">Final Report</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <h1 class="display-5 text-gradient mb-2">ALPHA Inspection</h1>
+        <h2 class="h4">Mechanical Report</h2>
+        <p class="text-muted">Assess mechanical components and document road test results</p>
+    </div>
+
+    <form id="mechanicalReportForm">
+        @csrf
+        
+        <!-- Road Test Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header" style="background-color: var(--primary-color); color: white;">
+                        <h5 class="mb-0">Road test :</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label fw-bold">Test Distance:</label>
+                                    <input type="text" class="form-control" value="0-5 Km" readonly style="background-color: #f8f9fa;">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label fw-bold">Speed achieved up to:</label>
+                                    <input type="text" class="form-control" value="100 km/h" readonly style="background-color: #f8f9fa;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mechanical Components Assessment -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header" style="background-color: var(--primary-color); color: white;">
+                        <h5 class="mb-0">Mechanical Components Assessment</h5>
+                        <small class="text-light">Select condition for each component - colors will update automatically</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0" id="mechanicalAssessmentTable">
+                                <thead style="background-color: #b8dae0;">
+                                    <tr>
+                                        <th style="width: 40%;" class="text-center">Component</th>
+                                        <th style="width: 20%;" class="text-center">Condition</th>
+                                        <th style="width: 40%;" class="text-center">Comments</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Engine & Performance Group -->
+                                    <tr class="component-row" data-component="final_drive_noise">
+                                        <td class="component-name">Final drive operation (noise)</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="final_drive_noise_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="final_drive_noise_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="instrument_control">
+                                        <td class="component-name">Instrument/control function</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="instrument_control_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="instrument_control_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="road_holding">
+                                        <td class="component-name">Road holding/stability</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="road_holding_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="road_holding_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="gearbox_operation">
+                                        <td class="component-name">Gearbox operation/noise</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="gearbox_operation_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="gearbox_operation_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="clutch_operation">
+                                        <td class="component-name">Clutch operation</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="clutch_operation_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="clutch_operation_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="general_steering">
+                                        <td class="component-name">General steering/handling</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="general_steering_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="general_steering_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="engine_performance">
+                                        <td class="component-name">Engine performance</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="engine_performance_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="engine_performance_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="cooling_fan">
+                                        <td class="component-name">Cooling fan operation</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="cooling_fan_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="cooling_fan_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="footbrake_operation">
+                                        <td class="component-name">Footbrake operation</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="footbrake_operation_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="footbrake_operation_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="engine_noise">
+                                        <td class="component-name">Engine noise</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="engine_noise_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="engine_noise_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="power_steering">
+                                        <td class="component-name">Power steering</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="power_steering_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="power_steering_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="handbrake_operation">
+                                        <td class="component-name">Hand/park brake operation</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="handbrake_operation_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="handbrake_operation_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="excess_smoke">
+                                        <td class="component-name">Excess smoke</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="excess_smoke_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="excess_smoke_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="warning_lights">
+                                        <td class="component-name">Warning lights</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="warning_lights_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="warning_lights_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="overheating">
+                                        <td class="component-name">Overheating</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="overheating_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="overheating_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="auto_changes">
+                                        <td class="component-name">Auto changes/kick-down</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="auto_changes_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="auto_changes_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="4wd_operation">
+                                        <td class="component-name">4WD Operation</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="4wd_operation_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="4wd_operation_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="cruise_control">
+                                        <td class="component-name">Cruise control</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="cruise_control_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="cruise_control_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="airconditioning">
+                                        <td class="component-name">Airconditioning</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="airconditioning_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="airconditioning_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="heating">
+                                        <td class="component-name">Heating</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="heating_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="heating_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="air_suspension">
+                                        <td class="component-name">Air suspension</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="air_suspension_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="air_suspension_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="electric_windows">
+                                        <td class="component-name">Electric windows</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="electric_windows_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="electric_windows_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="sunroof">
+                                        <td class="component-name">Sunroof</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="sunroof_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="sunroof_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="central_locking">
+                                        <td class="component-name">Central locking</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="central_locking_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="central_locking_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="vented_heated_seats">
+                                        <td class="component-name">Vented/heated seats</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="vented_heated_seats_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="vented_heated_seats_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="electronic_seat_adjustments">
+                                        <td class="component-name">Electronic seat adjustments</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="electronic_seat_adjustments_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="electronic_seat_adjustments_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="control_arm_noise">
+                                        <td class="component-name">Control arm (noise)</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="control_arm_noise_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="control_arm_noise_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="brake_noise">
+                                        <td class="component-name">Brake (noise)</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="brake_noise_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="brake_noise_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="suspension_noise">
+                                        <td class="component-name">Suspension (noise)</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="suspension_noise_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="suspension_noise_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="component-row" data-component="oil_leaks">
+                                        <td class="component-name">Oil leaks</td>
+                                        <td class="condition-cell">
+                                            <select class="form-control condition-dropdown" name="oil_leaks_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <textarea class="form-control component-comments" name="oil_leaks_comments" rows="1" placeholder="Add comments if needed..."></textarea>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Braking System Assessment -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header" style="background-color: var(--primary-color); color: white;">
+                        <h5 class="mb-0">Braking system:</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0" id="brakingAssessmentTable">
+                                <thead style="background-color: #b8dae0;">
+                                    <tr>
+                                        <th style="width: 15%;" class="text-center">Position</th>
+                                        <th style="width: 15%;" class="text-center">Brake Pad Life</th>
+                                        <th style="width: 15%;" class="text-center">Pad Condition</th>
+                                        <th style="width: 15%;" class="text-center">Brake Disc Life</th>
+                                        <th style="width: 15%;" class="text-center">Disc Condition</th>
+                                        <th style="width: 25%;" class="text-center">Comments</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Front Left -->
+                                    <tr class="braking-row" data-position="front_left">
+                                        <td class="position-name text-center fw-bold">Front Left</td>
+                                        <td class="pad-life-cell">
+                                            <select class="form-control life-input pad-life" 
+                                                    name="brake_front_left_pad_life">
+                                                <option value="">Select...</option>
+                                                <option value="1.00">100%</option>
+                                                <option value="0.90">90%</option>
+                                                <option value="0.80">80%</option>
+                                                <option value="0.75">75%</option>
+                                                <option value="0.70">70%</option>
+                                                <option value="0.60">60%</option>
+                                                <option value="0.50">50%</option>
+                                                <option value="0.40">40%</option>
+                                                <option value="0.30">30%</option>
+                                                <option value="0.25">25%</option>
+                                                <option value="0.20">20%</option>
+                                                <option value="0.10">10%</option>
+                                                <option value="0.00">0%</option>
+                                            </select>
+                                        </td>
+                                        <td class="pad-condition-cell">
+                                            <select class="form-control brake-condition-dropdown pad-condition" 
+                                                    name="brake_front_left_pad_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="disc-life-cell">
+                                            <select class="form-control life-input disc-life" 
+                                                    name="brake_front_left_disc_life">
+                                                <option value="">Select...</option>
+                                                <option value="1.00">100%</option>
+                                                <option value="0.90">90%</option>
+                                                <option value="0.80">80%</option>
+                                                <option value="0.75">75%</option>
+                                                <option value="0.70">70%</option>
+                                                <option value="0.60">60%</option>
+                                                <option value="0.50">50%</option>
+                                                <option value="0.40">40%</option>
+                                                <option value="0.30">30%</option>
+                                                <option value="0.25">25%</option>
+                                                <option value="0.20">20%</option>
+                                                <option value="0.10">10%</option>
+                                                <option value="0.00">0%</option>
+                                            </select>
+                                        </td>
+                                        <td class="disc-condition-cell">
+                                            <select class="form-control brake-condition-dropdown disc-condition" 
+                                                    name="brake_front_left_disc_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="brake-comments-cell">
+                                            <textarea class="form-control brake-comments" 
+                                                      name="brake_front_left_comments" 
+                                                      rows="1" 
+                                                      placeholder="Add comments..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Front Right -->
+                                    <tr class="braking-row" data-position="front_right">
+                                        <td class="position-name text-center fw-bold">Front Right</td>
+                                        <td class="pad-life-cell">
+                                            <select class="form-control life-input pad-life" 
+                                                    name="brake_front_right_pad_life">
+                                                <option value="">Select...</option>
+                                                <option value="1.00">100%</option>
+                                                <option value="0.90">90%</option>
+                                                <option value="0.80">80%</option>
+                                                <option value="0.75">75%</option>
+                                                <option value="0.70">70%</option>
+                                                <option value="0.60">60%</option>
+                                                <option value="0.50">50%</option>
+                                                <option value="0.40">40%</option>
+                                                <option value="0.30">30%</option>
+                                                <option value="0.25">25%</option>
+                                                <option value="0.20">20%</option>
+                                                <option value="0.10">10%</option>
+                                                <option value="0.00">0%</option>
+                                            </select>
+                                        </td>
+                                        <td class="pad-condition-cell">
+                                            <select class="form-control brake-condition-dropdown pad-condition" 
+                                                    name="brake_front_right_pad_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="disc-life-cell">
+                                            <select class="form-control life-input disc-life" 
+                                                    name="brake_front_right_disc_life">
+                                                <option value="">Select...</option>
+                                                <option value="1.00">100%</option>
+                                                <option value="0.90">90%</option>
+                                                <option value="0.80">80%</option>
+                                                <option value="0.75">75%</option>
+                                                <option value="0.70">70%</option>
+                                                <option value="0.60">60%</option>
+                                                <option value="0.50">50%</option>
+                                                <option value="0.40">40%</option>
+                                                <option value="0.30">30%</option>
+                                                <option value="0.25">25%</option>
+                                                <option value="0.20">20%</option>
+                                                <option value="0.10">10%</option>
+                                                <option value="0.00">0%</option>
+                                            </select>
+                                        </td>
+                                        <td class="disc-condition-cell">
+                                            <select class="form-control brake-condition-dropdown disc-condition" 
+                                                    name="brake_front_right_disc_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="brake-comments-cell">
+                                            <textarea class="form-control brake-comments" 
+                                                      name="brake_front_right_comments" 
+                                                      rows="1" 
+                                                      placeholder="Add comments..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Rear Left -->
+                                    <tr class="braking-row" data-position="rear_left">
+                                        <td class="position-name text-center fw-bold">Rear Left</td>
+                                        <td class="pad-life-cell">
+                                            <select class="form-control life-input pad-life" 
+                                                    name="brake_rear_left_pad_life">
+                                                <option value="">Select...</option>
+                                                <option value="1.00">100%</option>
+                                                <option value="0.90">90%</option>
+                                                <option value="0.80">80%</option>
+                                                <option value="0.75">75%</option>
+                                                <option value="0.70">70%</option>
+                                                <option value="0.60">60%</option>
+                                                <option value="0.50">50%</option>
+                                                <option value="0.40">40%</option>
+                                                <option value="0.30">30%</option>
+                                                <option value="0.25">25%</option>
+                                                <option value="0.20">20%</option>
+                                                <option value="0.10">10%</option>
+                                                <option value="0.00">0%</option>
+                                            </select>
+                                        </td>
+                                        <td class="pad-condition-cell">
+                                            <select class="form-control brake-condition-dropdown pad-condition" 
+                                                    name="brake_rear_left_pad_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="disc-life-cell">
+                                            <select class="form-control life-input disc-life" 
+                                                    name="brake_rear_left_disc_life">
+                                                <option value="">Select...</option>
+                                                <option value="1.00">100%</option>
+                                                <option value="0.90">90%</option>
+                                                <option value="0.80">80%</option>
+                                                <option value="0.75">75%</option>
+                                                <option value="0.70">70%</option>
+                                                <option value="0.60">60%</option>
+                                                <option value="0.50">50%</option>
+                                                <option value="0.40">40%</option>
+                                                <option value="0.30">30%</option>
+                                                <option value="0.25">25%</option>
+                                                <option value="0.20">20%</option>
+                                                <option value="0.10">10%</option>
+                                                <option value="0.00">0%</option>
+                                            </select>
+                                        </td>
+                                        <td class="disc-condition-cell">
+                                            <select class="form-control brake-condition-dropdown disc-condition" 
+                                                    name="brake_rear_left_disc_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="brake-comments-cell">
+                                            <textarea class="form-control brake-comments" 
+                                                      name="brake_rear_left_comments" 
+                                                      rows="1" 
+                                                      placeholder="Add comments..."></textarea>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Rear Right -->
+                                    <tr class="braking-row" data-position="rear_right">
+                                        <td class="position-name text-center fw-bold">Rear Right</td>
+                                        <td class="pad-life-cell">
+                                            <select class="form-control life-input pad-life" 
+                                                    name="brake_rear_right_pad_life">
+                                                <option value="">Select...</option>
+                                                <option value="1.00">100%</option>
+                                                <option value="0.90">90%</option>
+                                                <option value="0.80">80%</option>
+                                                <option value="0.75">75%</option>
+                                                <option value="0.70">70%</option>
+                                                <option value="0.60">60%</option>
+                                                <option value="0.50">50%</option>
+                                                <option value="0.40">40%</option>
+                                                <option value="0.30">30%</option>
+                                                <option value="0.25">25%</option>
+                                                <option value="0.20">20%</option>
+                                                <option value="0.10">10%</option>
+                                                <option value="0.00">0%</option>
+                                            </select>
+                                        </td>
+                                        <td class="pad-condition-cell">
+                                            <select class="form-control brake-condition-dropdown pad-condition" 
+                                                    name="brake_rear_right_pad_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="disc-life-cell">
+                                            <select class="form-control life-input disc-life" 
+                                                    name="brake_rear_right_disc_life">
+                                                <option value="">Select...</option>
+                                                <option value="1.00">100%</option>
+                                                <option value="0.90">90%</option>
+                                                <option value="0.80">80%</option>
+                                                <option value="0.75">75%</option>
+                                                <option value="0.70">70%</option>
+                                                <option value="0.60">60%</option>
+                                                <option value="0.50">50%</option>
+                                                <option value="0.40">40%</option>
+                                                <option value="0.30">30%</option>
+                                                <option value="0.25">25%</option>
+                                                <option value="0.20">20%</option>
+                                                <option value="0.10">10%</option>
+                                                <option value="0.00">0%</option>
+                                            </select>
+                                        </td>
+                                        <td class="disc-condition-cell">
+                                            <select class="form-control brake-condition-dropdown disc-condition" 
+                                                    name="brake_rear_right_disc_condition">
+                                                <option value="">Select...</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Average">Average</option>
+                                                <option value="Bad">Bad</option>
+                                                <option value="N/A">N/A</option>
+                                            </select>
+                                        </td>
+                                        <td class="brake-comments-cell">
+                                            <textarea class="form-control brake-comments" 
+                                                      name="brake_rear_right_comments" 
+                                                      rows="1" 
+                                                      placeholder="Add comments..."></textarea>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Braking System Summary -->
+                        <div class="p-3 border-top">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <small class="text-muted">Average Pad Life</small>
+                                        <div class="h5 mb-0" id="avgPadLife">--%</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <small class="text-muted">Average Disc Life</small>
+                                        <div class="h5 mb-0" id="avgDiscLife">--%</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <small class="text-muted">Overall Status</small>
+                                        <div class="h5 mb-0" id="brakingStatus">
+                                            <span class="badge bg-secondary">Not Assessed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Braking System Disclaimer -->
+                        <div class="alert alert-warning m-3 mt-0">
+                            <p class="mb-0" style="font-size: 0.9em;">
+                                <strong>Although the visible brake discs and pads only show some signs of general serviceable wear, it is strongly advised to remove all road wheels and examine the inner brake components, which are obscured on this vehicle prior to purchase, replacing any worn or badly corroded parts.</strong>
+                            </p>
+                            <p class="mb-0 mt-2" style="font-size: 0.9em;">
+                                <strong>If this vehicle is fitted with an electronic parking brake, please ensure that you are conversant with its operation.</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Action buttons -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <button type="button" class="btn btn-outline-secondary me-3" id="backBtn">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Tyres & Rims
+                </button>
+                <button type="button" class="btn btn-secondary me-3" id="saveDraftBtn">Save Draft</button>
+                <button type="submit" class="btn btn-primary" id="nextBtn" form="mechanicalReportForm">
+                    Continue to Engine Compartment <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+@endsection
+
+@section('additional-css')
+<style>
+/* Mechanical Assessment Table Styling */
+.table th {
+    font-weight: 600;
+    color: var(--text-color);
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 12px 8px;
+}
+
+.component-name {
+    font-weight: 500;
+    background-color: #f8f9fa;
+}
+
+/* Condition Dropdown Color Coding */
+.condition-dropdown.condition-good {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.condition-dropdown.condition-average {
+    background-color: #ffc107;
+    color: black;
+    border-color: #ffc107;
+}
+
+.condition-dropdown.condition-bad {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.condition-dropdown.condition-na {
+    background-color: #6c757d;
+    color: white;
+    border-color: #6c757d;
+}
+
+/* Comments field styling */
+.component-comments {
+    transition: all 0.3s ease;
+    min-height: 38px;
+    resize: vertical;
+}
+
+.component-comments.required {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+.component-comments:focus {
+    box-shadow: 0 0 0 0.2rem rgba(79, 149, 155, 0.25);
+    border-color: var(--primary-color);
+}
+
+/* Row highlighting for N/A selections */
+.component-row.disabled {
+    opacity: 0.6;
+    background-color: #f8f9fa;
+}
+
+.component-row.disabled .component-comments {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* Progress indicator styling */
+.progress {
+    background-color: #e9ecef;
+    border-radius: 4px;
+}
+
+/* Responsive design for tablets and mobile */
+@media (max-width: 991px) {
+    .table-responsive {
+        font-size: 14px;
+    }
+    
+    .table td, .table th {
+        padding: 8px 6px;
+    }
+    
+    .condition-dropdown {
+        font-size: 13px;
+    }
+    
+    .component-comments {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .table {
+        font-size: 12px;
+    }
+    
+    .table td, .table th {
+        padding: 6px 4px;
+    }
+    
+    .condition-dropdown {
+        font-size: 12px;
+        padding: 4px 6px;
+    }
+    
+    .component-comments {
+        font-size: 12px;
+        padding: 4px 6px;
+    }
+}
+
+/* Alert styling */
+.alert-info {
+    background-color: #e8f4f8;
+    border-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+/* Braking System Assessment Styling */
+#brakingAssessmentTable th {
+    font-size: 14px;
+}
+
+.braking-row td {
+    vertical-align: middle;
+}
+
+.position-name {
+    background-color: #f8f9fa;
+}
+
+/* Life Input Styling */
+.life-input {
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+/* Life value color coding */
+.life-input.life-good {
+    background-color: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.life-input.life-average {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.life-input.life-bad {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+/* Brake condition dropdown styling */
+.brake-condition-dropdown {
+    transition: all 0.3s ease;
+}
+
+.brake-condition-dropdown.condition-good {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.brake-condition-dropdown.condition-average {
+    background-color: #ffc107;
+    color: black;
+    border-color: #ffc107;
+}
+
+.brake-condition-dropdown.condition-bad {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.brake-condition-dropdown.condition-na {
+    background-color: transparent;
+    color: #6c757d;
+    border-color: #ced4da;
+}
+
+/* Brake comments styling */
+.brake-comments {
+    transition: all 0.3s ease;
+    min-height: 38px;
+    resize: vertical;
+}
+
+.brake-comments.required {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+    box-shadow: 0 0 0 0.1rem rgba(220, 53, 69, 0.25);
+}
+
+.brake-comments:focus {
+    box-shadow: 0 0 0 0.2rem rgba(79, 149, 155, 0.25);
+    border-color: var(--primary-color);
+}
+
+/* Summary section styling */
+#avgPadLife, #avgDiscLife {
+    font-weight: 600;
+}
+
+#avgPadLife.life-good, #avgDiscLife.life-good {
+    color: #28a745;
+}
+
+#avgPadLife.life-average, #avgDiscLife.life-average {
+    color: #ffc107;
+}
+
+#avgPadLife.life-bad, #avgDiscLife.life-bad {
+    color: #dc3545;
+}
+
+/* Warning alert styling */
+.alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+    #brakingAssessmentTable {
+        font-size: 13px;
+    }
+    
+    .life-input, .brake-condition-dropdown {
+        font-size: 12px;
+        padding: 4px 6px;
+    }
+}
+
+@media (max-width: 768px) {
+    #brakingAssessmentTable th {
+        font-size: 12px;
+        padding: 6px 4px;
+    }
+    
+    .position-name {
+        font-size: 12px;
+    }
+    
+    .brake-comments {
+        font-size: 12px;
+    }
+}
+</style>
+@endsection
+
+@section('additional-js')
+<script>
+// Mechanical report data storage
+let mechanicalReportData = {
+    roadTest: {
+        testDistance: "0-5 Km",
+        speedAchieved: "100 km/h"
+    },
+    components: {}
+};
+
+let totalComponents = 30;
+let assessedComponents = 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Load previous inspection data if available
+    loadPreviousData();
+    
+    // Initialize condition dropdowns
+    initializeConditionDropdowns();
+    
+
+    // Form submission handler
+    document.getElementById('mechanicalReportForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Save the mechanical report data
+        saveCurrentProgress();
+        
+        // Navigate to engine compartment section
+        window.location.href = '/inspection/engine-compartment';
+    });
+
+    // Navigation button handlers
+    document.getElementById('backBtn').addEventListener('click', function() {
+        // Save current progress before going back
+        saveCurrentProgress();
+        window.location.href = '/inspection/tyres-rims';
+    });
+
+    document.getElementById('saveDraftBtn').addEventListener('click', function() {
+        saveCurrentProgress();
+        alert('Mechanical report draft saved successfully!');
+    });
+});
+
+function initializeConditionDropdowns() {
+    const conditionDropdowns = document.querySelectorAll('.condition-dropdown');
+    
+    conditionDropdowns.forEach(dropdown => {
+        dropdown.addEventListener('change', function() {
+            const row = this.closest('.component-row');
+            const component = row.dataset.component;
+            const condition = this.value;
+            const commentsField = row.querySelector('.component-comments');
+            
+            // Update dropdown styling based on condition
+            updateConditionStyling(this, condition);
+            
+            // Handle comments field visibility and requirements
+            handleCommentsField(commentsField, condition);
+            
+            // Store the assessment data
+            if (condition) {
+                mechanicalReportData.components[component] = {
+                    condition: condition,
+                    comments: commentsField.value
+                };
+            } else {
+                delete mechanicalReportData.components[component];
+            }
+            
+        });
+    });
+    
+    // Add listeners to comments fields
+    const commentsFields = document.querySelectorAll('.component-comments');
+    commentsFields.forEach(field => {
+        field.addEventListener('input', function() {
+            const row = this.closest('.component-row');
+            const component = row.dataset.component;
+            
+            if (mechanicalReportData.components[component]) {
+                mechanicalReportData.components[component].comments = this.value;
+            }
+        });
+    });
+}
+
+function updateConditionStyling(dropdown, condition) {
+    // Remove all condition classes
+    dropdown.classList.remove('condition-good', 'condition-average', 'condition-bad', 'condition-na');
+    
+    // Add appropriate class based on condition
+    if (condition === 'Good') {
+        dropdown.classList.add('condition-good');
+    } else if (condition === 'Average') {
+        dropdown.classList.add('condition-average');
+    } else if (condition === 'Bad') {
+        dropdown.classList.add('condition-bad');
+    } else if (condition === 'N/A') {
+        dropdown.classList.add('condition-na');
+    }
+}
+
+function handleCommentsField(commentsField, condition) {
+    const row = commentsField.closest('.component-row');
+    
+    if (condition === 'Bad') {
+        // Make comments field required and highlighted for Bad condition
+        commentsField.classList.add('required');
+        commentsField.setAttribute('placeholder', 'Comments required for Bad condition...');
+        commentsField.focus();
+        row.classList.remove('disabled');
+    } else if (condition === 'Average') {
+        // Comments field available but not required for Average
+        commentsField.classList.remove('required');
+        commentsField.setAttribute('placeholder', 'Add comments if needed...');
+        row.classList.remove('disabled');
+    } else if (condition === 'Good') {
+        // Comments field available but not highlighted for Good
+        commentsField.classList.remove('required');
+        commentsField.setAttribute('placeholder', 'Add comments if needed...');
+        row.classList.remove('disabled');
+    } else if (condition === 'N/A') {
+        // Disable comments field for N/A
+        commentsField.classList.remove('required');
+        commentsField.setAttribute('placeholder', 'Not applicable');
+        commentsField.value = '';
+        row.classList.add('disabled');
+    } else {
+        // Default state
+        commentsField.classList.remove('required');
+        commentsField.setAttribute('placeholder', 'Add comments if needed...');
+        row.classList.remove('disabled');
+    }
+}
+
+
+function validateMechanicalAssessment() {
+    // All validations removed for testing
+    return true;
+}
+
+// Load previous inspection data and display summary
+function loadPreviousData() {
+    const visualData = sessionStorage.getItem('visualInspectionData');
+    if (visualData) {
+        const data = JSON.parse(visualData);
+        
+        // Display inspection summary at top of page
+        displayInspectionSummary(data);
+        
+        // Load any existing mechanical report data
+        const mechanicalData = sessionStorage.getItem('mechanicalReportData');
+        if (mechanicalData) {
+            restoreMechanicalAssessments(JSON.parse(mechanicalData));
+        }
+    }
+}
+
+// Display summary of inspection data
+function displayInspectionSummary(data) {
+    const breadcrumbContainer = document.querySelector('.breadcrumb').parentElement.parentElement;
+    const summaryDiv = document.createElement('div');
+    summaryDiv.className = 'row mb-3';
+    summaryDiv.innerHTML = `
+        <div class="col-12">
+            <div class="alert alert-info">
+                <strong>Inspection Details:</strong>
+                ${data.manufacturer} ${data.model} (${data.vehicle_type}) | 
+                VIN: ${data.vin} | 
+                Inspector: ${data.inspector_name} |
+                Progress: Visual ✓ | Body Panels ✓ | Specific Areas ✓ | Interior Assessment ✓ | Interior Images ✓ | Service Booklet ✓ | Tyres & Rims ✓ | Mechanical Report
+            </div>
+        </div>
+    `;
+    breadcrumbContainer.parentNode.insertBefore(summaryDiv, breadcrumbContainer.nextSibling);
+}
+
+// Save current mechanical report progress
+function saveCurrentProgress() {
+    const formData = new FormData(document.getElementById('mechanicalReportForm'));
+    const updatedData = { ...mechanicalReportData };
+    
+    // Update components with current form values
+    Object.keys(updatedData.components).forEach(component => {
+        const conditionValue = formData.get(`${component}_condition`);
+        const commentsValue = formData.get(`${component}_comments`);
+        
+        if (conditionValue) {
+            updatedData.components[component] = {
+                condition: conditionValue,
+                comments: commentsValue || ''
+            };
+        }
+    });
+    
+    sessionStorage.setItem('mechanicalReportData', JSON.stringify(updatedData));
+}
+
+// Restore previous mechanical assessments
+function restoreMechanicalAssessments(data) {
+    mechanicalReportData = data;
+    
+    // Restore component assessments
+    Object.keys(data.components).forEach(component => {
+        const componentData = data.components[component];
+        const conditionSelect = document.querySelector(`[name="${component}_condition"]`);
+        const commentsField = document.querySelector(`[name="${component}_comments"]`);
+        
+        if (conditionSelect && componentData.condition) {
+            conditionSelect.value = componentData.condition;
+            updateConditionStyling(conditionSelect, componentData.condition);
+            handleCommentsField(commentsField, componentData.condition);
+        }
+        
+        if (commentsField && componentData.comments) {
+            commentsField.value = componentData.comments;
+        }
+    });
+}
+
+// Initialize braking system assessment
+initializeBrakingSystem();
+
+function initializeBrakingSystem() {
+    // Add braking data structure
+    mechanicalReportData.brakingSystem = {
+        front_left: { padLife: '', padCondition: '', discLife: '', discCondition: '', comments: '' },
+        front_right: { padLife: '', padCondition: '', discLife: '', discCondition: '', comments: '' },
+        rear_left: { padLife: '', padCondition: '', discLife: '', discCondition: '', comments: '' },
+        rear_right: { padLife: '', padCondition: '', discLife: '', discCondition: '', comments: '' }
+    };
+    
+    // Initialize life inputs (now dropdowns)
+    const lifeInputs = document.querySelectorAll('.life-input');
+    lifeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            handleLifeInput(this);
+        });
+    });
+    
+    // Initialize brake condition dropdowns
+    const brakeConditionDropdowns = document.querySelectorAll('.brake-condition-dropdown');
+    brakeConditionDropdowns.forEach(dropdown => {
+        dropdown.addEventListener('change', function() {
+            handleBrakeConditionChange(this);
+        });
+    });
+    
+    // Initialize brake comments
+    const brakeComments = document.querySelectorAll('.brake-comments');
+    brakeComments.forEach(comment => {
+        comment.addEventListener('input', function() {
+            handleBrakeCommentChange(this);
+        });
+    });
+}
+
+function handleLifeInput(input) {
+    const value = parseFloat(input.value);
+    const row = input.closest('.braking-row');
+    const position = row.dataset.position;
+    const isPad = input.classList.contains('pad-life');
+    const component = isPad ? 'pad' : 'disc';
+    
+    // Remove existing life classes
+    input.classList.remove('life-good', 'life-average', 'life-bad');
+    
+    // Apply color coding based on value
+    if (!isNaN(value) && value >= 0 && value <= 1) {
+        if (value >= 0.75) {
+            input.classList.add('life-good');
+            suggestCondition(row, component, 'Good');
+        } else if (value >= 0.25) {
+            input.classList.add('life-average');
+            suggestCondition(row, component, 'Average');
+        } else {
+            input.classList.add('life-bad');
+            suggestCondition(row, component, 'Bad');
+            highlightComments(row);
+        }
+        
+        // Store the value
+        mechanicalReportData.brakingSystem[position][component + 'Life'] = value;
+    } else if (input.value === '') {
+        // Clear stored value if empty
+        mechanicalReportData.brakingSystem[position][component + 'Life'] = '';
+    }
+    
+    // Update summary
+    updateBrakingSummary();
+    
+    // Check for mismatched left/right values
+    checkSymmetry();
+}
+
+function suggestCondition(row, component, suggestedCondition) {
+    const conditionDropdown = row.querySelector(`.${component}-condition`);
+    if (conditionDropdown && !conditionDropdown.value) {
+        // Only suggest if no condition is already selected
+        conditionDropdown.value = suggestedCondition;
+        updateBrakeConditionStyling(conditionDropdown, suggestedCondition);
+        
+        // Store the suggested condition
+        const position = row.dataset.position;
+        mechanicalReportData.brakingSystem[position][component + 'Condition'] = suggestedCondition;
+    }
+}
+
+function handleBrakeConditionChange(dropdown) {
+    const row = dropdown.closest('.braking-row');
+    const position = row.dataset.position;
+    const isPad = dropdown.classList.contains('pad-condition');
+    const component = isPad ? 'pad' : 'disc';
+    const condition = dropdown.value;
+    
+    // Update styling
+    updateBrakeConditionStyling(dropdown, condition);
+    
+    // Handle comments field
+    const commentsField = row.querySelector('.brake-comments');
+    if (condition === 'Bad') {
+        highlightComments(row);
+    } else if (condition === 'Average') {
+        commentsField.classList.remove('required');
+        commentsField.setAttribute('placeholder', 'Add comments if needed...');
+    } else {
+        commentsField.classList.remove('required');
+        commentsField.setAttribute('placeholder', 'Add comments...');
+    }
+    
+    // Store the condition
+    mechanicalReportData.brakingSystem[position][component + 'Condition'] = condition;
+    
+    // Update summary
+    updateBrakingSummary();
+}
+
+function updateBrakeConditionStyling(dropdown, condition) {
+    // Remove all condition classes
+    dropdown.classList.remove('condition-good', 'condition-average', 'condition-bad', 'condition-na');
+    
+    // Add appropriate class
+    if (condition === 'Good') {
+        dropdown.classList.add('condition-good');
+    } else if (condition === 'Average') {
+        dropdown.classList.add('condition-average');
+    } else if (condition === 'Bad') {
+        dropdown.classList.add('condition-bad');
+    } else if (condition === 'N/A') {
+        dropdown.classList.add('condition-na');
+    }
+}
+
+function highlightComments(row) {
+    const commentsField = row.querySelector('.brake-comments');
+    commentsField.classList.add('required');
+    commentsField.setAttribute('placeholder', 'Comments required for low brake life or Bad condition...');
+    commentsField.focus();
+}
+
+function handleBrakeCommentChange(textarea) {
+    const row = textarea.closest('.braking-row');
+    const position = row.dataset.position;
+    
+    // Store the comment
+    mechanicalReportData.brakingSystem[position].comments = textarea.value;
+}
+
+function updateBrakingSummary() {
+    // Calculate average pad life
+    let totalPadLife = 0;
+    let padCount = 0;
+    
+    // Calculate average disc life
+    let totalDiscLife = 0;
+    let discCount = 0;
+    
+    // Check overall status
+    let hasWarning = false;
+    let hasCritical = false;
+    
+    Object.keys(mechanicalReportData.brakingSystem).forEach(position => {
+        const data = mechanicalReportData.brakingSystem[position];
+        
+        if (data.padLife !== '') {
+            totalPadLife += parseFloat(data.padLife);
+            padCount++;
+            
+            if (data.padLife < 0.25 || data.padCondition === 'Bad') {
+                hasCritical = true;
+            } else if (data.padLife < 0.5 || data.padCondition === 'Average') {
+                hasWarning = true;
+            }
+        }
+        
+        if (data.discLife !== '') {
+            totalDiscLife += parseFloat(data.discLife);
+            discCount++;
+            
+            if (data.discLife < 0.25 || data.discCondition === 'Bad') {
+                hasCritical = true;
+            } else if (data.discLife < 0.5 || data.discCondition === 'Average') {
+                hasWarning = true;
+            }
+        }
+    });
+    
+    // Update average pad life display
+    const avgPadLifeEl = document.getElementById('avgPadLife');
+    if (padCount > 0) {
+        const avgPad = totalPadLife / padCount;
+        avgPadLifeEl.textContent = Math.round(avgPad * 100) + '%';
+        avgPadLifeEl.classList.remove('life-good', 'life-average', 'life-bad');
+        
+        if (avgPad >= 0.75) {
+            avgPadLifeEl.classList.add('life-good');
+        } else if (avgPad >= 0.25) {
+            avgPadLifeEl.classList.add('life-average');
+        } else {
+            avgPadLifeEl.classList.add('life-bad');
+        }
+    } else {
+        avgPadLifeEl.textContent = '--%';
+        avgPadLifeEl.classList.remove('life-good', 'life-average', 'life-bad');
+    }
+    
+    // Update average disc life display
+    const avgDiscLifeEl = document.getElementById('avgDiscLife');
+    if (discCount > 0) {
+        const avgDisc = totalDiscLife / discCount;
+        avgDiscLifeEl.textContent = Math.round(avgDisc * 100) + '%';
+        avgDiscLifeEl.classList.remove('life-good', 'life-average', 'life-bad');
+        
+        if (avgDisc >= 0.75) {
+            avgDiscLifeEl.classList.add('life-good');
+        } else if (avgDisc >= 0.25) {
+            avgDiscLifeEl.classList.add('life-average');
+        } else {
+            avgDiscLifeEl.classList.add('life-bad');
+        }
+    } else {
+        avgDiscLifeEl.textContent = '--%';
+        avgDiscLifeEl.classList.remove('life-good', 'life-average', 'life-bad');
+    }
+    
+    // Update overall status
+    const statusEl = document.getElementById('brakingStatus');
+    if (hasCritical) {
+        statusEl.innerHTML = '<span class="badge bg-danger">Critical - Immediate Attention</span>';
+    } else if (hasWarning) {
+        statusEl.innerHTML = '<span class="badge bg-warning text-dark">Warning - Service Soon</span>';
+    } else if (padCount > 0 || discCount > 0) {
+        statusEl.innerHTML = '<span class="badge bg-success">Good Condition</span>';
+    } else {
+        statusEl.innerHTML = '<span class="badge bg-secondary">Not Assessed</span>';
+    }
+}
+
+function checkSymmetry() {
+    // Check for significant differences between left and right sides
+    const positions = ['front', 'rear'];
+    
+    positions.forEach(pos => {
+        const leftData = mechanicalReportData.brakingSystem[pos + '_left'];
+        const rightData = mechanicalReportData.brakingSystem[pos + '_right'];
+        
+        // Check pad life symmetry
+        if (leftData.padLife !== '' && rightData.padLife !== '') {
+            const diff = Math.abs(parseFloat(leftData.padLife) - parseFloat(rightData.padLife));
+            if (diff > 0.2) {
+                // Show warning for asymmetric wear
+                const leftRow = document.querySelector(`[data-position="${pos}_left"]`);
+                const rightRow = document.querySelector(`[data-position="${pos}_right"]`);
+                
+                if (leftRow && rightRow) {
+                    const leftComments = leftRow.querySelector('.brake-comments');
+                    const rightComments = rightRow.querySelector('.brake-comments');
+                    
+                    if (!leftComments.value.includes('asymmetric wear')) {
+                        leftComments.setAttribute('placeholder', 'Warning: Asymmetric wear detected between left/right');
+                    }
+                    if (!rightComments.value.includes('asymmetric wear')) {
+                        rightComments.setAttribute('placeholder', 'Warning: Asymmetric wear detected between left/right');
+                    }
+                }
+            }
+        }
+        
+        // Check disc life symmetry
+        if (leftData.discLife !== '' && rightData.discLife !== '') {
+            const diff = Math.abs(parseFloat(leftData.discLife) - parseFloat(rightData.discLife));
+            if (diff > 0.2) {
+                // Show warning for asymmetric wear
+                const leftRow = document.querySelector(`[data-position="${pos}_left"]`);
+                const rightRow = document.querySelector(`[data-position="${pos}_right"]`);
+                
+                if (leftRow && rightRow) {
+                    const leftComments = leftRow.querySelector('.brake-comments');
+                    const rightComments = rightRow.querySelector('.brake-comments');
+                    
+                    if (!leftComments.value.includes('asymmetric wear')) {
+                        leftComments.setAttribute('placeholder', 'Warning: Asymmetric disc wear detected');
+                    }
+                    if (!rightComments.value.includes('asymmetric wear')) {
+                        rightComments.setAttribute('placeholder', 'Warning: Asymmetric disc wear detected');
+                    }
+                }
+            }
+        }
+    });
+}
+
+// All braking validations removed for testing
+
+// Modify saveCurrentProgress to include braking data
+const originalSaveProgress = saveCurrentProgress;
+saveCurrentProgress = function() {
+    originalSaveProgress();
+    
+    // Save braking system data
+    const brakingData = { ...mechanicalReportData.brakingSystem };
+    
+    // Get current form values
+    Object.keys(brakingData).forEach(position => {
+        const padLifeInput = document.querySelector(`[name="brake_${position}_pad_life"]`);
+        const padConditionSelect = document.querySelector(`[name="brake_${position}_pad_condition"]`);
+        const discLifeInput = document.querySelector(`[name="brake_${position}_disc_life"]`);
+        const discConditionSelect = document.querySelector(`[name="brake_${position}_disc_condition"]`);
+        const commentsTextarea = document.querySelector(`[name="brake_${position}_comments"]`);
+        
+        if (padLifeInput) brakingData[position].padLife = padLifeInput.value;
+        if (padConditionSelect) brakingData[position].padCondition = padConditionSelect.value;
+        if (discLifeInput) brakingData[position].discLife = discLifeInput.value;
+        if (discConditionSelect) brakingData[position].discCondition = discConditionSelect.value;
+        if (commentsTextarea) brakingData[position].comments = commentsTextarea.value;
+    });
+    
+    mechanicalReportData.brakingSystem = brakingData;
+    sessionStorage.setItem('mechanicalReportData', JSON.stringify(mechanicalReportData));
+};
+
+// Restore braking data if available
+if (mechanicalReportData.brakingSystem) {
+    Object.keys(mechanicalReportData.brakingSystem).forEach(position => {
+        const data = mechanicalReportData.brakingSystem[position];
+        
+        // Restore pad life
+        if (data.padLife !== '') {
+            const padLifeInput = document.querySelector(`[name="brake_${position}_pad_life"]`);
+            if (padLifeInput) {
+                padLifeInput.value = data.padLife;
+                handleLifeInput(padLifeInput);
+            }
+        }
+        
+        // Restore pad condition
+        if (data.padCondition) {
+            const padConditionSelect = document.querySelector(`[name="brake_${position}_pad_condition"]`);
+            if (padConditionSelect) {
+                padConditionSelect.value = data.padCondition;
+                updateBrakeConditionStyling(padConditionSelect, data.padCondition);
+            }
+        }
+        
+        // Restore disc life
+        if (data.discLife !== '') {
+            const discLifeInput = document.querySelector(`[name="brake_${position}_disc_life"]`);
+            if (discLifeInput) {
+                discLifeInput.value = data.discLife;
+                handleLifeInput(discLifeInput);
+            }
+        }
+        
+        // Restore disc condition
+        if (data.discCondition) {
+            const discConditionSelect = document.querySelector(`[name="brake_${position}_disc_condition"]`);
+            if (discConditionSelect) {
+                discConditionSelect.value = data.discCondition;
+                updateBrakeConditionStyling(discConditionSelect, data.discCondition);
+            }
+        }
+        
+        // Restore comments
+        if (data.comments) {
+            const commentsTextarea = document.querySelector(`[name="brake_${position}_comments"]`);
+            if (commentsTextarea) {
+                commentsTextarea.value = data.comments;
+            }
+        }
+    });
+    
+    // Update summary
+    updateBrakingSummary();
+}
+</script>
+@endsection

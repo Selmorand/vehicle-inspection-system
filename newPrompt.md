@@ -1,253 +1,362 @@
-# Claude Code Prompt: Engine Compartment Assessment Section Implementation
+# Claude Code Prompt: Physical Hoist Inspection - Final Assessment Section
 
 ## Context
-I need you to implement an **Engine Compartment Assessment** section as a new page/section of our vehicle inspection system. This section combines **narrative inspection findings**, **photographic documentation with captions**, and **component condition assessments** with color-coded dropdowns.
+I need you to implement the **Physical Hoist Inspection** section as the **final page/section** of our vehicle inspection system. This is a comprehensive under-vehicle assessment that concludes the entire inspection process and **requires saving all data to the database** upon completion.
 
-## Data Structure from Excel (Rows 205-233)
-Based on the Excel extraction, create a comprehensive engine compartment assessment with three main components.
+## Data Structure from Excel (Rows 234-265)
+Based on the Excel extraction, create a comprehensive hoist inspection with three main assessment categories and a total of 26 components.
 
-### Section: Engine Compartment Assessment (New Page)
+### Section: Physical Hoist Inspection (Final Page)
 
-## Part 1: Inspection Findings & Observations
+## Assessment Categories
 
-**Pre-defined inspection findings** (checkboxes with text areas for additional details):
+### **Category 1: Suspension System (11 Components)**
+**Shock Absorbers & Leaks:**
+- LF Shock leaks
+- RF Shock leaks  
+- LR Shock leaks
+- RR Shock leaks
 
-1. **Engine Number Verification**
-   - ☐ Engine number verification: "not possible to verify engine number (not visible without dismantling)"
-   - Additional notes: [text area]
+**Shock Mounts:**
+- LF Shock mounts
+- RF Shock mounts
+- LR Shock mounts
+- RR Shock mounts
 
-2. **General Engine Compartment Inspection**
-   - ☐ "During the inspection of the Engine Compartment, no deficiencies were detected"
-   - ☐ "During the inspection no structural damage was visible/found"
-   - Additional findings: [text area]
+**Control Arms:**
+- LF Control arm cracks
+- RF Control arm cracks
+- LF control arm play
+- RF control arm play
 
-3. **Component Presence Assessment**
-   - ☐ "Engine covers are partially present"
-   - ☐ "Undercarriage was not present on the vehicle, replacement suggested"
-   - ☐ "Engine covers not present at all"
-   - ☐ "Previous repairs/damages has been found on headlights/headlight brackets"
-   - ☐ "All fenderliners were present during the inspection but damages has been found"
-   - Additional observations: [text area]
+### **Category 2: Engine System (10 Components)**
+**Engine & Mounting:**
+- Engine mountings
+- Engine oil viscosity
+- Engine oil level
 
-## Part 2: Photographic Documentation
+**Gearbox:**
+- Gearbox mountings
+- Gearbox oil viscosity
+- Gearbox oil level
 
-**Image Capture Section** (Similar to Service Booklet Images):
-- **Maximum 16 images** with tablet camera capture
-- **5 images per row** layout (3-4 rows total)
-- **Caption functionality** for each image (max 100 characters per caption)
-- **Image categories** with suggested captions:
+**Seals & Covers:**
+- Timing cover
+- Sump
+- Side shafts
+- Front main seal
+- Rear main seal
 
-**Suggested Image Categories:**
-1. **Engine Overview** - "General engine compartment view"
-2. **Engine Number** - "Engine number location (if visible)"
-3. **Engine Covers** - "Engine cover condition/presence"
-4. **Fluid Levels** - "Brake fluid, coolant, oil levels"
-5. **Belts & Hoses** - "Fan belt and hose condition"
-6. **Electrical Components** - "Battery, wiring, connections"
-7. **Structural Elements** - "Engine mounts, brackets, frames"
-8. **Damage Areas** - "Any identified damage or repairs"
-9. **Fender Liners** - "Fender liner condition"
-10. **Headlight Areas** - "Headlight brackets and surroundings"
-11. **Additional Findings** - "Other notable observations"
+### **Category 3: Drivetrain System (5 Components)**
+**CV Joints & Shafts:**
+- LF CV joint
+- RF CV joint
+- Propshaft
 
-**Image Functionality:**
-- **Camera capture** directly from tablet camera
-- **Image preview** with delete/retake option
-- **Drag-to-reorder** images
-- **Caption input** beneath each image
-- **Auto-timestamp** when image is captured
-- **Compression** for storage efficiency
-
-## Part 3: Engine Component Overview Check
-
-**Component Assessment Table:**
-
-| Engine Component | Condition | Comments |
-|------------------|-----------|----------|
-| Brakefluid cleanliness | [Dropdown] | [Text area] |
-| Brakefluid level | [Dropdown] | [Text area] |
-| Coolant level | [Dropdown] | [Text area] |
-| Antifreeze strength | [Dropdown] | [Text area] |
-| Fan belt | [Dropdown] | [Text area] |
-| Engine oil level | [Dropdown] | [Text area] |
-| Engine oil condition | [Dropdown] | [Text area] |
-| Battery condition | [Dropdown] | [Text area] |
-| Engine mounts | [Dropdown] | [Text area] |
-| Exhaust system | [Dropdown] | [Text area] |
+**Differential:**
+- Centre Bearing
+- Differental mounting
+- Differental oil
 
 ## Implementation Requirements
 
-### 1. Page Structure
+### 1. Page Structure (Final Section)
 ```
-Engine Compartment Assessment (New Page)
-├── Header: "Engine compartment:"
-├── Section 1: Inspection Findings
-│   ├── Engine Number Verification
-│   ├── General Inspection Results  
-│   └── Component Presence Checklist
-├── Section 2: Photographic Documentation
-│   ├── Image Grid (4 columns × 4 rows = 16 max)
-│   ├── Camera Capture Interface
-│   └── Caption Input Fields
-└── Section 3: Component Overview Check
-    └── Assessment Table (10 components)
+Physical Hoist Inspection (FINAL PAGE)
+├── Progress Indicator: "Step 5 of 5 - Final Assessment"
+├── Header: "Physical Hoist Inspection:"
+├── Category 1: Suspension System Assessment
+│   └── 11 Components Table
+├── Category 2: Engine System Assessment  
+│   └── 10 Components Table
+├── Category 3: Drivetrain System Assessment
+│   └── 5 Components Table
+├── Final Review Summary
+├── Data Validation & Completion Check
+└── Save to Database & Generate Report
 ```
 
-### 2. Condition Dropdown Specifications (Consistent with Previous Sections)
+### 2. Component Assessment Table Structure
+
+**Table Layout for each category:**
+| Component | Primary Condition | Secondary Condition | Comments |
+|-----------|------------------|---------------------|----------|
+| [Component Name] | [Dropdown 1] | [Dropdown 2] | [Text Area] |
+
+**Note:** Some components use both condition fields (e.g., shock leaks may have different conditions for different aspects)
+
+### 3. Condition Dropdown Specifications (Consistent with Previous Sections)
 
 **Dropdown Options with Color Coding:**
 - **Good** → Green background (#28a745, white text)
-- **Average** → Yellow/Orange background (#ffc107, black text)
+- **Average** → Yellow/Orange background (#ffc107, black text)  
 - **Bad** → Red background (#dc3545, white text)
 - **N/A** → Transparent background (stays blank)
 
-### 3. Image Capture Specifications
-
-**Camera Interface:**
-```javascript
-// Image capture functionality
-const imageCapture = {
-    maxImages: 16,
-    captureSource: 'tablet_camera',
-    compression: 'medium',
-    maxFileSize: '2MB',
-    supportedFormats: ['jpg', 'png'],
-    captionMaxLength: 100,
-    
-    captureImage() {
-        // Tablet camera access
-        navigator.mediaDevices.getUserMedia({video: true})
-        .then(stream => {
-            // Camera preview and capture logic
-        });
-    },
-    
-    addCaption(imageId, caption) {
-        // Caption functionality
-        if (caption.length <= 100) {
-            images[imageId].caption = caption;
-        }
-    }
-}
-```
-
-**Image Grid Layout:**
-- **Responsive grid**: 4 columns on desktop, 2 on tablet, 1 on mobile
-- **Add image button** with camera icon
-- **Image preview** with caption input below
-- **Delete/retake** option for each image
-- **Progress indicator**: "Images: 3/16"
+**Enhanced Validation for Final Section:**
+- **Misspelling handling**: "Avarage" auto-corrects to "Average"
+- **Required completion**: Minimum 80% of components must be assessed
+- **Critical component alerts**: Any "Bad" conditions require comments
 
 ### 4. Data Structure
 ```json
 {
-  "moduleName": "EngineCompartmentAssessment",
-  "moduleType": "newPageSection",
-  "inspectionFindings": {
-    "engineNumberVerification": {
-      "checked": false,
-      "additionalNotes": ""
-    },
-    "generalInspection": {
-      "noDeficiencies": false,
-      "noStructuralDamage": false,
-      "additionalFindings": ""
-    },
-    "componentPresence": {
-      "engineCoversPartial": false,
-      "undercarriageMissing": false,
-      "engineCoversAbsent": false,
-      "headlightRepairs": false,
-      "fenderlinerDamages": false,
-      "additionalObservations": ""
-    }
-  },
-  "images": [
+  "moduleName": "PhysicalHoistInspection",
+  "moduleType": "finalSection",
+  "isFinalStep": true,
+  "suspensionAssessment": [
     {
-      "id": "img_001",
-      "filename": "",
-      "caption": "",
-      "timestamp": "",
-      "category": "",
-      "fileSize": ""
+      "id": "lf_shock_leaks",
+      "name": "LF Shock leaks", 
+      "primaryCondition": "",
+      "secondaryCondition": "",
+      "comments": "",
+      "category": "suspension"
     }
-    // ... up to 16 images
+    // ... 11 total suspension components
   ],
-  "componentAssessment": [
+  "engineAssessment": [
     {
-      "id": "brakefluid_cleanliness",
-      "name": "Brakefluid cleanliness",
-      "condition": "",
-      "comments": ""
+      "id": "engine_mountings",
+      "name": "Engine mountings",
+      "primaryCondition": "",
+      "secondaryCondition": "", 
+      "comments": "",
+      "category": "engine"
     }
-    // ... 10 total components
-  ]
+    // ... 10 total engine components  
+  ],
+  "drivetrainAssessment": [
+    {
+      "id": "lf_cv_joint", 
+      "name": "LF CV joint",
+      "primaryCondition": "",
+      "secondaryCondition": "",
+      "comments": "",
+      "category": "drivetrain"
+    }
+    // ... 5 total drivetrain components
+  ],
+  "completionData": {
+    "assessmentPercentage": 0,
+    "criticalIssuesCount": 0,
+    "readyForSave": false,
+    "completedAt": null
+  }
 }
 ```
 
-### 5. Interactive Behavior
+### 5. Interactive Behavior & Validation
 
-**Inspection Findings:**
-- **Checkbox logic**: Multiple selections allowed
-- **Additional notes**: Expand when checkbox is selected
-- **Visual feedback**: Checked items highlighted
-
-**Image Management:**
-- **Real-time preview** after capture
-- **Caption editing**: Click to edit, auto-save on blur
-- **Image reordering**: Drag and drop functionality
-- **Storage management**: Warn when approaching 16 image limit
-
-**Component Assessment:**
-- **Same color coding** as previous sections
-- **Auto-save** on dropdown change
-- **Comments expansion** when condition is "Bad"
-
-### 6. Validation Rules
+**Real-time Progress Tracking:**
 ```javascript
-// Validation requirements:
-- At least 3 inspection findings must be addressed
-- Minimum 5 images required for complete assessment
-- All images must have captions (at least 10 characters)
-- Any component marked as "Bad" must have comments
-- Maximum file size per image: 2MB
-- Total section file size limit: 25MB
+function updateProgress() {
+    const totalComponents = 26;
+    const completedComponents = countCompletedAssessments();
+    const percentage = (completedComponents / totalComponents) * 100;
+    
+    updateProgressBar(percentage);
+    
+    if (percentage >= 80) {
+        enableSaveButton();
+        showCompletionSummary();
+    }
+}
+
+function validateCriticalIssues() {
+    const badConditions = findBadConditions();
+    const missingComments = badConditions.filter(item => !item.comments);
+    
+    if (missingComments.length > 0) {
+        showValidationErrors(missingComments);
+        return false;
+    }
+    return true;
+}
 ```
 
-### 7. Enhanced Features
+**Dual Condition Logic:**
+```javascript
+// Some components have two condition assessments
+function handleDualConditions(componentId, conditionType, value) {
+    if (conditionType === 'primary') {
+        component.primaryCondition = value;
+    } else {
+        component.secondaryCondition = value;
+    }
+    
+    // Auto-suggest comments for mismatched conditions
+    if (component.primaryCondition !== component.secondaryCondition && 
+        component.primaryCondition && component.secondaryCondition) {
+        suggestCommentsForMismatch(componentId);
+    }
+}
+```
 
-**Smart Suggestions:**
-- **Caption auto-complete** based on image category
-- **Condition recommendations** based on other assessments
-- **Inspection checklist** progress indicator
+### 6. Final Review & Summary Section
 
-**Integration Features:**
-- **Export compatibility** with main inspection report
-- **Print layout** optimized for physical reports
-- **Email functionality** for image sharing
-- **Backup/sync** capabilities
+**Completion Summary Display:**
+```
+Assessment Summary:
+├── Suspension: [X/11] Complete
+├── Engine: [X/10] Complete  
+├── Drivetrain: [X/5] Complete
+├── Critical Issues: [X] Found
+├── Total Completion: [XX%]
+└── Ready to Save: [Yes/No]
+```
 
-### 8. Mobile/Tablet Optimization
-- **Touch-friendly** interface design
-- **Camera optimization** for tablet capture
-- **Gesture support**: Pinch to zoom on images
-- **Offline capability** for field inspections
-- **Auto-save** functionality to prevent data loss
+**Critical Issues Alert:**
+- **Red alerts** for any "Bad" conditions without comments
+- **Warning indicators** for high number of "Average" conditions
+- **Priority list** of issues requiring immediate attention
+
+### 7. Database Save Functionality (CRITICAL REQUIREMENT)
+
+**Save Process:**
+```php
+// Final save to database
+function saveCompleteInspection() {
+    // Validate all previous sections are complete
+    validateAllSections();
+    
+    // Save Physical Hoist Inspection data
+    saveHoistInspectionData();
+    
+    // Generate final inspection report
+    generateInspectionReport();
+    
+    // Update inspection status to 'completed'
+    updateInspectionStatus('completed');
+    
+    // Send confirmation and redirect
+    showCompletionConfirmation();
+}
+```
+
+**Database Tables to Update:**
+```sql
+-- Main inspection record
+UPDATE vehicle_inspections 
+SET status = 'completed', completed_at = NOW() 
+WHERE inspection_id = ?;
+
+-- Physical hoist data
+INSERT INTO hoist_inspections 
+(inspection_id, component_id, primary_condition, secondary_condition, comments);
+
+-- Generate final report record
+INSERT INTO inspection_reports 
+(inspection_id, report_data, generated_at);
+```
+
+### 8. Enhanced Features for Final Section
+
+**Pre-save Validation Checklist:**
+- ✅ All previous sections completed
+- ✅ Minimum 80% of hoist components assessed  
+- ✅ All "Bad" conditions have comments
+- ✅ No data validation errors
+- ✅ Images uploaded where required
+- ✅ Customer information complete
+
+**Report Generation:**
+- **PDF generation** of complete inspection
+- **Email functionality** to send report
+- **Print-optimized** layout
+- **Summary dashboard** with key findings
+- **Action items list** for follow-up
+
+**Completion Workflow:**
+```javascript
+function finalizeInspection() {
+    // 1. Run comprehensive validation
+    if (!validateEntireInspection()) {
+        showIncompleteWarning();
+        return;
+    }
+    
+    // 2. Show final confirmation dialog
+    showFinalConfirmation({
+        onConfirm: () => {
+            // 3. Save to database
+            saveToDatabase()
+            .then(() => {
+                // 4. Generate report
+                generateReport();
+                // 5. Show success and redirect
+                showSuccessMessage();
+                redirectToReportView();
+            })
+            .catch(handleSaveError);
+        }
+    });
+}
+```
+
+### 9. User Experience Enhancements
+
+**Progress Indicators:**
+- **Step indicator**: "Step 5 of 5 - Final Assessment"
+- **Completion percentage**: Real-time update as components are assessed
+- **Time tracking**: "Assessment started: [time] | Duration: [time]"
+
+**Smart Assistance:**
+- **Auto-complete suggestions** based on previous assessments
+- **Component grouping** for efficient workflow
+- **Keyboard shortcuts** for faster data entry
+- **Bulk actions**: "Mark all suspension as Good" (with confirmation)
+
+**Error Prevention:**
+- **Confirmation dialogs** for critical assessments
+- **Auto-save** every 30 seconds
+- **Prevent accidental navigation** away from page
+- **Recovery options** if connection is lost
+
+### 10. Integration Requirements
+
+**Database Schema:**
+```sql
+CREATE TABLE hoist_inspections (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    inspection_id INT NOT NULL,
+    component_name VARCHAR(255) NOT NULL,
+    component_category ENUM('suspension','engine','drivetrain'),
+    primary_condition ENUM('Good','Average','Bad','N/A'),
+    secondary_condition ENUM('Good','Average','Bad','N/A'),
+    comments TEXT,
+    assessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (inspection_id) REFERENCES vehicle_inspections(id)
+);
+```
+
+**Final Completion Logic:**
+- **Mark inspection as complete** in database
+- **Generate final report** with all sections
+- **Send notifications** to relevant parties
+- **Archive inspection data** for long-term storage
+- **Update vehicle history** if applicable
 
 ## Files to Reference
-- **Service Booklet Images** section for camera capture patterns
-- **Previous Mechanical Report** sections for consistent styling
-- **WordPress/PHP** standards for backend implementation
+- **All previous assessment sections** for consistent styling and validation
+- **Database connection patterns** from existing modules
+- **Report generation templates** for PDF output
+- **WordPress/PHP standards** for backend implementation
 
 ## Expected Output
-Generate a complete new page implementation including:
-1. **HTML structure** for three-part assessment
-2. **CSS styling** with responsive image grid and color-coded dropdowns
-3. **JavaScript** for camera capture, image management, and form interactions
-4. **PHP backend** for data processing and file handling
-5. **Database schema** for storing images and assessment data
-6. **Integration code** to link with main inspection flow
+Generate a complete final section implementation including:
 
-**Important:** This should be implemented as a **separate page/section** that users navigate to from the main inspection flow. All inputs should start empty except for the component labels and pre-defined inspection finding text.
+1. **HTML structure** for three-category assessment  
+2. **CSS styling** with progress indicators and completion status
+3. **JavaScript** for real-time validation, progress tracking, and save functionality
+4. **PHP backend** for database operations and report generation
+5. **Database schema** for storing hoist inspection data
+6. **Validation logic** to ensure complete, accurate assessments
+7. **Report generation** functionality for final PDF output
+8. **Success/completion** workflow and user feedback
 
-Please implement this comprehensive Engine Compartment Assessment section now.
+**CRITICAL:** This section must include robust database save functionality since it's the final step. All validation must pass before allowing save. Include comprehensive error handling and user feedback for the completion process.
+
+**Important:** All input fields should start empty except for component labels. This is the culmination of the entire vehicle inspection process - make it comprehensive, reliable, and user-friendly.
+
+Please implement this final Physical Hoist Inspection section now.

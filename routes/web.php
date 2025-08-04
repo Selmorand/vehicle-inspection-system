@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InspectionController;
+use App\Http\Controllers\ImageController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -37,6 +38,12 @@ Route::controller(InspectionController::class)->group(function () {
     Route::post('/api/inspection/engine-compartment', 'saveEngineCompartmentAssessment')->name('api.inspection.engine-compartment');
     Route::post('/api/inspection/physical-hoist', 'savePhysicalHoistInspection')->name('api.inspection.physical-hoist');
     Route::post('/api/inspection/upload-image', 'uploadImage')->name('api.inspection.upload-image');
+});
+
+// Image handling routes
+Route::controller(ImageController::class)->group(function () {
+    Route::post('/api/image/upload', 'upload')->name('api.image.upload');
+    Route::get('/api/image/compress', 'compress')->name('api.image.compress');
 });
 
 // Test routes (keep for development)
