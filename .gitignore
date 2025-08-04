@@ -43,3 +43,4 @@ staging-deployment/
 staging-deploy.zip
 production-deployment/
 production-deploy.zip
+claude-deployment-config.json
