@@ -98,6 +98,7 @@ F:\Xampp\htdocs\vehicle-inspection> php artisan serve
   - All 18 specific areas in correct order as provided
 
   Ready to continue with backend implementation or any other requirements.
+
   
 ## This is too push to staging
 git add .

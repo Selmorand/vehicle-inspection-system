@@ -1,0 +1,97 @@
+/* Vehicle Container Responsive Fix */
+
+/* Ensure card body contains the vehicle properly */
+.card-body {
+    overflow: hidden; /* Prevent content from spilling out */
+    padding: 1rem; /* Consistent padding */
+}
+
+/* Vehicle container wrapper to handle scaling */
+.vehicle-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+/* Updated vehicle container styles */
+.vehicle-container {
+    position: relative;
+    width: 1005px; /* Original design width */
+    transform-origin: top left;
+    transition: transform 0.3s ease;
+}
+
+/* Base vehicle image */
+.base-vehicle {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Panel overlays maintain absolute positioning */
+.panel-overlay {
+    position: absolute !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Tablet landscape specific styles */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    /* Reduce margins on tablets */
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .card {
+        margin-bottom: 1rem !important;
+    }
+    
+    h2, h5 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Mobile and tablet portrait */
+@media (max-width: 991px) {
+    .vehicle-wrapper {
+        max-width: 100%;
+    }
+    
+    .card-body {
+        padding: 0.5rem;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 576px) {
+    .card-body {
+        padding: 0.25rem;
+    }
+    
+    .container-fluid {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+}
+
+/* JavaScript scaling helper classes */
+.vehicle-container.scaling {
+    visibility: hidden; /* Hide during calculation */
+}
+
+.vehicle-container.scaled {
+    visibility: visible;
+}
+
+/* Ensure overlays don't cause overflow */
+.panel-overlay {
+    max-width: 100%;
+}

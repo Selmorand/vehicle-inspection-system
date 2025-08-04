@@ -32,9 +32,10 @@
                     <h5 class="mb-0">Vehicle Body Panels</h5>
                 </div>
                 <div class="card-body">
-                    <div class="vehicle-container">
-                        <!-- Base vehicle image -->
-                        <img src="/images/panels/FullVehicle.jpg" alt="Vehicle Base" class="base-vehicle" id="baseVehicle">
+                    <div class="vehicle-wrapper">
+                        <div class="vehicle-container">
+                            <!-- Base vehicle image -->
+                            <img src="/images/panels/FullVehicle.jpg" alt="Vehicle Base" class="base-vehicle" id="baseVehicle">
                         
                         <!-- All panel overlays with converted positions -->
                         <!-- Windscreen -->
@@ -204,6 +205,7 @@
                              style="position: absolute; left: 684px; top: 329px; width: 271px; height: 336px;"
                              title="Bonnet" 
                              alt="Bonnet">
+                        </div>
                     </div>
                     
                 </div>
@@ -245,19 +247,9 @@
 @endsection
 
 @section('additional-css')
+<link rel="stylesheet" href="{{ asset('css/vehicle-responsive-fix.css') }}">
 <style>
-/* Vehicle container - responsive */
-.vehicle-container {
-    position: relative;
-    max-width: 1005px;
-    width: 100%;
-    margin: 0 auto;
-    background-color: #f8f9fa;
-    padding: 0;
-    overflow: visible; /* Allow panels to show outside container if needed */
-    /* Create a scaling context for overlays */
-    transform-origin: top left;
-}
+/* Vehicle container - now handled by vehicle-responsive.js and CSS file */
 
 /* Base vehicle image - responsive */
 .base-vehicle {
@@ -361,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadPreviousData();
     
     // Initialize responsive overlay scaling
-    initializeResponsiveOverlays();
+    // Responsive overlay scaling is handled by vehicle-responsive.js automatically
     
     // Panel names for form generation
     const panelNames = [
@@ -561,46 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Initialize responsive overlay scaling
-function initializeResponsiveOverlays() {
-    const baseVehicle = document.getElementById('baseVehicle');
-    const vehicleContainer = document.querySelector('.vehicle-container');
-    const overlays = document.querySelectorAll('.panel-overlay');
-    
-    function scaleOverlays() {
-        if (!baseVehicle || overlays.length === 0) return;
-        
-        // Wait for image to load
-        if (baseVehicle.naturalWidth === 0) {
-            setTimeout(scaleOverlays, 100);
-            return;
-        }
-        
-        // Calculate scaling factor based on actual vs natural image size
-        const naturalWidth = 1005; // Original design width
-        const actualWidth = baseVehicle.offsetWidth;
-        const scaleFactor = actualWidth / naturalWidth;
-        
-        // Apply scaling to container and all overlays
-        vehicleContainer.style.transform = `scale(${scaleFactor})`;
-        vehicleContainer.style.transformOrigin = 'top left';
-        vehicleContainer.style.width = `${naturalWidth}px`;
-        vehicleContainer.style.height = `${baseVehicle.naturalHeight}px`;
-        
-        // Adjust container wrapper to account for scaling
-        const scaledHeight = baseVehicle.naturalHeight * scaleFactor;
-        vehicleContainer.parentElement.style.height = `${scaledHeight}px`;
-    }
-    
-    // Scale on load and resize
-    if (baseVehicle.complete) {
-        scaleOverlays();
-    } else {
-        baseVehicle.addEventListener('load', scaleOverlays);
-    }
-    
-    window.addEventListener('resize', scaleOverlays);
-}
+// Responsive overlay scaling is now handled by vehicle-responsive.js
 
 // Load previous visual inspection data and display summary
 function loadPreviousData() {
@@ -672,4 +625,5 @@ function restorePanelAssessments(data) {
     });
 }
 </script>
+<script src="{{ asset('js/vehicle-responsive.js') }}"></script>
 @endsection
