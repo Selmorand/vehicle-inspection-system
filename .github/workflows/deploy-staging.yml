@@ -29,7 +29,10 @@ jobs:
     # Step 4: Create deployment structure for shared hosting
     - name: Prepare deployment files
       run: |
-        # Create deployment directory
+        # Clean any existing deployment directory
+        rm -rf deployment
+        
+        # Create fresh deployment directory
         mkdir deployment
         
         # Copy Laravel framework files
