@@ -34,6 +34,15 @@ REM Copy public folder contents to root (for hosting compatibility)
 echo Restructuring for shared hosting...
 xcopy /s /e public\* staging-deployment\
 
+REM Use hosting-compatible index.php template
+if exist index-hosting-template.php (
+    copy index-hosting-template.php staging-deployment\index.php
+    echo Using hosting-compatible index.php template
+) else (
+    echo WARNING: index-hosting-template.php not found
+    echo Please create this file in your project root or edit index.php manually
+)
+
 REM Create empty public folder (to maintain Laravel structure)
 mkdir staging-deployment\public
 
@@ -47,11 +56,6 @@ if exist .env.staging (
     echo Please configure database settings manually
 )
 
-REM Modify index.php for hosting structure
-echo Updating index.php for hosting structure...
-powershell -Command "(Get-Content staging-deployment\index.php) -replace '__DIR__\.\'/\.\./vendor/autoload\.php', '__DIR__.\'/vendor/autoload.php' | Set-Content staging-deployment\index.php"
-powershell -Command "(Get-Content staging-deployment\index.php) -replace '__DIR__\.\'/\.\./bootstrap/app\.php', '__DIR__.\'/bootstrap/app.php' | Set-Content staging-deployment\index.php"
-
 REM Create zip file for upload
 echo Creating zip file for upload...
 powershell -Command "Compress-Archive -Path staging-deployment\* -DestinationPath staging-deploy.zip -Force"
@@ -62,11 +66,12 @@ echo  Deployment Package Created!
 echo ========================================
 echo.
 echo Next steps:
-echo 1. Upload staging-deploy.zip to your hosting control panel
-echo 2. Extract to /public_html/alpha.selpro.co.za/
-echo 3. Set storage folder permissions to 755
-echo 4. Set bootstrap/cache folder permissions to 755
-echo 5. Test at https://alpha.selpro.co.za
+echo 1. Create index-hosting-template.php in your project root (if not exists)
+echo 2. Upload staging-deploy.zip to your hosting control panel
+echo 3. Extract to /public_html/alpha.selpro.co.za/
+echo 4. Set storage folder permissions to 755
+echo 5. Set bootstrap/cache folder permissions to 755
+echo 6. Test at https://alpha.selpro.co.za
 echo.
 echo Files ready in: staging-deploy.zip
 echo ========================================
