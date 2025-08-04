@@ -35,7 +35,7 @@
                     <div class="vehicle-wrapper">
                         <div class="vehicle-container">
                             <!-- Base vehicle image -->
-                            <img src="/images/panels/FullVehicle.jpg" alt="Vehicle Base" class="base-vehicle" id="baseVehicle">
+                            <img src="/images/panels/FullVehicle.png" alt="Vehicle Base" class="base-vehicle" id="baseVehicle">
                         
                         <!-- All panel overlays with converted positions -->
                         <!-- Windscreen -->
