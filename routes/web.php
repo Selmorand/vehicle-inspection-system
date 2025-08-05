@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\ImageController;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return view('welcome');
@@ -55,6 +56,39 @@ Route::get('/positioning-tool', function () {
 });
 Route::get('/interior-test', function () {
     return view('interior-panel-test');
+});
+Route::get('/test-pdf', function () {
+    try {
+        // Test basic PDF generation
+        $pdf = Barryvdh\DomPDF\Facade\Pdf::loadHTML('<h1>Test PDF Generation</h1><p>This is a test PDF generated at ' . now() . '</p>');
+        
+        // Test storage directory creation
+        $filename = 'test_pdf_' . date('Y-m-d_H-i-s') . '.pdf';
+        $path = 'test-reports/' . $filename;
+        
+        // Generate PDF content
+        $pdfContent = $pdf->output();
+        
+        // Try to store the PDF
+        Storage::disk('public')->put($path, $pdfContent);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'PDF test successful',
+            'filename' => $filename,
+            'path' => $path,
+            'file_size' => strlen($pdfContent),
+            'storage_path' => storage_path('app/public/' . $path)
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => $e->getFile()
+        ]);
+    }
 });
 
 // Report routes
