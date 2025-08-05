@@ -27,7 +27,7 @@ jobs:
       run: |
         composer install --no-dev --optimize-autoloader --no-interaction
         # Verify critical packages are installed
-        composer show barryvdh/laravel-dompdf || echo "Warning: DomPDF not installed"
+        composer show barryvdh/laravel-dompdf || true
     
     # Step 4: Create deployment structure for shared hosting
     - name: Prepare deployment files
@@ -60,8 +60,8 @@ jobs:
         mkdir deployment/public
         
         # Update index.php paths for shared hosting
-        sed -i 's|__DIR__.'\''/../vendor/autoload.php'\''|__DIR__.'\''/vendor/autoload.php'\''|g' deployment/index.php
-        sed -i 's|__DIR__.'\''/../bootstrap/app.php'\''|__DIR__.'\''/bootstrap/app.php'\''|g' deployment/index.php
+        sed -i 's|__DIR__\.'"'"'/../vendor/autoload\.php'"'"'|__DIR__\.'"'"'/vendor/autoload\.php'"'"'|g' deployment/index.php
+        sed -i 's|__DIR__\.'"'"'/../bootstrap/app\.php'"'"'|__DIR__\.'"'"'/bootstrap/app\.php'"'"'|g' deployment/index.php
     
     # Step 5: Create staging environment file
     - name: Create staging environment
