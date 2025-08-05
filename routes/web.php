@@ -55,11 +55,11 @@ Route::get('/debug-reports', function () {
         $dbStatus = DB::connection()->getPdo() ? 'Connected' : 'Failed';
         
         // Test if InspectionReport model can be loaded
-        $modelStatus = class_exists('App\\Models\\InspectionReport') ? 'Loaded' : 'Missing';
+        $modelStatus = class_exists('App\Models\InspectionReport') ? 'Loaded' : 'Missing';
         
         // Test if reports table exists and count records
         try {
-            $reportCount = App\\Models\\InspectionReport::count();
+            $reportCount = App\Models\InspectionReport::count();
             $tableStatus = 'Exists (' . $reportCount . ' records)';
         } catch (Exception $e) {
             $tableStatus = 'Error: ' . $e->getMessage();
