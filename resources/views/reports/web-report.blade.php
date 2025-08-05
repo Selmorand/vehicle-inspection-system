@@ -3,7 +3,8 @@
 @section('title', 'Inspection Report - ' . ($report->report_number ?? 'Report'))
 
 @section('additional-css')
-<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet">
+<!-- Use local fallback for lightbox CSS if CDN fails -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet" onerror="this.remove()">
 <style>
     .web-report {
         max-width: 1200px;
@@ -902,17 +903,27 @@
 @endsection
 
 @section('additional-js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js" onerror="console.log('Lightbox CDN failed, using fallback')"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Configure lightbox
-    lightbox.option({
-        'resizeDuration': 200,
-        'wrapAround': true,
-        'albumLabel': 'Image %1 of %2',
-        'fadeDuration': 300,
-        'imageFadeDuration': 300
-    });
+    // Configure lightbox if available
+    if (typeof lightbox !== 'undefined') {
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true,
+            'albumLabel': 'Image %1 of %2',
+            'fadeDuration': 300,
+            'imageFadeDuration': 300
+        });
+    } else {
+        // Fallback: simple image click behavior
+        document.querySelectorAll('[data-lightbox]').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(this.href, '_blank');
+            });
+        });
+    }
     
     // Add loading states for images
     const images = document.querySelectorAll('.image-card img');

@@ -353,12 +353,18 @@ class ReportController extends Controller
      */
     public function showWeb($id)
     {
-        $report = InspectionReport::findOrFail($id);
-        
-        // Process inspection data for web display
-        $inspectionData = $this->processInspectionDataForWeb($report);
-        
-        return view('reports.web-report', compact('report', 'inspectionData'));
+        try {
+            $report = InspectionReport::findOrFail($id);
+            
+            // Process inspection data for web display
+            $inspectionData = $this->processInspectionDataForWeb($report);
+            
+            return view('reports.web-report', compact('report', 'inspectionData'));
+            
+        } catch (\Exception $e) {
+            return redirect()->route('reports.index')
+                ->with('error', 'Report not found or could not be loaded: ' . $e->getMessage());
+        }
     }
 
     /**

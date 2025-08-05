@@ -24,7 +24,10 @@ jobs:
     
     # Step 3: Install Composer dependencies
     - name: Install Composer Dependencies
-      run: composer install --no-dev --optimize-autoloader --no-interaction
+      run: |
+        composer install --no-dev --optimize-autoloader --no-interaction
+        # Verify critical packages are installed
+        composer show barryvdh/laravel-dompdf || echo "Warning: DomPDF not installed"
     
     # Step 4: Create deployment structure for shared hosting
     - name: Prepare deployment files
@@ -128,3 +131,8 @@ jobs:
         echo "🚀 Staging deployment completed!"
         echo "📍 URL: https://alpha.selpro.co.za"
         echo "📝 Test your changes before promoting to production"
+        echo ""
+        echo "⚠️  Manual steps may be required on staging:"
+        echo "   - Run database migrations if new tables added"
+        echo "   - Check storage folder permissions (755)"
+        echo "   - Verify .env configuration"
