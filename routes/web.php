@@ -91,6 +91,51 @@ Route::get('/test-pdf', function () {
     }
 });
 
+Route::get('/test-full-pdf', function () {
+    try {
+        // Create a test request with sample data
+        $testData = [
+            'client_name' => 'Test Client',
+            'contact_number' => '082 555 1234',
+            'email' => 'test@example.com',
+            'vehicle_make' => 'Toyota',
+            'vehicle_model' => 'Corolla', 
+            'vehicle_year' => '2020',
+            'vin_number' => 'TEST123456789VIN',
+            'mileage' => '25000',
+            'license_plate' => 'TEST 123 GP',
+            'inspector_name' => 'Test Inspector',
+            'inspection_date' => date('Y-m-d'),
+            'body_panel_data' => json_encode([
+                'assessments' => [
+                    'front-bumper' => ['condition' => 'good', 'comment' => 'No damage'],
+                    'bonnet' => ['condition' => 'average', 'comment' => 'Minor scratches'],
+                    'windscreen' => ['condition' => 'good', 'comment' => 'Clear']
+                ]
+            ])
+        ];
+        
+        // Create a request instance
+        $request = new \Illuminate\Http\Request();
+        $request->merge($testData);
+        
+        // Call the ReportController directly
+        $controller = new \App\Http\Controllers\ReportController();
+        $response = $controller->generatePDF($request);
+        
+        return $response;
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => $e->getFile(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+});
+
 // Report routes
 Route::get('/inspection/report', [App\Http\Controllers\ReportController::class, 'show'])->name('inspection.report');
 Route::post('/inspection/report/pdf', [App\Http\Controllers\ReportController::class, 'generatePDF'])->name('inspection.report.pdf');
