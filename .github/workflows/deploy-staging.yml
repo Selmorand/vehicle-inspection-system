@@ -25,43 +25,56 @@ jobs:
     # Step 3: Install Composer dependencies
     - name: Install Composer Dependencies
       run: |
+        echo "Installing composer dependencies..."
         composer install --no-dev --optimize-autoloader --no-interaction
+        echo "Composer install completed"
         # Verify critical packages are installed
         composer show barryvdh/laravel-dompdf || true
+        echo "Dependency verification completed"
     
     # Step 4: Create deployment structure for shared hosting
     - name: Prepare deployment files
       run: |
+        echo "Starting deployment file preparation..."
         # Clean any existing deployment directory
-        rm -rf deployment
+        rm -rf deployment || true
         
         # Create fresh deployment directory
-        mkdir deployment
+        mkdir -p deployment
+        echo "Created deployment directory"
         
-        # Copy Laravel framework files
-        cp -r app deployment/
-        cp -r bootstrap deployment/
-        cp -r config deployment/
-        cp -r database deployment/
-        cp -r resources deployment/
-        cp -r routes deployment/
-        cp -r storage deployment/
-        cp -r vendor deployment/
+        # Copy Laravel framework files (with error handling)
+        echo "Copying Laravel framework files..."
+        cp -r app deployment/ || exit 1
+        cp -r bootstrap deployment/ || exit 1
+        cp -r config deployment/ || exit 1
+        cp -r database deployment/ || exit 1
+        cp -r resources deployment/ || exit 1
+        cp -r routes deployment/ || exit 1
+        cp -r storage deployment/ || exit 1
+        cp -r vendor deployment/ || exit 1
+        echo "Laravel files copied successfully"
         
         # Copy root files
-        cp artisan deployment/ 2>/dev/null || true
-        cp composer.json deployment/ 2>/dev/null || true
-        cp composer.lock deployment/ 2>/dev/null || true
+        cp artisan deployment/ || true
+        cp composer.json deployment/ || true
+        cp composer.lock deployment/ || true
         
-        # Copy public folder contents to deployment root (shared hosting structure)
-        cp -r public/* deployment/
+        # Copy public folder contents to deployment root (with better error handling)
+        if [ -d "public" ] && [ "$(ls -A public 2>/dev/null)" ]; then
+          cp -r public/* deployment/ || exit 1
+        else
+          echo "Warning: public directory is empty or missing"
+        fi
         
         # Create empty public folder in deployment (maintain Laravel structure)
-        mkdir deployment/public
+        mkdir -p deployment/public
         
-        # Update index.php paths for shared hosting
-        sed -i 's|__DIR__\.'"'"'/../vendor/autoload\.php'"'"'|__DIR__\.'"'"'/vendor/autoload\.php'"'"'|g' deployment/index.php
-        sed -i 's|__DIR__\.'"'"'/../bootstrap/app\.php'"'"'|__DIR__\.'"'"'/bootstrap/app\.php'"'"'|g' deployment/index.php
+        # Update index.php paths for shared hosting (simpler approach)
+        if [ -f "deployment/index.php" ]; then
+          sed -i 's|/../vendor/autoload.php|/vendor/autoload.php|g' deployment/index.php || true
+          sed -i 's|/../bootstrap/app.php|/bootstrap/app.php|g' deployment/index.php || true
+        fi
     
     # Step 5: Create staging environment file
     - name: Create staging environment
