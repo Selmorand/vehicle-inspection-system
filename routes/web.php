@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('welcome');
@@ -45,6 +46,45 @@ Route::controller(InspectionController::class)->group(function () {
 Route::controller(ImageController::class)->group(function () {
     Route::post('/api/image/upload', 'upload')->name('api.image.upload');
     Route::get('/api/image/compress', 'compress')->name('api.image.compress');
+});
+
+// Diagnostic route for staging debugging
+Route::get('/debug-reports', function () {
+    try {
+        // Test database connection
+        $dbStatus = DB::connection()->getPdo() ? 'Connected' : 'Failed';
+        
+        // Test if InspectionReport model can be loaded
+        $modelStatus = class_exists('App\\Models\\InspectionReport') ? 'Loaded' : 'Missing';
+        
+        // Test if reports table exists and count records
+        try {
+            $reportCount = App\\Models\\InspectionReport::count();
+            $tableStatus = 'Exists (' . $reportCount . ' records)';
+        } catch (Exception $e) {
+            $tableStatus = 'Error: ' . $e->getMessage();
+        }
+        
+        // Test Lightbox2 CDN
+        $lightboxCdn = 'https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css';
+        
+        return response()->json([
+            'database' => $dbStatus,
+            'model' => $modelStatus,
+            'reports_table' => $tableStatus,
+            'lightbox_cdn' => $lightboxCdn,
+            'php_version' => PHP_VERSION,
+            'laravel_version' => app()->version(),
+            'timestamp' => now()
+        ]);
+        
+    } catch (Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => $e->getFile()
+        ], 500);
+    }
 });
 
 // Test routes (keep for development)

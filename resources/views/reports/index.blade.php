@@ -15,6 +15,14 @@
         </div>
     </div>
 
+    @if(session('error'))
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i>
+        <strong>Notice:</strong> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
     <!-- Search and Filter -->
     <div class="card mb-4">
         <div class="card-body">
