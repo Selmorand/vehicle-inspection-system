@@ -252,9 +252,100 @@ class ReportController extends Controller
                 'notes' => $request->input('additional_hoist_notes', ''),
             ],
             
+            // Images from all sections
+            'images' => $this->gatherInspectionImages($request),
+            
             // Generated timestamp
             'generated_at' => now()->format('Y-m-d H:i:s'),
         ];
+    }
+
+    /**
+     * Gather images from all inspection sections
+     */
+    private function gatherInspectionImages(Request $request)
+    {
+        $images = [
+            'visual' => [],
+            'specific_areas' => [],
+            'interior' => [],
+            'engine_compartment' => [],
+            'physical_hoist' => []
+        ];
+
+        // Process visual inspection images
+        if ($request->hasFile('visual_images')) {
+            foreach ($request->file('visual_images') as $index => $image) {
+                if ($image && $image->isValid()) {
+                    $images['visual'][] = [
+                        'base64' => base64_encode(file_get_contents($image->getPathname())),
+                        'mime_type' => $image->getClientMimeType(),
+                        'area_name' => 'visual_' . ($index + 1),
+                        'original_name' => $image->getClientOriginalName()
+                    ];
+                }
+            }
+        }
+
+        // Process base64 images from JavaScript (current system)
+        $visualImagesData = $request->input('visual_images_data');
+        if ($visualImagesData) {
+            $visualImages = json_decode($visualImagesData, true);
+            if (is_array($visualImages)) {
+                foreach ($visualImages as $index => $imageData) {
+                    if (isset($imageData['base64']) && $imageData['base64']) {
+                        // Remove data URL prefix if present
+                        $base64 = preg_replace('/^data:image\/[^;]+;base64,/', '', $imageData['base64']);
+                        $images['visual'][] = [
+                            'base64' => $base64,
+                            'mime_type' => $imageData['mime_type'] ?? 'image/jpeg',
+                            'area_name' => $imageData['area_name'] ?? 'visual_' . ($index + 1),
+                            'original_name' => $imageData['original_name'] ?? 'visual_image_' . ($index + 1) . '.jpg'
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Process specific area images
+        $specificAreasData = $request->input('specific_areas_images_data');
+        if ($specificAreasData) {
+            $specificImages = json_decode($specificAreasData, true);
+            if (is_array($specificImages)) {
+                foreach ($specificImages as $index => $imageData) {
+                    if (isset($imageData['base64']) && $imageData['base64']) {
+                        $base64 = preg_replace('/^data:image\/[^;]+;base64,/', '', $imageData['base64']);
+                        $images['specific_areas'][] = [
+                            'base64' => $base64,
+                            'mime_type' => $imageData['mime_type'] ?? 'image/jpeg',
+                            'area_name' => $imageData['area_name'] ?? 'specific_' . ($index + 1),
+                            'original_name' => $imageData['original_name'] ?? 'specific_area_' . ($index + 1) . '.jpg'
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Process interior images
+        $interiorImagesData = $request->input('interior_images_data');
+        if ($interiorImagesData) {
+            $interiorImages = json_decode($interiorImagesData, true);
+            if (is_array($interiorImages)) {
+                foreach ($interiorImages as $index => $imageData) {
+                    if (isset($imageData['base64']) && $imageData['base64']) {
+                        $base64 = preg_replace('/^data:image\/[^;]+;base64,/', '', $imageData['base64']);
+                        $images['interior'][] = [
+                            'base64' => $base64,
+                            'mime_type' => $imageData['mime_type'] ?? 'image/jpeg',
+                            'area_name' => $imageData['area_name'] ?? 'interior_' . ($index + 1),
+                            'original_name' => $imageData['original_name'] ?? 'interior_' . ($index + 1) . '.jpg'
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $images;
     }
 
     /**

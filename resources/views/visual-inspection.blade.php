@@ -383,16 +383,39 @@ function continueToNext() {
         }
     }
     
-    // Store images data
-    inspectionData.images = uploadedImages.map(img => ({
-        src: img.src,
-        // Note: In production, images would be uploaded to server
-    }));
+    // Store images data for PDF generation
+    const imageDataForPDF = uploadedImages.map((img, index) => {
+        // Convert blob to base64
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                resolve({
+                    base64: e.target.result, // This includes the data URL prefix
+                    mime_type: img.blob.type || 'image/jpeg',
+                    area_name: 'visual_' + (index + 1),
+                    original_name: 'visual_image_' + (index + 1) + '.jpg'
+                });
+            };
+            reader.readAsDataURL(img.blob);
+        });
+    });
     
-    sessionStorage.setItem('visualInspectionData', JSON.stringify(inspectionData));
-    
-    // Navigate to body panel assessment
-    window.location.href = '/inspection/body-panel';
+    // Wait for all images to be processed
+    Promise.all(imageDataForPDF).then(processedImages => {
+        // Store image data for PDF
+        sessionStorage.setItem('visualInspectionImages', JSON.stringify(processedImages));
+        
+        // Store basic inspection data
+        sessionStorage.setItem('visualInspectionData', JSON.stringify(inspectionData));
+        
+        // Navigate to body panel assessment
+        window.location.href = '/inspection/body-panel';
+    }).catch(error => {
+        console.error('Error processing images:', error);
+        // Store basic data without images and continue
+        sessionStorage.setItem('visualInspectionData', JSON.stringify(inspectionData));
+        window.location.href = '/inspection/body-panel';
+    });
 }
 </script>
 @endsection

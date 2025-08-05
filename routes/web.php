@@ -112,7 +112,22 @@ Route::get('/test-full-pdf', function () {
                     'bonnet' => ['condition' => 'average', 'comment' => 'Minor scratches'],
                     'windscreen' => ['condition' => 'good', 'comment' => 'Clear']
                 ]
-            ])
+            ]),
+            // Engine compartment fields
+            'overall_condition' => 'good',
+            'oil_leaks' => 'none',
+            'coolant_leaks' => 'none',
+            'belt_condition' => 'good',
+            'battery_condition' => 'good',
+            'battery_age' => '2 years',
+            'engine_notes' => 'Engine compartment is clean and well maintained',
+            // Physical hoist fields  
+            'undercarriage_condition' => 'good',
+            'rust_present' => 'minimal',
+            'exhaust_condition' => 'good',
+            'suspension_condition' => 'good',
+            'brake_lines' => 'good',
+            'additional_hoist_notes' => 'No significant issues found during hoist inspection'
         ];
         
         // Create a request instance

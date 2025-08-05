@@ -279,6 +279,14 @@ function generatePDF() {
     addDataToForm(form, allData.engine, '');
     addDataToForm(form, allData.hoist, '');
     
+    // Add image data from sessionStorage
+    const imageData = {
+        visual_images_data: sessionStorage.getItem('visualInspectionImages') || '[]',
+        specific_areas_images_data: sessionStorage.getItem('specificAreaImages') || '[]',
+        interior_images_data: sessionStorage.getItem('interiorImages') || '[]'
+    };
+    addDataToForm(form, imageData, '');
+    
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);

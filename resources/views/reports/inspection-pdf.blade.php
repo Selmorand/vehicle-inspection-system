@@ -146,6 +146,42 @@
         li {
             margin-bottom: 5px;
         }
+        
+        .image-section {
+            margin-bottom: 20px;
+        }
+        
+        .image-grid {
+            display: table;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .image-row {
+            display: table-row;
+        }
+        
+        .image-cell {
+            display: table-cell;
+            padding: 10px;
+            text-align: center;
+            vertical-align: top;
+            width: 50%;
+        }
+        
+        .inspection-image {
+            max-width: 100%;
+            max-height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .image-caption {
+            font-size: 10px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -198,6 +234,31 @@
         </div>
     </div>
 
+    <!-- Visual Inspection Images -->
+    @if(!empty($inspectionData['images']['visual']))
+    <div class="section page-break">
+        <h2 class="section-title">Visual Inspection Images</h2>
+        <div class="image-section">
+            <div class="image-grid">
+                @foreach(array_chunk($inspectionData['images']['visual'], 2) as $imageRow)
+                <div class="image-row">
+                    @foreach($imageRow as $image)
+                    <div class="image-cell">
+                        <img src="data:{{ $image['mime_type'] ?? 'image/jpeg' }};base64,{{ $image['base64'] }}" 
+                             class="inspection-image" alt="{{ $image['area_name'] ?? 'Visual inspection image' }}">
+                        <div class="image-caption">{{ ucwords(str_replace('_', ' ', $image['area_name'] ?? 'Visual inspection')) }}</div>
+                    </div>
+                    @endforeach
+                    @if(count($imageRow) == 1)
+                    <div class="image-cell"></div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Body Panel Assessment -->
     @if(!empty($inspectionData['body_panels']['assessments']))
     <div class="section">
@@ -229,6 +290,31 @@
     </div>
     @endif
 
+    <!-- Specific Area Images -->
+    @if(!empty($inspectionData['images']['specific_areas']))
+    <div class="section">
+        <h2 class="section-title">Specific Area Images</h2>
+        <div class="image-section">
+            <div class="image-grid">
+                @foreach(array_chunk($inspectionData['images']['specific_areas'], 2) as $imageRow)
+                <div class="image-row">
+                    @foreach($imageRow as $image)
+                    <div class="image-cell">
+                        <img src="data:{{ $image['mime_type'] ?? 'image/jpeg' }};base64,{{ $image['base64'] }}" 
+                             class="inspection-image" alt="{{ $image['area_name'] ?? 'Specific area image' }}">
+                        <div class="image-caption">{{ ucwords(str_replace('_', ' ', $image['area_name'] ?? 'Specific area')) }}</div>
+                    </div>
+                    @endforeach
+                    @if(count($imageRow) == 1)
+                    <div class="image-cell"></div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Interior Assessment -->
     @if(!empty($inspectionData['interior']['assessments']))
     <div class="section">
@@ -257,6 +343,31 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+    @endif
+
+    <!-- Interior Images -->
+    @if(!empty($inspectionData['images']['interior']))
+    <div class="section">
+        <h2 class="section-title">Interior Images</h2>
+        <div class="image-section">
+            <div class="image-grid">
+                @foreach(array_chunk($inspectionData['images']['interior'], 2) as $imageRow)
+                <div class="image-row">
+                    @foreach($imageRow as $image)
+                    <div class="image-cell">
+                        <img src="data:{{ $image['mime_type'] ?? 'image/jpeg' }};base64,{{ $image['base64'] }}" 
+                             class="inspection-image" alt="{{ $image['area_name'] ?? 'Interior image' }}">
+                        <div class="image-caption">{{ ucwords(str_replace('_', ' ', $image['area_name'] ?? 'Interior')) }}</div>
+                    </div>
+                    @endforeach
+                    @if(count($imageRow) == 1)
+                    <div class="image-cell"></div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+        </div>
     </div>
     @endif
 
@@ -395,6 +506,98 @@
         @if(!empty($inspectionData['mechanical']['notes']))
         <h3>Additional Notes</h3>
         <p>{{ $inspectionData['mechanical']['notes'] }}</p>
+        @endif
+    </div>
+    @endif
+
+    <!-- Engine Compartment Assessment -->
+    @if(!empty($inspectionData['engine_compartment']))
+    <div class="section page-break">
+        <h2 class="section-title">Engine Compartment Assessment</h2>
+        <div class="info-grid">
+            <div class="info-row">
+                <div class="info-cell info-label">Overall Condition</div>
+                <div class="info-cell">
+                    <span class="condition-{{ strtolower($inspectionData['engine_compartment']['overall_condition'] ?? 'good') }}">
+                        {{ ucfirst($inspectionData['engine_compartment']['overall_condition'] ?? 'Good') }}
+                    </span>
+                </div>
+                <div class="info-cell info-label">Oil Leaks</div>
+                <div class="info-cell">{{ ucfirst($inspectionData['engine_compartment']['oil_leaks'] ?? 'None') }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-cell info-label">Coolant Leaks</div>
+                <div class="info-cell">{{ ucfirst($inspectionData['engine_compartment']['coolant_leaks'] ?? 'None') }}</div>
+                <div class="info-cell info-label">Belt Condition</div>
+                <div class="info-cell">
+                    <span class="condition-{{ strtolower($inspectionData['engine_compartment']['belt_condition'] ?? 'good') }}">
+                        {{ ucfirst($inspectionData['engine_compartment']['belt_condition'] ?? 'Good') }}
+                    </span>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-cell info-label">Battery Condition</div>
+                <div class="info-cell">
+                    <span class="condition-{{ strtolower($inspectionData['engine_compartment']['battery_condition'] ?? 'good') }}">
+                        {{ ucfirst($inspectionData['engine_compartment']['battery_condition'] ?? 'Good') }}
+                    </span>
+                </div>
+                <div class="info-cell info-label">Battery Age</div>
+                <div class="info-cell">{{ $inspectionData['engine_compartment']['battery_age'] ?? '-' }}</div>
+            </div>
+        </div>
+        
+        @if(!empty($inspectionData['engine_compartment']['notes']))
+        <h3>Engine Compartment Notes</h3>
+        <p>{{ $inspectionData['engine_compartment']['notes'] }}</p>
+        @endif
+    </div>
+    @endif
+
+    <!-- Physical Hoist Inspection -->
+    @if(!empty($inspectionData['physical_hoist']))
+    <div class="section">
+        <h2 class="section-title">Physical Hoist Inspection (Undercarriage)</h2>
+        <div class="info-grid">
+            <div class="info-row">
+                <div class="info-cell info-label">Undercarriage Condition</div>
+                <div class="info-cell">
+                    <span class="condition-{{ strtolower($inspectionData['physical_hoist']['undercarriage_condition'] ?? 'good') }}">
+                        {{ ucfirst($inspectionData['physical_hoist']['undercarriage_condition'] ?? 'Good') }}
+                    </span>
+                </div>
+                <div class="info-cell info-label">Rust Present</div>
+                <div class="info-cell">{{ ucfirst($inspectionData['physical_hoist']['rust_present'] ?? 'No') }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-cell info-label">Exhaust Condition</div>
+                <div class="info-cell">
+                    <span class="condition-{{ strtolower($inspectionData['physical_hoist']['exhaust_condition'] ?? 'good') }}">
+                        {{ ucfirst($inspectionData['physical_hoist']['exhaust_condition'] ?? 'Good') }}
+                    </span>
+                </div>
+                <div class="info-cell info-label">Suspension Condition</div>
+                <div class="info-cell">
+                    <span class="condition-{{ strtolower($inspectionData['physical_hoist']['suspension_condition'] ?? 'good') }}">
+                        {{ ucfirst($inspectionData['physical_hoist']['suspension_condition'] ?? 'Good') }}
+                    </span>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-cell info-label">Brake Lines</div>
+                <div class="info-cell">
+                    <span class="condition-{{ strtolower($inspectionData['physical_hoist']['brake_lines'] ?? 'good') }}">
+                        {{ ucfirst($inspectionData['physical_hoist']['brake_lines'] ?? 'Good') }}
+                    </span>
+                </div>
+                <div class="info-cell info-label"></div>
+                <div class="info-cell"></div>
+            </div>
+        </div>
+        
+        @if(!empty($inspectionData['physical_hoist']['notes']))
+        <h3>Hoist Inspection Notes</h3>
+        <p>{{ $inspectionData['physical_hoist']['notes'] }}</p>
         @endif
     </div>
     @endif
