@@ -56,3 +56,14 @@ Route::get('/positioning-tool', function () {
 Route::get('/interior-test', function () {
     return view('interior-panel-test');
 });
+
+// Report routes
+Route::get('/inspection/report', [App\Http\Controllers\ReportController::class, 'show'])->name('inspection.report');
+Route::post('/inspection/report/pdf', [App\Http\Controllers\ReportController::class, 'generatePDF'])->name('inspection.report.pdf');
+Route::post('/inspection/report/email', [App\Http\Controllers\ReportController::class, 'emailReport'])->name('inspection.report.email');
+
+// Report management routes
+Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+Route::get('/reports/{id}/download', [App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
+Route::get('/reports/{id}/view', [App\Http\Controllers\ReportController::class, 'view'])->name('reports.view');
+Route::delete('/reports/{id}', [App\Http\Controllers\ReportController::class, 'destroy'])->name('reports.destroy');

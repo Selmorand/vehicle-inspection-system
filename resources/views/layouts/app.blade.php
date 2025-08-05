@@ -35,13 +35,13 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" style="color: #4f959b;">
+                        <a class="nav-link" href="{{ url('/inspection/visual') }}" style="color: #4f959b;">
                             <i class="bi bi-plus-circle me-1"></i>New Inspection
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" style="color: #4f959b;">
-                            <i class="bi bi-search me-1"></i>Search
+                        <a class="nav-link" href="{{ route('reports.index') }}" style="color: #4f959b;">
+                            <i class="bi bi-file-earmark-pdf me-1"></i>Reports
                         </a>
                     </li>
                 </ul>
@@ -55,6 +55,9 @@
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Test data script for quick testing -->
+    <script src="{{ asset('js/test-data.js') }}"></script>
     
     @yield('additional-js')
 </body>

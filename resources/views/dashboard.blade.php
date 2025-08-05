@@ -27,7 +27,7 @@
                 <div class="card-body">
                     <h5 class="card-title">View All Reports</h5>
                     <p class="card-text">Browse all completed inspections. Search by VIN, client name, date, or inspector.</p>
-                    <a href="#" class="btn btn-secondary">View Reports</a>
+                    <a href="{{ route('reports.index') }}" class="btn btn-secondary">View Reports</a>
                 </div>
             </div>
         </div>
@@ -37,7 +37,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Quick Search</h5>
                     <p class="card-text">Find a specific inspection report quickly using various search criteria.</p>
-                    <a href="#" class="btn btn-secondary">Search Reports</a>
+                    <a href="{{ route('reports.index') }}" class="btn btn-secondary">Search Reports</a>
                 </div>
             </div>
         </div>
