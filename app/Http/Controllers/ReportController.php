@@ -349,6 +349,63 @@ class ReportController extends Controller
     }
 
     /**
+     * Show web version of a specific report
+     */
+    public function showWeb($id)
+    {
+        $report = InspectionReport::findOrFail($id);
+        
+        // Process inspection data for web display
+        $inspectionData = $this->processInspectionDataForWeb($report);
+        
+        return view('reports.web-report', compact('report', 'inspectionData'));
+    }
+
+    /**
+     * Generate PDF from existing web report
+     */
+    public function generateFromWeb($id)
+    {
+        $report = InspectionReport::findOrFail($id);
+        
+        // Use stored inspection data
+        $inspectionData = $report->inspection_data;
+        
+        // Generate PDF from the same template
+        $pdf = PDF::loadView('reports.inspection-pdf', compact('inspectionData'));
+        $pdf->setPaper('A4', 'portrait');
+        
+        return $pdf->download($report->pdf_filename);
+    }
+
+    /**
+     * Process inspection data for web display
+     */
+    private function processInspectionDataForWeb($report)
+    {
+        $data = $report->inspection_data;
+        
+        // Process images if they exist
+        if (isset($data['images'])) {
+            foreach ($data['images'] as $section => $images) {
+                if (is_array($images)) {
+                    foreach ($images as $index => $image) {
+                        // Ensure images have proper data URL format for web display
+                        if (isset($image['base64']) && !str_starts_with($image['base64'], 'data:')) {
+                            $mimeType = $image['mime_type'] ?? 'image/jpeg';
+                            $data['images'][$section][$index]['data_url'] = 'data:' . $mimeType . ';base64,' . $image['base64'];
+                        } else {
+                            $data['images'][$section][$index]['data_url'] = $image['base64'] ?? '';
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $data;
+    }
+
+    /**
      * Display a listing of all reports
      */
     public function index(Request $request)

@@ -158,6 +158,8 @@ Route::post('/inspection/report/email', [App\Http\Controllers\ReportController::
 
 // Report management routes
 Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+Route::get('/reports/{id}', [App\Http\Controllers\ReportController::class, 'showWeb'])->name('reports.show');
+Route::get('/reports/{id}/pdf', [App\Http\Controllers\ReportController::class, 'generateFromWeb'])->name('reports.pdf');
 Route::get('/reports/{id}/download', [App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
 Route::get('/reports/{id}/view', [App\Http\Controllers\ReportController::class, 'view'])->name('reports.view');
 Route::delete('/reports/{id}', [App\Http\Controllers\ReportController::class, 'destroy'])->name('reports.destroy');

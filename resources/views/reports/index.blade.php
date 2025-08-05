@@ -91,11 +91,10 @@
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('reports.view', $report->id) }}" 
-                                           class="btn btn-sm btn-info" 
-                                           target="_blank"
-                                           title="View Report">
-                                            <i class="bi bi-eye"></i>
+                                        <a href="{{ route('reports.show', $report->id) }}" 
+                                           class="btn btn-sm btn-primary" 
+                                           title="View Web Report">
+                                            <i class="bi bi-eye"></i> View
                                         </a>
                                         <a href="{{ route('reports.download', $report->id) }}" 
                                            class="btn btn-sm btn-success"
