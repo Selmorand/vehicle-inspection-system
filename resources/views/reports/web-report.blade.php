@@ -348,23 +348,30 @@
             <!-- Client & Vehicle Information -->
             <div class="section">
                 <h2 class="section-title">
-                    <i class="bi bi-person-vcard"></i>
-                    Vehicle & Client Information
+                    <i class="bi bi-car-front"></i>
+                    Vehicle Information
                 </h2>
                 
                 <div class="info-grid">
+                    <!-- Client fields removed since Visual Inspection form doesn't collect client info -->
+                    @if(!empty($inspectionData['client']['name']) && $inspectionData['client']['name'] !== 'Test Client')
                     <div class="info-card">
                         <div class="info-label">Client Name</div>
-                        <div class="info-value">{{ $inspectionData['client']['name'] ?? 'Not specified' }}</div>
+                        <div class="info-value">{{ $inspectionData['client']['name'] }}</div>
                     </div>
+                    @endif
+                    @if(!empty($inspectionData['client']['contact']))
                     <div class="info-card">
                         <div class="info-label">Contact Number</div>
-                        <div class="info-value">{{ $inspectionData['client']['contact'] ?? 'Not specified' }}</div>
+                        <div class="info-value">{{ $inspectionData['client']['contact'] }}</div>
                     </div>
+                    @endif
+                    @if(!empty($inspectionData['client']['email']))
                     <div class="info-card">
                         <div class="info-label">Email</div>
-                        <div class="info-value">{{ $inspectionData['client']['email'] ?? 'Not specified' }}</div>
+                        <div class="info-value">{{ $inspectionData['client']['email'] }}</div>
                     </div>
+                    @endif
                     <div class="info-card">
                         <div class="info-label">Inspection Date</div>
                         <div class="info-value">{{ $inspectionData['inspection']['date'] ?? 'Not specified' }}</div>
@@ -913,13 +920,64 @@ document.addEventListener('DOMContentLoaded', function() {
             'imageFadeDuration': 300
         });
     } else {
-        // Fallback: simple image click behavior
+        // Fallback: create our own simple modal
+        createSimpleModal();
+        
         document.querySelectorAll('[data-lightbox]').forEach(function(link) {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
-                window.open(this.href, '_blank');
+                showImageModal(this.href, this.getAttribute('data-title'));
             });
         });
+    }
+    
+    function createSimpleModal() {
+        if (document.getElementById('simple-modal')) return;
+        
+        const modal = document.createElement('div');
+        modal.id = 'simple-modal';
+        modal.innerHTML = `
+            <div class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center;">
+                <div class="modal-content" style="position: relative; max-width: 90%; max-height: 90%;">
+                    <span class="modal-close" style="position: absolute; top: 10px; right: 20px; color: white; font-size: 30px; cursor: pointer; z-index: 10000;">&times;</span>
+                    <img class="modal-image" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                    <div class="modal-title" style="color: white; text-align: center; padding: 10px; font-size: 16px;"></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Close modal when clicking overlay or close button
+        const overlay = modal.querySelector('.modal-overlay');
+        const closeBtn = modal.querySelector('.modal-close');
+        
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                overlay.style.display = 'none';
+            }
+        });
+        
+        closeBtn.addEventListener('click', function() {
+            overlay.style.display = 'none';
+        });
+        
+        // Close with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                overlay.style.display = 'none';
+            }
+        });
+    }
+    
+    function showImageModal(src, title) {
+        const modal = document.getElementById('simple-modal');
+        const overlay = modal.querySelector('.modal-overlay');
+        const img = modal.querySelector('.modal-image');
+        const titleDiv = modal.querySelector('.modal-title');
+        
+        img.src = src;
+        titleDiv.textContent = title || 'Inspection Image';
+        overlay.style.display = 'flex';
     }
     
     // Add loading states for images

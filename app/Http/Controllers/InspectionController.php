@@ -645,24 +645,35 @@ class InspectionController extends Controller
     {
         try {
             // Collect all inspection data from session storage (passed from frontend)
-            $inspectionData = $request->input('inspectionData', []);
+            $rawInspectionData = $request->input('inspectionData', []);
             
-            // Create a test inspection report
+            // Transform the data to match the web report format
+            $inspectionData = $this->transformInspectionDataForReport($rawInspectionData);
+            
+            // Generate unique report number
+            $reportNumber = 'TEST-' . date('YmdHis') . '-' . rand(100, 999);
+            
+            // Create a test inspection report with all required fields
             $report = \App\Models\InspectionReport::create([
-                'title' => '[TEST] ' . ($inspectionData['visual']['client_name'] ?? 'Tablet Test') . ' - ' . ($inspectionData['visual']['manufacturer'] ?? 'Unknown') . ' ' . ($inspectionData['visual']['model'] ?? 'Vehicle'),
-                'inspection_data' => $inspectionData,
-                'status' => 'completed',
-                'inspector_name' => $inspectionData['visual']['inspector_name'] ?? 'Tablet Tester',
+                // Required fields
                 'client_name' => $inspectionData['visual']['client_name'] ?? 'Test Client',
-                'vehicle_info' => [
-                    'vin' => $inspectionData['visual']['vin'] ?? 'TEST-VIN-' . date('YmdHis'),
-                    'manufacturer' => $inspectionData['visual']['manufacturer'] ?? 'Test Make',
-                    'model' => $inspectionData['visual']['model'] ?? 'Test Model',
-                    'year' => $inspectionData['visual']['year'] ?? date('Y'),
-                    'registration' => $inspectionData['visual']['registration_number'] ?? 'TEST-REG-' . rand(100, 999)
-                ],
-                'created_at' => now(),
-                'updated_at' => now()
+                'vehicle_make' => $inspectionData['visual']['manufacturer'] ?? 'Test Make',
+                'vehicle_model' => $inspectionData['visual']['model'] ?? 'Test Model',
+                'inspection_date' => now()->toDateString(),
+                'report_number' => $reportNumber,
+                'pdf_filename' => $reportNumber . '.pdf', // Mock filename
+                'pdf_path' => 'reports/' . $reportNumber . '.pdf', // Mock path
+                
+                // Optional fields
+                'client_email' => $inspectionData['visual']['client_email'] ?? null,
+                'client_phone' => $inspectionData['visual']['client_phone'] ?? null,
+                'vehicle_year' => $inspectionData['visual']['year'] ?? date('Y'),
+                'vin_number' => $inspectionData['visual']['vin'] ?? 'TEST-VIN-' . date('YmdHis'),
+                'license_plate' => $inspectionData['visual']['registration_number'] ?? 'TEST-REG-' . rand(100, 999),
+                'mileage' => $inspectionData['visual']['mileage'] ?? null,
+                'inspector_name' => $inspectionData['visual']['inspector_name'] ?? 'Tablet Tester',
+                'status' => 'completed',
+                'inspection_data' => $inspectionData,
             ]);
 
             // Clear session storage (will be done by frontend)
@@ -680,5 +691,242 @@ class InspectionController extends Controller
                 'message' => 'Error creating test report: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Transform raw sessionStorage data to web report format
+     */
+    private function transformInspectionDataForReport($rawData)
+    {
+        $transformed = [];
+        
+        // Visual inspection data (client, vehicle info)
+        if (isset($rawData['visual'])) {
+            $transformed['visual'] = $rawData['visual'];
+        }
+        
+        // Body panels assessment
+        if (isset($rawData['bodyPanels'])) {
+            $transformed['bodyPanels']['assessments'] = [];
+            foreach ($rawData['bodyPanels'] as $key => $value) {
+                if (str_contains($key, '-condition')) {
+                    $panelName = str_replace('-condition', '', $key);
+                    $transformed['bodyPanels']['assessments'][$panelName]['condition'] = $value;
+                }
+                if (str_contains($key, '-comments')) {
+                    $panelName = str_replace('-comments', '', $key);
+                    $transformed['bodyPanels']['assessments'][$panelName]['comments'] = $value;
+                }
+            }
+        }
+        
+        // Interior assessment
+        if (isset($rawData['interior'])) {
+            $transformed['interior']['assessments'] = [];
+            foreach ($rawData['interior'] as $key => $value) {
+                if (str_contains($key, '-condition')) {
+                    $componentName = str_replace('-condition', '', $key);
+                    $transformed['interior']['assessments'][$componentName]['condition'] = $value;
+                }
+                if (str_contains($key, '-colour')) {
+                    $componentName = str_replace('-colour', '', $key);
+                    $transformed['interior']['assessments'][$componentName]['colour'] = $value;
+                }
+                if (str_contains($key, '-comments')) {
+                    $componentName = str_replace('-comments', '', $key);
+                    $transformed['interior']['assessments'][$componentName]['comments'] = $value;
+                }
+            }
+        }
+        
+        // Mechanical assessment
+        if (isset($rawData['mechanical'])) {
+            $transformed['mechanical']['assessments'] = [];
+            foreach ($rawData['mechanical'] as $key => $value) {
+                if (str_contains($key, '-condition')) {
+                    $componentName = str_replace('-condition', '', $key);
+                    $transformed['mechanical']['assessments'][$componentName]['condition'] = $value;
+                }
+                if (str_contains($key, '-comments')) {
+                    $componentName = str_replace('-comments', '', $key);
+                    $transformed['mechanical']['assessments'][$componentName]['comments'] = $value;
+                }
+            }
+        }
+        
+        // Engine compartment assessment
+        if (isset($rawData['engineCompartment'])) {
+            $transformed['engineCompartment']['assessments'] = [];
+            foreach ($rawData['engineCompartment'] as $key => $value) {
+                if (str_contains($key, '-condition')) {
+                    $componentName = str_replace('-condition', '', $key);
+                    $transformed['engineCompartment']['assessments'][$componentName]['condition'] = $value;
+                }
+                if (str_contains($key, '-comments')) {
+                    $componentName = str_replace('-comments', '', $key);
+                    $transformed['engineCompartment']['assessments'][$componentName]['comments'] = $value;
+                }
+            }
+        }
+        
+        // Physical hoist assessment
+        if (isset($rawData['physicalHoist'])) {
+            $transformed['physicalHoist']['assessments'] = [];
+            foreach ($rawData['physicalHoist'] as $key => $value) {
+                if (str_contains($key, '-primary_condition')) {
+                    $componentName = str_replace('-primary_condition', '', $key);
+                    $transformed['physicalHoist']['assessments'][$componentName]['primary_condition'] = $value;
+                }
+                if (str_contains($key, '-secondary_condition')) {
+                    $componentName = str_replace('-secondary_condition', '', $key);
+                    $transformed['physicalHoist']['assessments'][$componentName]['secondary_condition'] = $value;
+                }
+                if (str_contains($key, '-comments')) {
+                    $componentName = str_replace('-comments', '', $key);
+                    $transformed['physicalHoist']['assessments'][$componentName]['comments'] = $value;
+                }
+            }
+        }
+        
+        // Tyres assessment
+        if (isset($rawData['tyres'])) {
+            $transformed['tyres']['assessments'] = [];
+            foreach ($rawData['tyres'] as $key => $value) {
+                if (str_contains($key, '-condition')) {
+                    $tyreName = str_replace('-condition', '', $key);
+                    $transformed['tyres']['assessments'][$tyreName]['condition'] = $value;
+                }
+                if (str_contains($key, '-size')) {
+                    $tyreName = str_replace('-size', '', $key);
+                    $transformed['tyres']['assessments'][$tyreName]['size'] = $value;
+                }
+                if (str_contains($key, '-manufacture')) {
+                    $tyreName = str_replace('-manufacture', '', $key);
+                    $transformed['tyres']['assessments'][$tyreName]['manufacture'] = $value;
+                }
+                if (str_contains($key, '-model')) {
+                    $tyreName = str_replace('-model', '', $key);
+                    $transformed['tyres']['assessments'][$tyreName]['model'] = $value;
+                }
+            }
+        }
+        
+        // Service booklet
+        if (isset($rawData['serviceBooklet'])) {
+            $transformed['serviceBooklet'] = $rawData['serviceBooklet'];
+        }
+        
+        return $transformed;
+    }
+
+    /**
+     * Test how Visual Inspection data appears in the report
+     */
+    public function testVisualReport(Request $request)
+    {
+        // Get data from request (posted from frontend) or use sample data
+        $visualData = $request->input('visualData', []);
+        
+        // Debug: Let's see what data we're getting
+        \Log::info('Visual Data Received:', ['data' => $visualData]);
+        
+        // If visualData is a string, decode it
+        if (is_string($visualData)) {
+            $visualData = json_decode($visualData, true) ?? [];
+        }
+        
+        // If no data provided, use sample data
+        if (empty($visualData)) {
+            $visualData = [
+                'inspector_name' => 'Test Inspector',
+                'inspector_phone' => '123-456-7890',
+                'inspector_email' => 'inspector@test.com',
+                'client_name' => 'John Test Client',
+                'client_phone' => '987-654-3210',
+                'client_email' => 'client@test.com',
+                'vin' => 'TEST123456789',
+                'manufacturer' => 'Toyota',
+                'model' => 'Camry',
+                'vehicle_type' => 'Sedan',
+                'transmission' => 'Automatic',
+                'engine_number' => 'ENG123456',
+                'registration_number' => 'ABC-123-GP',
+                'year' => '2020',
+                'mileage' => '50000',
+                'diagnostic_report' => 'Test diagnostic report content showing how this will appear in the final report.'
+            ];
+        }
+
+        // Create a mock report structure with all required properties
+        $report = (object)[
+            'id' => 1,
+            'report_number' => 'TEST-VISUAL-001',
+            'client_name' => 'Test Client', // No client fields in form
+            'client_email' => null,
+            'client_phone' => null,
+            'vehicle_make' => $visualData['manufacturer'] ?? 'Unknown Make',
+            'vehicle_model' => $visualData['model'] ?? 'Unknown Model',
+            'vehicle_year' => $visualData['year_model'] ?? date('Y'),
+            'vin_number' => $visualData['vin'] ?? 'Unknown VIN',
+            'license_plate' => $visualData['registration_number'] ?? 'Unknown Reg',
+            'mileage' => $visualData['km_reading'] ?? 0,
+            'inspection_date' => now()->toDateString(),
+            'inspector_name' => $visualData['inspector_name'] ?? 'Unknown Inspector',
+            'status' => 'completed',
+            'created_at' => now(),
+            'updated_at' => now()
+        ];
+
+        // Create inspection data in the format expected by web report
+        $inspectionData = [
+            'client' => [
+                'name' => 'Test Client', // No client fields in actual form
+                'contact' => null,
+                'email' => null
+            ],
+            'vehicle' => [
+                'make' => $visualData['manufacturer'] ?? 'Not specified',
+                'model' => $visualData['model'] ?? 'Not specified',
+                'year' => $visualData['year_model'] ?? 'Not specified',
+                'vin' => $visualData['vin'] ?? 'Not specified',
+                'license_plate' => $visualData['registration_number'] ?? 'Not specified',
+                'mileage' => $visualData['km_reading'] ?? 'Not specified',
+                'colour' => $visualData['colour'] ?? 'Not specified',
+                'fuel_type' => $visualData['fuel_type'] ?? 'Not specified',
+                'transmission' => $visualData['transmission'] ?? 'Not specified',
+                'doors' => $visualData['doors'] ?? 'Not specified'
+            ],
+            'inspection' => [
+                'inspector' => $visualData['inspector_name'] ?? 'Not specified',
+                'date' => $visualData['inspection_datetime'] ?? now()->format('Y-m-d H:i'),
+                'diagnostic_report' => $visualData['diagnostic_report'] ?? 'No diagnostic report provided'
+            ],
+            'images' => [
+                'visual' => isset($visualData['images']) ? $this->formatImagesForDisplay($visualData['images']) : []
+            ]
+        ];
+
+        return view('reports.web-report', compact('report', 'inspectionData'));
+    }
+
+    /**
+     * Format images for display in web report
+     */
+    private function formatImagesForDisplay($images)
+    {
+        if (!is_array($images)) {
+            return [];
+        }
+
+        $formattedImages = [];
+        foreach ($images as $index => $image) {
+            $formattedImages[] = [
+                'data_url' => $image, // The image is already a data URL from sessionStorage
+                'area_name' => 'Visual inspection image ' . ($index + 1),
+                'timestamp' => now()->format('Y-m-d H:i:s')
+            ];
+        }
+
+        return $formattedImages;
     }
 }

@@ -182,6 +182,9 @@
             <button type="button" class="btn btn-secondary me-3" onclick="saveDraft()">
                 Save Draft
             </button>
+            <button type="button" class="btn btn-info me-3" onclick="testVisualReport()">
+                Test Report View
+            </button>
             <button type="button" class="btn btn-primary" onclick="continueToNext()">
                 Continue to Next Section
             </button>
@@ -416,6 +419,84 @@ function continueToNext() {
         sessionStorage.setItem('visualInspectionData', JSON.stringify(inspectionData));
         window.location.href = '/inspection/body-panel';
     });
+}
+
+// Test Visual Report with current form data
+function testVisualReport() {
+    // Get current form data
+    const formData = new FormData(document.getElementById('visual-inspection-form'));
+    const visualData = {};
+    
+    // Convert FormData to object
+    for (let [key, value] of formData.entries()) {
+        visualData[key] = value;
+    }
+    
+    // Debug: Log the data being sent
+    console.log('Form data being sent:', visualData);
+    
+    // Get images from sessionStorage (if any)
+    const storedImages = sessionStorage.getItem('visualInspectionImages');
+    console.log('Raw stored images:', storedImages);
+    
+    const imageData = storedImages ? JSON.parse(storedImages) : [];
+    console.log('Parsed image data:', imageData);
+    
+    // Check if we have current uploaded images that aren't in sessionStorage yet
+    if (uploadedImages.length > 0) {
+        console.log('Using current uploadedImages:', uploadedImages.length);
+        // Convert current images to base64 for the test
+        const currentImagePromises = uploadedImages.map(img => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.readAsDataURL(img.blob);
+            });
+        });
+        
+        Promise.all(currentImagePromises).then(base64Images => {
+            visualData.images = base64Images;
+            console.log('Base64 images ready:', base64Images.length);
+            submitTestForm();
+        });
+        return; // Exit early to wait for images
+    }
+    
+    // Add images to the data
+    if (imageData.length > 0) {
+        visualData.images = imageData;
+        console.log('Images found in storage:', imageData.length);
+    }
+    
+    submitTestForm();
+    
+    function submitTestForm() {
+        // Create a form to POST to the test endpoint
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/test/visual-report';
+        form.style.display = 'none';
+        
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfInput);
+        
+        // Add visual data
+        const dataInput = document.createElement('input');
+        dataInput.type = 'hidden';
+        dataInput.name = 'visualData';
+        dataInput.value = JSON.stringify(visualData);
+        form.appendChild(dataInput);
+        
+        // Submit to open in same window
+        document.body.appendChild(form);
+        form.submit();
+    }
 }
 </script>
 @endsection
