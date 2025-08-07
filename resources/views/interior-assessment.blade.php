@@ -91,91 +91,99 @@
                              title="Buttons MR" 
                              alt="Buttons MR">
                         
-                        <!-- Buttons RL: x=455, y=705, w=30, h=33 -->
+                        <!-- Buttons FL: x=77, y=325, w=36, h=36 -->
+                        <img src="/images/interior/buttons-FL.png" 
+                             class="panel-overlay buttons-group" 
+                             data-panel="buttons"
+                             style="position: absolute; left: 7.66%; top: 22.61%; width: 3.58%; height: 2.51%; z-index: 2;"
+                             title="Buttons FL" 
+                             alt="Buttons FL">
+                        
+                        <!-- Buttons RL: x=104, y=739, w=33, h=33 -->
                         <img src="/images/interior/buttons-RL.png" 
                              class="panel-overlay buttons-group" 
                              data-panel="buttons"
-                             style="position: absolute; left: 45.27%; top: 49.06%; width: 2.99%; height: 2.30%; z-index: 2;"
+                             style="position: absolute; left: 10.35%; top: 51.42%; width: 3.28%; height: 2.30%; z-index: 2;"
                              title="Buttons RL" 
                              alt="Buttons RL">
                         
-                        <!-- Buttons RR: x=527, y=710, w=30, h=30 -->
+                        <!-- Buttons RR: x=881, y=731, w=39, h=39 -->
                         <img src="/images/interior/buttons-RR.png" 
                              class="panel-overlay buttons-group" 
                              data-panel="buttons"
-                             style="position: absolute; left: 52.44%; top: 49.41%; width: 2.99%; height: 2.09%; z-index: 2;"
+                             style="position: absolute; left: 87.66%; top: 50.87%; width: 3.88%; height: 2.71%; z-index: 2;"
                              title="Buttons RR" 
                              alt="Buttons RR">
                         
-                        <!-- Driver Seat: x=632, y=409, w=300, h=377 -->
+                        <!-- Driver Seat: x=558, y=271, w=346, h=449 -->
                         <img src="/images/interior/driver-seat.png" 
                              class="panel-overlay" 
                              data-panel="driver-seat"
-                             style="position: absolute; left: 62.89%; top: 28.46%; width: 29.85%; height: 26.24%;"
+                             style="position: absolute; left: 55.52%; top: 18.86%; width: 34.43%; height: 31.25%;"
                              title="Driver Seat" 
                              alt="Driver Seat">
                         
-                        <!-- Passenger Seat: x=79, y=409, w=300, h=377 -->
+                        <!-- Passenger Seat: x=115, y=298, w=332, h=420 -->
                         <img src="/images/interior/passenger-seat.png" 
                              class="panel-overlay" 
                              data-panel="passenger-seat"
-                             style="position: absolute; left: 7.86%; top: 28.46%; width: 29.85%; height: 26.24%;"
+                             style="position: absolute; left: 11.44%; top: 20.74%; width: 33.03%; height: 29.23%;"
                              title="Passenger Seat" 
                              alt="Passenger Seat">
                         
-                        <!-- FR Door Panel: x=962, y=280, w=43, h=506 -->
+                        <!-- FR Door Panel: x=883, y=203, w=97, h=471 -->
                         <img src="/images/interior/fr-dOORPANEL.png" 
                              class="panel-overlay" 
                              data-panel="fr-door-panel"
-                             style="position: absolute; left: 95.72%; top: 19.48%; width: 4.28%; height: 35.20%;"
+                             style="position: absolute; left: 87.86%; top: 14.13%; width: 9.65%; height: 32.78%;"
                              title="FR Door Panel" 
                              alt="FR Door Panel">
                         
-                        <!-- FL Door Panel: x=0, y=280, w=43, h=506 -->
+                        <!-- FL Door Panel: x=31, y=203, w=101, h=481 -->
                         <img src="/images/interior/FL Doorpanel.png" 
                              class="panel-overlay" 
                              data-panel="fl-door-panel"
-                             style="position: absolute; left: 0%; top: 19.48%; width: 4.28%; height: 35.20%;"
+                             style="position: absolute; left: 3.08%; top: 14.13%; width: 10.05%; height: 33.47%;"
                              title="FL Door Panel" 
                              alt="FL Door Panel">
                         
-                        <!-- Rear Seat: x=79, y=795, w=853, h=284 -->
+                        <!-- Rear Seat: x=131, y=712, w=737, h=400 -->
                         <img src="/images/interior/Rear-Seat.png" 
                              class="panel-overlay" 
                              data-panel="rear-seat"
-                             style="position: absolute; left: 7.86%; top: 55.31%; width: 84.88%; height: 19.76%;"
+                             style="position: absolute; left: 13.03%; top: 49.55%; width: 73.33%; height: 27.84%;"
                              title="Rear Seat" 
                              alt="Rear Seat">
                         
-                        <!-- Backboard: x=79, y=1089, w=853, h=172 -->
+                        <!-- Backboard: x=107, y=1100, w=812, h=275 -->
                         <img src="/images/interior/backboard.png" 
                              class="panel-overlay" 
                              data-panel="backboard"
-                             style="position: absolute; left: 7.86%; top: 75.78%; width: 84.88%; height: 11.97%;"
+                             style="position: absolute; left: 10.65%; top: 76.53%; width: 80.80%; height: 19.14%;"
                              title="Backboard" 
                              alt="Backboard">
                         
-                        <!-- RR Door Panel: x=962, y=795, w=43, h=466 -->
+                        <!-- RR Door Panel: x=854, y=677, w=119, h=443 -->
                         <img src="/images/interior/RR-Door-Panel.png" 
                              class="panel-overlay" 
                              data-panel="rr-door-panel"
-                             style="position: absolute; left: 95.72%; top: 55.31%; width: 4.28%; height: 32.43%;"
+                             style="position: absolute; left: 84.98%; top: 47.11%; width: 11.84%; height: 30.83%;"
                              title="RR Door Panel" 
                              alt="RR Door Panel">
                         
-                        <!-- LR Door Panel: x=0, y=795, w=43, h=466 -->
+                        <!-- LR Door Panel: x=44, y=678, w=131, h=443 -->
                         <img src="/images/interior/LR-DoorPanel.png" 
                              class="panel-overlay" 
                              data-panel="lr-door-panel"
-                             style="position: absolute; left: 0%; top: 55.31%; width: 4.28%; height: 32.43%;"
+                             style="position: absolute; left: 4.38%; top: 47.18%; width: 13.03%; height: 30.83%;"
                              title="LR Door Panel" 
                              alt="LR Door Panel">
                         
-                        <!-- Boot: x=79, y=1273, w=853, h=164 -->
+                        <!-- Boot: x=103, y=1310, w=811, h=125 -->
                         <img src="/images/interior/Boot.png" 
                              class="panel-overlay" 
                              data-panel="boot"
-                             style="position: absolute; left: 7.86%; top: 88.61%; width: 84.88%; height: 11.41%;"
+                             style="position: absolute; left: 10.25%; top: 91.15%; width: 80.70%; height: 8.70%;"
                              title="Boot" 
                              alt="Boot">
                         
