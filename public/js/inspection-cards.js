@@ -98,40 +98,53 @@ window.InspectionCards = (function() {
             `;
         }
         
-        // Condition field
-        if (config.fields.condition && config.fields.condition.enabled) {
-            const conditionOptions = config.fields.condition.options.map(opt => 
-                `<option value="${opt.toLowerCase()}">${opt}</option>`
-            ).join('');
+        // Dynamic field generation based on config.fields
+        Object.keys(config.fields).forEach(fieldKey => {
+            const field = config.fields[fieldKey];
+            if (!field.enabled) return;
             
-            fieldsHtml += `
-                <select class="form-select form-select-sm" name="${item.id}-condition">
-                    <option value="">Condition</option>
-                    ${conditionOptions}
-                </select>
-            `;
-        }
-        
-        // Comments field
-        if (config.fields.comments && config.fields.comments.enabled) {
-            const fieldType = config.fields.comments.type === 'textarea' ? 'textarea' : 'input';
-            const placeholder = config.fields.comments.placeholder || 'Additional comments';
+            const fieldName = `${item.id}-${fieldKey}`;
+            const fieldLabel = field.label || fieldKey;
+            const placeholder = field.placeholder || fieldLabel;
             
-            if (fieldType === 'textarea') {
+            if (field.options && Array.isArray(field.options)) {
+                // Select dropdown field
+                const optionsHtml = field.options.map(opt => 
+                    `<option value="${opt.toLowerCase()}">${opt}</option>`
+                ).join('');
+                
                 fieldsHtml += `
-                    <textarea class="form-control form-control-sm" 
-                           name="${item.id}-comments" 
-                           placeholder="${placeholder}"
-                           rows="1"></textarea>
+                    <div class="form-field-group">
+                        <div class="field-label">${fieldLabel}</div>
+                        <select class="form-select form-select-sm" name="${fieldName}">
+                            <option value="">${fieldLabel}</option>
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                `;
+            } else if (field.type === 'textarea') {
+                // Textarea field
+                fieldsHtml += `
+                    <div class="form-field-group">
+                        <div class="field-label">${fieldLabel}</div>
+                        <textarea class="form-control form-control-sm" 
+                               name="${fieldName}" 
+                               placeholder="${placeholder}"
+                               rows="1"></textarea>
+                    </div>
                 `;
             } else {
+                // Text input field (default)
                 fieldsHtml += `
-                    <input type="text" class="form-control form-control-sm" 
-                           name="${item.id}-comments" 
-                           placeholder="${placeholder}">
+                    <div class="form-field-group">
+                        <div class="field-label">${fieldLabel}</div>
+                        <input type="text" class="form-control form-control-sm" 
+                               name="${fieldName}" 
+                               placeholder="${placeholder}">
+                    </div>
                 `;
             }
-        }
+        });
         
         cardDiv.innerHTML = `
             <div class="panel-card" data-panel-card="${item.panelId || item.id}">
