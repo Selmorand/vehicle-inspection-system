@@ -36,6 +36,7 @@ Route::controller(InspectionController::class)->group(function () {
     Route::post('/api/inspection/engine-compartment', 'saveEngineCompartmentAssessment')->name('api.inspection.engine-compartment');
     Route::post('/api/inspection/physical-hoist', 'savePhysicalHoistInspection')->name('api.inspection.physical-hoist');
     Route::post('/api/inspection/upload-image', 'uploadImage')->name('api.inspection.upload-image');
+    Route::post('/api/inspection/complete', 'completeInspection')->name('api.inspection.complete');
 });
 
 // Image handling routes

@@ -637,4 +637,48 @@ class InspectionController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Complete the full inspection and create a test report
+     */
+    public function completeInspection(Request $request)
+    {
+        try {
+            // Collect all inspection data from session storage (passed from frontend)
+            $inspectionData = $request->input('inspectionData', []);
+            
+            // Create a test inspection report
+            $report = \App\Models\InspectionReport::create([
+                'title' => '[TEST] ' . ($inspectionData['visual']['client_name'] ?? 'Tablet Test') . ' - ' . ($inspectionData['visual']['manufacturer'] ?? 'Unknown') . ' ' . ($inspectionData['visual']['model'] ?? 'Vehicle'),
+                'inspection_data' => $inspectionData,
+                'status' => 'completed',
+                'inspector_name' => $inspectionData['visual']['inspector_name'] ?? 'Tablet Tester',
+                'client_name' => $inspectionData['visual']['client_name'] ?? 'Test Client',
+                'vehicle_info' => [
+                    'vin' => $inspectionData['visual']['vin'] ?? 'TEST-VIN-' . date('YmdHis'),
+                    'manufacturer' => $inspectionData['visual']['manufacturer'] ?? 'Test Make',
+                    'model' => $inspectionData['visual']['model'] ?? 'Test Model',
+                    'year' => $inspectionData['visual']['year'] ?? date('Y'),
+                    'registration' => $inspectionData['visual']['registration_number'] ?? 'TEST-REG-' . rand(100, 999)
+                ],
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            // Clear session storage (will be done by frontend)
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Test inspection report created successfully!',
+                'report_id' => $report->id,
+                'report_url' => route('reports.show', $report->id)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating test report: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

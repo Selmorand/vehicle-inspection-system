@@ -1202,14 +1202,52 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('physicalHoistForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Save the data and complete inspection
+        // Save the current data first
         saveCurrentProgress();
         
-        // Show completion message
-        alert('Vehicle inspection completed successfully! All data has been saved.');
+        // Collect all inspection data from sessionStorage
+        const allInspectionData = {
+            visual: JSON.parse(sessionStorage.getItem('visualInspectionData') || '{}'),
+            bodyPanels: JSON.parse(sessionStorage.getItem('bodyPanelData') || '{}'),
+            interior: JSON.parse(sessionStorage.getItem('interiorAssessmentData') || '{}'),
+            serviceBooklet: JSON.parse(sessionStorage.getItem('serviceBookletData') || '{}'),
+            tyres: JSON.parse(sessionStorage.getItem('tyresRimsData') || '{}'),
+            mechanical: JSON.parse(sessionStorage.getItem('mechanicalReportData') || '{}'),
+            engineCompartment: JSON.parse(sessionStorage.getItem('engineComponentsData') || '{}'),
+            physicalHoist: JSON.parse(sessionStorage.getItem('physicalHoistData') || '{}')
+        };
         
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
+        // Submit to create test report
+        fetch('/api/inspection/complete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                inspectionData: allInspectionData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Clear all session storage
+                sessionStorage.clear();
+                
+                // Show success message with report link
+                alert(`Test inspection report created successfully!\n\nReport ID: ${data.report_id}\n\nYou can view it at /reports`);
+                
+                // Redirect to reports page to see the test report
+                window.location.href = '/reports';
+            } else {
+                alert('Error creating test report: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error submitting inspection. Data saved locally.');
+            window.location.href = '/dashboard';
+        });
     });
 
     // Navigation button handlers
