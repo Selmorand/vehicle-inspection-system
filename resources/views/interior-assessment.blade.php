@@ -58,15 +58,6 @@
                              title="Steering Wheel" 
                              alt="Steering Wheel">
                         
-                        <!-- Main Buttons Panel: x=79, y=270, w=853, h=507 -->
-                        <!-- Note: Using individual button components only, no main buttons.png -->
-                        <!--<img src="/images/interior/buttons.png" 
-                             class="panel-overlay" 
-                             data-panel="buttons"
-                             style="position: absolute; left: 79px; top: 270px; width: 853px; height: 507px;"
-                             title="Buttons" 
-                             alt="Buttons">-->
-                        
                         <!-- Individual Button Components with higher z-index -->
                         <!-- Buttons RF: x=876, y=283, w=85, h=85 -->
                         <img src="/images/interior/buttons-RF.png" 
@@ -100,99 +91,91 @@
                              title="Buttons MR" 
                              alt="Buttons MR">
                         
-                        <!-- Buttons FL: x=77, y=325, w=36, h=36 -->
-                        <img src="/images/interior/buttons-FL.png" 
-                             class="panel-overlay buttons-group" 
-                             data-panel="buttons"
-                             style="position: absolute; left: 7.66%; top: 22.61%; width: 3.58%; height: 2.51%; z-index: 2;"
-                             title="Buttons FL" 
-                             alt="Buttons FL">
-                        
-                        <!-- Buttons RL: x=104, y=739, w=33, h=33 -->
+                        <!-- Buttons RL: x=455, y=705, w=30, h=33 -->
                         <img src="/images/interior/buttons-RL.png" 
                              class="panel-overlay buttons-group" 
                              data-panel="buttons"
-                             style="position: absolute; left: 10.35%; top: 51.42%; width: 3.28%; height: 2.30%; z-index: 2;"
+                             style="position: absolute; left: 45.27%; top: 49.06%; width: 2.99%; height: 2.30%; z-index: 2;"
                              title="Buttons RL" 
                              alt="Buttons RL">
                         
-                        <!-- Buttons RR: x=881, y=731, w=39, h=39 -->
+                        <!-- Buttons RR: x=527, y=710, w=30, h=30 -->
                         <img src="/images/interior/buttons-RR.png" 
                              class="panel-overlay buttons-group" 
                              data-panel="buttons"
-                             style="position: absolute; left: 87.66%; top: 50.87%; width: 3.88%; height: 2.71%; z-index: 2;"
+                             style="position: absolute; left: 52.44%; top: 49.41%; width: 2.99%; height: 2.09%; z-index: 2;"
                              title="Buttons RR" 
                              alt="Buttons RR">
                         
-                        <!-- Driver Seat: x=558, y=271, w=346, h=449 -->
+                        <!-- Driver Seat: x=632, y=409, w=300, h=377 -->
                         <img src="/images/interior/driver-seat.png" 
                              class="panel-overlay" 
                              data-panel="driver-seat"
-                             style="position: absolute; left: 55.52%; top: 18.86%; width: 34.43%; height: 31.25%;"
+                             style="position: absolute; left: 62.89%; top: 28.46%; width: 29.85%; height: 26.24%;"
                              title="Driver Seat" 
                              alt="Driver Seat">
                         
-                        <!-- Passenger Seat: x=115, y=298, w=332, h=420 -->
+                        <!-- Passenger Seat: x=79, y=409, w=300, h=377 -->
                         <img src="/images/interior/passenger-seat.png" 
                              class="panel-overlay" 
                              data-panel="passenger-seat"
-                             style="position: absolute; left: 11.44%; top: 20.74%; width: 33.03%; height: 29.23%;"
+                             style="position: absolute; left: 7.86%; top: 28.46%; width: 29.85%; height: 26.24%;"
                              title="Passenger Seat" 
                              alt="Passenger Seat">
                         
-                        <!-- FR Door Panel: x=883, y=203, w=97, h=471 -->
+                        <!-- FR Door Panel: x=962, y=280, w=43, h=506 -->
                         <img src="/images/interior/fr-dOORPANEL.png" 
                              class="panel-overlay" 
                              data-panel="fr-door-panel"
-                             style="position: absolute; left: 87.86%; top: 14.13%; width: 9.65%; height: 32.78%;"
+                             style="position: absolute; left: 95.72%; top: 19.48%; width: 4.28%; height: 35.20%;"
                              title="FR Door Panel" 
                              alt="FR Door Panel">
                         
-                        <!-- FL Door Panel: x=31, y=203, w=101, h=481 -->
+                        <!-- FL Door Panel: x=0, y=280, w=43, h=506 -->
                         <img src="/images/interior/FL Doorpanel.png" 
                              class="panel-overlay" 
                              data-panel="fl-door-panel"
-                             style="position: absolute; left: 3.08%; top: 14.13%; width: 10.05%; height: 33.47%;"
+                             style="position: absolute; left: 0%; top: 19.48%; width: 4.28%; height: 35.20%;"
                              title="FL Door Panel" 
                              alt="FL Door Panel">
                         
-                        <!-- Rear Seat: x=131, y=712, w=737, h=400 -->
+                        <!-- Rear Seat: x=79, y=795, w=853, h=284 -->
                         <img src="/images/interior/Rear-Seat.png" 
                              class="panel-overlay" 
                              data-panel="rear-seat"
-                             style="position: absolute; left: 13.03%; top: 49.55%; width: 73.33%; height: 27.84%;"
+                             style="position: absolute; left: 7.86%; top: 55.31%; width: 84.88%; height: 19.76%;"
                              title="Rear Seat" 
                              alt="Rear Seat">
                         
-                        <!-- Backboard: x=107, y=1100, w=812, h=275 -->
+                        <!-- Backboard: x=79, y=1089, w=853, h=172 -->
                         <img src="/images/interior/backboard.png" 
                              class="panel-overlay" 
                              data-panel="backboard"
-                             style="position: absolute; left: 10.65%; top: 76.53%; width: 80.80%; height: 19.14%;"
+                             style="position: absolute; left: 7.86%; top: 75.78%; width: 84.88%; height: 11.97%;"
                              title="Backboard" 
                              alt="Backboard">
                         
-                        <!-- RR Door Panel: x=854, y=677, w=119, h=443 -->
+                        <!-- RR Door Panel: x=962, y=795, w=43, h=466 -->
                         <img src="/images/interior/RR-Door-Panel.png" 
                              class="panel-overlay" 
                              data-panel="rr-door-panel"
-                             style="position: absolute; left: 84.98%; top: 47.11%; width: 11.84%; height: 30.83%;"
+                             style="position: absolute; left: 95.72%; top: 55.31%; width: 4.28%; height: 32.43%;"
                              title="RR Door Panel" 
                              alt="RR Door Panel">
                         
-                        <!-- LR Door Panel: x=44, y=678, w=131, h=443 -->
+                        <!-- LR Door Panel: x=0, y=795, w=43, h=466 -->
                         <img src="/images/interior/LR-DoorPanel.png" 
                              class="panel-overlay" 
                              data-panel="lr-door-panel"
-                             style="position: absolute; left: 4.38%; top: 47.18%; width: 13.03%; height: 30.83%;"
+                             style="position: absolute; left: 0%; top: 55.31%; width: 4.28%; height: 32.43%;"
                              title="LR Door Panel" 
                              alt="LR Door Panel">
                         
-                        <!-- Boot: x=103, y=1310, w=811, h=125 -->
+                        <!-- Boot: x=79, y=1273, w=853, h=164 -->
                         <img src="/images/interior/Boot.png" 
                              class="panel-overlay" 
                              data-panel="boot"
-                             style="position: absolute; left: 10.25%; top: 91.15%; width: 80.70%; height: 8.70%;"
+                             style="position: absolute; left: 7.86%; top: 88.61%; width: 84.88%; height: 11.41%;"
                              title="Boot" 
                              alt="Boot">
                         
@@ -234,8 +217,6 @@
                     <form id="interiorAssessmentForm">
                         @csrf
                         
-                        <!-- No header row needed - labels will be above each item like body panel -->
-                        
                         <!-- Dynamic interior assessments will be generated by JavaScript -->
                         <div id="interiorAssessments">
                             <!-- Interior forms will be added here -->
@@ -264,9 +245,9 @@
 <style>
 /* Card body height constraint for interior image */
 .interior-visual-card .card-body {
-    height: auto; /* Let it size to content */
-    overflow: visible; /* Allow panel overlays to be visible */
-    padding: 0; /* Remove all padding */
+    height: auto;
+    overflow: visible;
+    padding: 15px;
 }
 
 /* Interior container - responsive for tablet-first design */
@@ -278,12 +259,6 @@
     background-color: #f8f9fa;
     padding: 0;
     overflow: visible;
-}
-
-/* Interior visual card body - responsive height */
-.interior-visual-card .card-body {
-    overflow: visible;
-    padding: 15px;
 }
 
 /* Base interior image - fully responsive */
@@ -298,114 +273,208 @@
 .panel-overlay {
     cursor: pointer;
     transition: all 0.3s ease;
-    opacity: 0; /* Start invisible */
+    opacity: 0;
     position: absolute !important;
-    /* Convert all pixel values to percentages for responsive scaling */
 }
 
-/* Hover effects for panels - red highlight when hovering (only if no condition set) */
-.panel-overlay:not(.condition-good):not(.condition-average):not(.condition-bad):hover {
+/* Hover effects for panels - red highlight when hovering */
+.panel-overlay:hover {
     opacity: 0.7;
     filter: brightness(0) saturate(100%) invert(21%) sepia(100%) saturate(7463%) hue-rotate(358deg) brightness(105%) contrast(115%);
 }
 
-/* Active state - temporary red highlight (only if no condition set) */
-.panel-overlay:not(.condition-good):not(.condition-average):not(.condition-bad).active {
+/* Active state - temporary red highlight */
+.panel-overlay.active {
     opacity: 0.7;
     filter: brightness(0) saturate(100%) invert(21%) sepia(100%) saturate(7463%) hue-rotate(358deg) brightness(105%) contrast(115%);
 }
 
-/* Condition-based persistent colors - simplified for Good/Average/Bad */
-.panel-overlay.condition-good {
-    opacity: 0.8 !important;
-    /* Green #277020 */
-    filter: brightness(0) saturate(100%) invert(25%) sepia(98%) saturate(1044%) hue-rotate(73deg) brightness(92%) contrast(101%) !important;
+/* Panel card styling - same as body panel */
+.panel-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.panel-overlay.condition-average {
-    opacity: 0.8 !important;
-    /* Orange #f5a409 */
-    filter: brightness(0) saturate(100%) invert(66%) sepia(68%) saturate(3428%) hue-rotate(8deg) brightness(102%) contrast(95%) !important;
+.panel-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2b2b2b;
+    margin-bottom: 12px;
 }
 
-.panel-overlay.condition-bad {
-    opacity: 0.8 !important;
-    /* Red #c62121 */
-    filter: brightness(0) saturate(100%) invert(16%) sepia(90%) saturate(3122%) hue-rotate(348deg) brightness(93%) contrast(87%) !important;
+.panel-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-/* Special handling for button groups - they all highlight together */
-.buttons-group:hover ~ .buttons-group,
-.buttons-group:hover,
-.buttons-group.active {
-    opacity: 0.7;
-    filter: brightness(0) saturate(100%) invert(21%) sepia(100%) saturate(7463%) hue-rotate(358deg) brightness(105%) contrast(115%);
+.panel-controls select,
+.panel-controls input,
+.panel-controls textarea {
+    flex: 1;
+    min-width: 120px;
 }
 
-/* When hovering any button part, highlight all button parts */
-.interior-container:has(.buttons-group:hover) .buttons-group {
-    opacity: 0.7;
-    filter: brightness(0) saturate(100%) invert(21%) sepia(100%) saturate(7463%) hue-rotate(358deg) brightness(105%) contrast(115%);
+.panel-controls textarea {
+    resize: none;
 }
 
-/* Form label hover effects */
-.form-label-wrapper {
-    transition: background-color 0.3s ease;
+.photo-btn {
+    background: white;
+    border: 2px solid #4f959b;
+    color: #4f959b;
+    padding: 6px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.photo-btn:hover {
+    background: #4f959b;
+    color: white;
+}
+
+.photo-btn i {
+    font-size: 16px;
+}
+
+/* Image gallery */
+.image-gallery {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.image-thumbnail-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.image-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
     cursor: pointer;
 }
 
-.form-label-wrapper:hover,
-.form-label-wrapper.active {
-    background-color: rgba(220, 53, 69, 0.2);
+.remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.remove-image:hover {
+    background: #dc3545;
+}
+
+/* Image modal */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+}
+
+.image-modal-content {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 90%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.image-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.image-modal-close:hover {
+    color: #bbb;
 }
 
 /* Panel assessment highlighting */
 .panel-assessment {
-    border-left: 3px solid transparent;
-    padding-left: 10px;
     transition: all 0.3s ease;
-    margin-bottom: 8px;
 }
 
-.panel-assessment.highlighted {
-    border-left-color: #dc3545;
-    background-color: rgba(220, 53, 69, 0.05);
+.panel-card.highlighted {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
 }
 
-/* Color dropdown preview */
-.color-preview {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 1px solid #dee2e6;
-    border-radius: 3px;
-    vertical-align: middle;
-    margin-left: 5px;
-}
+/* Color select styling */
+.color-select option[value="Red & Black"] { background-color: #b30000; color: white; }
+.color-select option[value="Black"] { background-color: #000000; color: white; }
+.color-select option[value="Grey"] { background-color: #808080; color: white; }
+.color-select option[value="Beige"] { background-color: #f5f5dc; }
+.color-select option[value="Brown"] { background-color: #8b4513; color: white; }
+.color-select option[value="Blue"] { background-color: #0000cd; color: white; }
+.color-select option[value="Other"] { background-color: #cccccc; }
 
-/* Responsive design for tablets and mobile */
-@media (max-width: 991px) {
-    .interior-container {
-        max-width: 100%;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .panel-controls {
+        flex-direction: column;
     }
     
-    .col-lg-6 {
-        margin-bottom: 20px;
-    }
-}
-
-@media (max-width: 768px) {
-    .form-select-sm, .form-control-sm {
-        font-size: 14px;
+    .panel-controls select,
+    .panel-controls input,
+    .panel-controls textarea {
+        width: 100%;
     }
     
-    .row.g-2 > div {
-        margin-bottom: 5px;
+    .photo-btn {
+        width: 100%;
+        justify-content: center;
     }
-}
-
-/* Button responsive layout for tablets - Interior Assessment */
-@media (max-width: 768px) {
+    
+    .image-thumbnail-container {
+        width: 100px;
+        height: 100px;
+    }
+    
     .button-group-responsive {
         display: flex;
         flex-direction: column;
@@ -418,7 +487,6 @@
         margin-right: 0 !important;
     }
     
-    /* Make the button container stack vertically on tablets */
     .mt-4.d-flex.justify-content-between {
         flex-direction: column !important;
         gap: 10px;
@@ -443,37 +511,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load previous inspection data if available
     loadPreviousData();
     
-    // Interior components mapping - matching data panel names to categories
-    const componentMapping = {
-        'dash': 'Dash',
-        'steering-wheel': 'Steering wheel',
-        'buttons': 'buttons',
-        'driver-seat': 'driver seat',
-        'passenger-seat': 'passanger seat',  // Note: matching JSON spelling
-        'fr-door-panel': 'FR door panel',
-        'fl-door-panel': 'FL door panel',
-        'rear-seat': 'Rear seat',
-        'backboard': 'Backboard',
-        'rr-door-panel': 'RR door panel',
-        'lr-door-panel': 'LR door panel',
-        'boot': 'Boot',
-        'centre-console': 'Centre console',
-        'gearlever': 'Gearlever',
-        'air-vents': 'Air vents'
-    };
-    
-    // Interior assessment items from JSON - with proper capitalization
+    // Interior assessment items
     const interiorItems = [
         { id: 'interior_77', category: 'Dash', panelId: 'dash' },
         { id: 'interior_78', category: 'Steering Wheel', panelId: 'steering-wheel' },
         { id: 'interior_79', category: 'Buttons', panelId: 'buttons' },
         { id: 'interior_80', category: 'Driver Seat', panelId: 'driver-seat' },
         { id: 'interior_81', category: 'Passenger Seat', panelId: 'passenger-seat' },
-        { id: 'interior_82', category: 'Rooflining', panelId: null }, // No visual panel
+        { id: 'interior_82', category: 'Rooflining', panelId: null },
         { id: 'interior_83', category: 'FR Door Panel', panelId: 'fr-door-panel' },
         { id: 'interior_84', category: 'FL Door Panel', panelId: 'fl-door-panel' },
         { id: 'interior_85', category: 'Rear Seat', panelId: 'rear-seat' },
-        { id: 'interior_86', category: 'Additional Seats', panelId: null }, // No visual panel
+        { id: 'interior_86', category: 'Additional Seats', panelId: null },
         { id: 'interior_87', category: 'Backboard', panelId: 'backboard' },
         { id: 'interior_88', category: 'RR Door Panel', panelId: 'rr-door-panel' },
         { id: 'interior_89', category: 'LR Door Panel', panelId: 'lr-door-panel' },
@@ -483,16 +532,16 @@ document.addEventListener('DOMContentLoaded', function() {
         { id: 'interior_93', category: 'Air Vents', panelId: 'air-vents' }
     ];
     
-    // Color options from JSON
+    // Color options
     const colorOptions = [
-        { value: '', text: 'Select Color', color: null },
-        { value: 'Red & Black', text: 'Red & Black', color: '#b30000' },
-        { value: 'Black', text: 'Black', color: '#000000' },
-        { value: 'Grey', text: 'Grey', color: '#808080' },
-        { value: 'Beige', text: 'Beige', color: '#f5f5dc' },
-        { value: 'Brown', text: 'Brown', color: '#8b4513' },
-        { value: 'Blue', text: 'Blue', color: '#0000cd' },
-        { value: 'Other', text: 'Other', color: '#cccccc' }
+        { value: '', text: 'Select Color' },
+        { value: 'Red & Black', text: 'Red & Black' },
+        { value: 'Black', text: 'Black' },
+        { value: 'Grey', text: 'Grey' },
+        { value: 'Beige', text: 'Beige' },
+        { value: 'Brown', text: 'Brown' },
+        { value: 'Blue', text: 'Blue' },
+        { value: 'Other', text: 'Other' }
     ];
 
     // Generate form fields for each interior component
@@ -509,28 +558,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         panelDiv.innerHTML = `
-            <div class="form-label-wrapper p-2 rounded" data-panel-label="${item.panelId || item.id}">
-                <label class="form-label fw-bold mb-1">${item.category}</label>
-            </div>
-            <div class="row g-2">
-                <div class="col-md-4">
+            <div class="panel-card" data-panel-card="${item.panelId || item.id}">
+                <div class="panel-card-title" data-panel-label="${item.panelId || item.id}">${item.category}</div>
+                <div class="panel-controls">
                     <select class="form-select form-select-sm color-select" name="${item.id}-colour">
                         ${colorOptionsHtml}
                     </select>
-                </div>
-                <div class="col-md-3">
                     <select class="form-select form-select-sm" name="${item.id}-condition">
                         <option value="">Condition</option>
                         <option value="good">Good</option>
                         <option value="average">Average</option>
                         <option value="bad">Bad</option>
                     </select>
-                </div>
-                <div class="col-md-5">
                     <textarea class="form-control form-control-sm" 
                            name="${item.id}-comments" 
                            placeholder="Additional comments"
                            rows="1"></textarea>
+                    <button type="button" class="photo-btn" data-panel="${item.panelId || item.id}">
+                        <i class="bi bi-camera-fill"></i> Photo
+                    </button>
+                    <input type="file" accept="image/*" capture="environment" 
+                           class="d-none camera-input" id="camera-${item.panelId || item.id}">
+                </div>
+                <div class="image-gallery" id="gallery-${item.panelId || item.id}" style="display: none;">
+                    <!-- Images will be added here -->
                 </div>
             </div>
         `;
@@ -538,9 +589,12 @@ document.addEventListener('DOMContentLoaded', function() {
         assessmentContainer.appendChild(panelDiv);
     });
 
+    // Initialize camera functionality
+    initializeCameraHandlers();
+    
     // Two-way highlighting functionality
     const panelOverlays = document.querySelectorAll('.panel-overlay');
-    const formLabels = document.querySelectorAll('.form-label-wrapper');
+    const formLabels = document.querySelectorAll('[data-panel-label]');
     const panelAssessments = document.querySelectorAll('.panel-assessment');
 
     // Handle panel click
@@ -553,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
             panelOverlays.forEach(p => p.classList.remove('active'));
             formLabels.forEach(l => l.classList.remove('active'));
             
-            // Add active class to clicked panel and corresponding form label
+            // Add active class to clicked panel
             this.classList.add('active');
             
             // Handle button groups - highlight all button components
@@ -566,32 +620,37 @@ document.addEventListener('DOMContentLoaded', function() {
             const correspondingLabel = document.querySelector(`[data-panel-label="${panelId}"]`);
             if (correspondingLabel) {
                 correspondingLabel.classList.add('active');
-                // Scroll form into view
                 correspondingLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
         
         // Hover handlers for visual feedback
         overlay.addEventListener('mouseenter', function() {
-            // Find corresponding assessment by matching panel ID to category
-            let correspondingAssessment = null;
+            let correspondingCard = null;
             
             // For buttons, handle all button components
             if (this.classList.contains('buttons-group') || panelId === 'buttons') {
-                correspondingAssessment = document.querySelector('.panel-assessment[data-panel="buttons"]');
+                correspondingCard = document.querySelector('.panel-card[data-panel-card="buttons"]');
             } else {
-                correspondingAssessment = document.querySelector(`.panel-assessment[data-panel="${panelId}"]`);
+                correspondingCard = document.querySelector(`.panel-card[data-panel-card="${panelId}"]`);
             }
             
-            if (correspondingAssessment) {
-                correspondingAssessment.classList.add('highlighted');
+            if (correspondingCard) {
+                correspondingCard.classList.add('highlighted');
             }
         });
         
         overlay.addEventListener('mouseleave', function() {
-            const correspondingAssessment = document.querySelector(`.panel-assessment[data-panel="${panelId}"]`);
-            if (correspondingAssessment) {
-                correspondingAssessment.classList.remove('highlighted');
+            let correspondingCard = null;
+            
+            if (this.classList.contains('buttons-group') || panelId === 'buttons') {
+                correspondingCard = document.querySelector('.panel-card[data-panel-card="buttons"]');
+            } else {
+                correspondingCard = document.querySelector(`.panel-card[data-panel-card="${panelId}"]`);
+            }
+            
+            if (correspondingCard) {
+                correspondingCard.classList.remove('highlighted');
             }
         });
     });
@@ -601,21 +660,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const panelId = label.dataset.panelLabel;
         
         label.addEventListener('mouseenter', function() {
-            // Handle buttons specially
             if (panelId === 'buttons') {
-                document.querySelectorAll('[data-panel="buttons"]').forEach(panel => {
-                    if (!panel.classList.contains('condition-good') && 
-                        !panel.classList.contains('condition-average') && 
-                        !panel.classList.contains('condition-bad')) {
-                        panel.classList.add('active');
-                    }
+                document.querySelectorAll('[data-panel="buttons"]').forEach(btn => {
+                    btn.classList.add('active');
                 });
             } else {
                 const correspondingPanel = document.querySelector(`.panel-overlay[data-panel="${panelId}"]`);
-                if (correspondingPanel && 
-                    !correspondingPanel.classList.contains('condition-good') && 
-                    !correspondingPanel.classList.contains('condition-average') && 
-                    !correspondingPanel.classList.contains('condition-bad')) {
+                if (correspondingPanel) {
                     correspondingPanel.classList.add('active');
                 }
             }
@@ -623,8 +674,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         label.addEventListener('mouseleave', function() {
             if (panelId === 'buttons') {
-                document.querySelectorAll('[data-panel="buttons"]').forEach(panel => {
-                    panel.classList.remove('active');
+                document.querySelectorAll('[data-panel="buttons"]').forEach(btn => {
+                    btn.classList.remove('active');
                 });
             } else {
                 const correspondingPanel = document.querySelector(`.panel-overlay[data-panel="${panelId}"]`);
@@ -636,53 +687,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Click handler for form labels
         label.addEventListener('click', function() {
-            if (panelId === 'buttons') {
-                // Click the main buttons panel
-                const mainButtonsPanel = document.querySelector('.panel-overlay[data-panel="buttons"]:not(.buttons-group)');
-                if (mainButtonsPanel) {
-                    mainButtonsPanel.click();
-                }
-            } else {
-                const correspondingPanel = document.querySelector(`.panel-overlay[data-panel="${panelId}"]`);
-                if (correspondingPanel) {
-                    correspondingPanel.click();
-                }
-            }
-        });
-    });
-    
-    // Handle condition changes - update panel colors
-    const conditionSelects = document.querySelectorAll('select[name$="-condition"]');
-    conditionSelects.forEach(select => {
-        select.addEventListener('change', function() {
-            const itemId = this.name.replace('-condition', '');
-            const interiorItem = interiorItems.find(item => item.id === itemId);
-            
-            if (interiorItem && interiorItem.panelId) {
-                // Handle buttons specially
-                if (interiorItem.panelId === 'buttons') {
-                    document.querySelectorAll('[data-panel="buttons"]').forEach(panel => {
-                        // Remove existing condition classes
-                        panel.classList.remove('condition-good', 'condition-average', 'condition-bad', 'active');
-                        
-                        // Add new condition class
-                        if (this.value) {
-                            panel.classList.add(`condition-${this.value}`);
-                        }
-                    });
-                } else {
-                    const correspondingPanel = document.querySelector(`.panel-overlay[data-panel="${interiorItem.panelId}"]`);
-                    
-                    if (correspondingPanel) {
-                        // Remove existing condition classes
-                        correspondingPanel.classList.remove('condition-good', 'condition-average', 'condition-bad', 'active');
-                        
-                        // Add new condition class
-                        if (this.value) {
-                            correspondingPanel.classList.add(`condition-${this.value}`);
-                        }
-                    }
-                }
+            const correspondingPanel = document.querySelector(`.panel-overlay[data-panel="${panelId}"]`);
+            if (correspondingPanel) {
+                correspondingPanel.click();
             }
         });
     });
@@ -694,13 +701,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Save the interior assessment data
         saveCurrentProgress();
         
-        // Navigate to interior specific images section
-        window.location.href = '/inspection/interior-images';
+        // Navigate to next section (update this as needed)
+        alert('Interior assessment saved! (Frontend only - backend integration pending)');
     });
 
     // Navigation button handlers
     document.getElementById('backBtn').addEventListener('click', function() {
-        // Save current progress before going back
         saveCurrentProgress();
         window.location.href = '/inspection/specific-areas';
     });
@@ -711,24 +717,153 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Load previous inspection data and display summary
+// Initialize camera handlers
+function initializeCameraHandlers() {
+    // Storage for panel images
+    if (!window.interiorImages) {
+        window.interiorImages = {};
+    }
+
+    // Create modal for full image view if it doesn't exist
+    if (!document.getElementById('imageModal')) {
+        const modal = document.createElement('div');
+        modal.id = 'imageModal';
+        modal.className = 'image-modal';
+        modal.innerHTML = `
+            <span class="image-modal-close">&times;</span>
+            <img class="image-modal-content" id="modalImage">
+        `;
+        document.body.appendChild(modal);
+
+        // Modal close handlers
+        modal.querySelector('.image-modal-close').onclick = function() {
+            modal.style.display = 'none';
+        };
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    }
+
+    // Add click handlers to photo buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.photo-btn')) {
+            const btn = e.target.closest('.photo-btn');
+            const panelId = btn.dataset.panel;
+            const fileInput = document.getElementById(`camera-${panelId}`);
+            fileInput.click();
+        }
+    });
+
+    // Handle file input changes
+    document.querySelectorAll('.camera-input').forEach(input => {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const panelId = this.id.replace('camera-', '');
+                processImage(file, panelId);
+            }
+        });
+    });
+}
+
+// Process captured image
+function processImage(file, panelId) {
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const imageData = e.target.result;
+        const imageId = `${panelId}-${Date.now()}`;
+        
+        // Store image data
+        if (!window.interiorImages[panelId]) {
+            window.interiorImages[panelId] = [];
+        }
+        
+        window.interiorImages[panelId].push({
+            id: imageId,
+            data: imageData,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Display the image
+        displayImage(imageId, imageData, panelId);
+        
+        // Clear the file input
+        document.getElementById(`camera-${panelId}`).value = '';
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+// Display image in gallery
+function displayImage(imageId, imageData, panelId) {
+    const gallery = document.getElementById(`gallery-${panelId}`);
+    
+    // Show gallery if hidden
+    if (gallery.style.display === 'none') {
+        gallery.style.display = 'flex';
+    }
+    
+    const container = document.createElement('div');
+    container.className = 'image-thumbnail-container';
+    container.id = `img-container-${imageId}`;
+    
+    container.innerHTML = `
+        <img src="${imageData}" class="image-thumbnail" onclick="showFullImage('${imageId}', '${panelId}')">
+        <button class="remove-image" onclick="removeImage('${imageId}', '${panelId}')">×</button>
+    `;
+    
+    gallery.appendChild(container);
+}
+
+// Show full image in modal
+function showFullImage(imageId, panelId) {
+    const imageInfo = window.interiorImages[panelId].find(img => img.id === imageId);
+    if (imageInfo) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        modal.style.display = 'block';
+        modalImg.src = imageInfo.data;
+    }
+}
+
+// Remove image
+function removeImage(imageId, panelId) {
+    // Remove from storage
+    window.interiorImages[panelId] = window.interiorImages[panelId].filter(img => img.id !== imageId);
+    
+    // Remove from DOM
+    const container = document.getElementById(`img-container-${imageId}`);
+    if (container) {
+        container.remove();
+    }
+    
+    // Hide gallery if no images left
+    const gallery = document.getElementById(`gallery-${panelId}`);
+    if (window.interiorImages[panelId].length === 0) {
+        delete window.interiorImages[panelId];
+        gallery.style.display = 'none';
+    }
+}
+
+// Load previous visual inspection data and display summary
 function loadPreviousData() {
     const visualData = sessionStorage.getItem('visualInspectionData');
     if (visualData) {
         const data = JSON.parse(visualData);
-        
-        // Display inspection summary at top of page
         displayInspectionSummary(data);
-        
-        // Load any existing interior assessment data
-        const interiorData = sessionStorage.getItem('interiorAssessmentData');
-        if (interiorData) {
-            restoreInteriorAssessments(JSON.parse(interiorData));
-        }
+    }
+    
+    // Load any existing interior assessment data
+    const interiorData = sessionStorage.getItem('interiorAssessmentData');
+    if (interiorData) {
+        restoreInteriorAssessments(JSON.parse(interiorData));
     }
 }
 
-// Display summary of inspection data
+// Display summary of visual inspection data
 function displayInspectionSummary(data) {
     const breadcrumbContainer = document.querySelector('.breadcrumb').parentElement.parentElement;
     const summaryDiv = document.createElement('div');
@@ -739,8 +874,7 @@ function displayInspectionSummary(data) {
                 <strong>Inspection Details:</strong>
                 ${data.manufacturer} ${data.model} (${data.vehicle_type}) | 
                 VIN: ${data.vin} | 
-                Inspector: ${data.inspector_name} |
-                Progress: Visual ✓ | Body Panels ✓ | Specific Areas ✓ | Interior Assessment
+                Inspector: ${data.inspector_name}
             </div>
         </div>
     `;
@@ -758,20 +892,29 @@ function saveCurrentProgress() {
         }
     }
     
+    // Include images in saved data
+    if (window.interiorImages && Object.keys(window.interiorImages).length > 0) {
+        interiorData.images = window.interiorImages;
+    }
+    
     sessionStorage.setItem('interiorAssessmentData', JSON.stringify(interiorData));
 }
 
 // Restore previous interior assessments
 function restoreInteriorAssessments(data) {
     Object.keys(data).forEach(key => {
-        const field = document.querySelector(`[name="${key}"]`);
-        if (field) {
-            field.value = data[key];
-            
-            // If it's a condition field, update panel color
-            if (key.endsWith('-condition') && data[key]) {
-                const event = new Event('change', { bubbles: true });
-                field.dispatchEvent(event);
+        if (key === 'images') {
+            // Restore images
+            window.interiorImages = data.images;
+            Object.keys(data.images).forEach(panelId => {
+                data.images[panelId].forEach(imageInfo => {
+                    displayImage(imageInfo.id, imageInfo.data, panelId);
+                });
+            });
+        } else {
+            const field = document.querySelector(`[name="${key}"]`);
+            if (field) {
+                field.value = data[key];
             }
         }
     });

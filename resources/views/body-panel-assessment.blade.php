@@ -312,15 +312,12 @@
 
 /* Panel assessment highlighting */
 .panel-assessment {
-    border-left: 3px solid transparent;
-    padding-left: 10px;
     transition: all 0.3s ease;
-    margin-bottom: 8px;
 }
 
-.panel-assessment.highlighted {
-    border-left-color: #dc3545;
-    background-color: rgba(220, 53, 69, 0.05);
+.panel-card.highlighted {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
 }
 
 /* Responsive design for tablets and mobile */
@@ -374,6 +371,168 @@
 #saveDraftBtn {
     margin-bottom: 5px !important;
 }
+
+/* Panel card styling */
+.panel-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.panel-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2b2b2b;
+    margin-bottom: 12px;
+}
+
+.panel-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.panel-controls select,
+.panel-controls input {
+    flex: 1;
+    min-width: 120px;
+}
+
+.photo-btn {
+    background: white;
+    border: 2px solid #4f959b;
+    color: #4f959b;
+    padding: 6px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.photo-btn:hover {
+    background: #4f959b;
+    color: white;
+}
+
+.photo-btn i {
+    font-size: 16px;
+}
+
+/* Image gallery */
+.image-gallery {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.image-thumbnail-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.image-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+.remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.remove-image:hover {
+    background: #dc3545;
+}
+
+/* Image modal */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+}
+
+.image-modal-content {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 90%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.image-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.image-modal-close:hover {
+    color: #bbb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .panel-controls {
+        flex-direction: column;
+    }
+    
+    .panel-controls select,
+    .panel-controls input {
+        width: 100%;
+    }
+    
+    .photo-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .image-thumbnail-container {
+        width: 100px;
+        height: 100px;
+    }
+}
 </style>
 @endsection
 
@@ -419,19 +578,15 @@ document.addEventListener('DOMContentLoaded', function() {
         panelDiv.dataset.panel = panelInfo.id;
         
         panelDiv.innerHTML = `
-            <div class="form-label-wrapper p-2 rounded" data-panel-label="${panelInfo.id}">
-                <label class="form-label fw-bold mb-1">${panelInfo.name}</label>
-            </div>
-            <div class="row g-2">
-                <div class="col-md-3">
+            <div class="panel-card" data-panel-card="${panelInfo.id}">
+                <div class="panel-card-title" data-panel-label="${panelInfo.id}">${panelInfo.name}</div>
+                <div class="panel-controls">
                     <select class="form-select form-select-sm" name="${panelInfo.id}-condition">
                         <option value="">Condition</option>
                         <option value="good">Good</option>
                         <option value="average">Average</option>
                         <option value="bad">Bad</option>
                     </select>
-                </div>
-                <div class="col-md-4">
                     <select class="form-select form-select-sm" name="${panelInfo.id}-comments">
                         <option value="">Comments</option>
                         <option value="scratched">Scratched</option>
@@ -440,10 +595,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         <option value="repainted">Repainted</option>
                         <option value="replaced">Replaced</option>
                     </select>
-                </div>
-                <div class="col-md-5">
                     <input type="text" class="form-control form-control-sm" 
                            name="${panelInfo.id}-additional" placeholder="Additional comments">
+                    <button type="button" class="photo-btn" data-panel="${panelInfo.id}">
+                        <i class="bi bi-camera-fill"></i> Photo
+                    </button>
+                    <input type="file" accept="image/*" capture="environment" 
+                           class="d-none camera-input" id="camera-${panelInfo.id}">
+                </div>
+                <div class="image-gallery" id="gallery-${panelInfo.id}" style="display: none;">
+                    <!-- Images will be added here -->
                 </div>
             </div>
         `;
@@ -451,9 +612,12 @@ document.addEventListener('DOMContentLoaded', function() {
         assessmentContainer.appendChild(panelDiv);
     });
 
+    // Initialize camera functionality
+    initializeCameraHandlers();
+    
     // Two-way highlighting functionality
     const panelOverlays = document.querySelectorAll('.panel-overlay');
-    const formLabels = document.querySelectorAll('.form-label-wrapper');
+    const formLabels = document.querySelectorAll('[data-panel-label]');
     const panelAssessments = document.querySelectorAll('.panel-assessment');
 
     // Handle panel click
@@ -478,16 +642,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Hover handlers for visual feedback
         overlay.addEventListener('mouseenter', function() {
-            const correspondingAssessment = document.querySelector(`.panel-assessment[data-panel="${panelId}"]`);
-            if (correspondingAssessment) {
-                correspondingAssessment.classList.add('highlighted');
+            const correspondingCard = document.querySelector(`.panel-card[data-panel-card="${panelId}"]`);
+            if (correspondingCard) {
+                correspondingCard.classList.add('highlighted');
             }
         });
         
         overlay.addEventListener('mouseleave', function() {
-            const correspondingAssessment = document.querySelector(`.panel-assessment[data-panel="${panelId}"]`);
-            if (correspondingAssessment) {
-                correspondingAssessment.classList.remove('highlighted');
+            const correspondingCard = document.querySelector(`.panel-card[data-panel-card="${panelId}"]`);
+            if (correspondingCard) {
+                correspondingCard.classList.remove('highlighted');
             }
         });
     });
@@ -584,6 +748,137 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Initialize camera handlers
+function initializeCameraHandlers() {
+    // Storage for panel images
+    if (!window.panelImages) {
+        window.panelImages = {};
+    }
+
+    // Create modal for full image view if it doesn't exist
+    if (!document.getElementById('imageModal')) {
+        const modal = document.createElement('div');
+        modal.id = 'imageModal';
+        modal.className = 'image-modal';
+        modal.innerHTML = `
+            <span class="image-modal-close">&times;</span>
+            <img class="image-modal-content" id="modalImage">
+        `;
+        document.body.appendChild(modal);
+
+        // Modal close handlers
+        modal.querySelector('.image-modal-close').onclick = function() {
+            modal.style.display = 'none';
+        };
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    }
+
+    // Add click handlers to photo buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.photo-btn')) {
+            const btn = e.target.closest('.photo-btn');
+            const panelId = btn.dataset.panel;
+            const fileInput = document.getElementById(`camera-${panelId}`);
+            fileInput.click();
+        }
+    });
+
+    // Handle file input changes
+    document.querySelectorAll('.camera-input').forEach(input => {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const panelId = this.id.replace('camera-', '');
+                processImage(file, panelId);
+            }
+        });
+    });
+}
+
+// Process captured image
+function processImage(file, panelId) {
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const imageData = e.target.result;
+        const imageId = `${panelId}-${Date.now()}`;
+        
+        // Store image data
+        if (!window.panelImages[panelId]) {
+            window.panelImages[panelId] = [];
+        }
+        
+        window.panelImages[panelId].push({
+            id: imageId,
+            data: imageData,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Display the image
+        displayImage(imageId, imageData, panelId);
+        
+        // Clear the file input
+        document.getElementById(`camera-${panelId}`).value = '';
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+// Display image in gallery
+function displayImage(imageId, imageData, panelId) {
+    const gallery = document.getElementById(`gallery-${panelId}`);
+    
+    // Show gallery if hidden
+    if (gallery.style.display === 'none') {
+        gallery.style.display = 'flex';
+    }
+    
+    const container = document.createElement('div');
+    container.className = 'image-thumbnail-container';
+    container.id = `img-container-${imageId}`;
+    
+    container.innerHTML = `
+        <img src="${imageData}" class="image-thumbnail" onclick="showFullImage('${imageId}', '${panelId}')">
+        <button class="remove-image" onclick="removeImage('${imageId}', '${panelId}')">&times;</button>
+    `;
+    
+    gallery.appendChild(container);
+}
+
+// Show full image in modal
+function showFullImage(imageId, panelId) {
+    const imageInfo = window.panelImages[panelId].find(img => img.id === imageId);
+    if (imageInfo) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        modal.style.display = 'block';
+        modalImg.src = imageInfo.data;
+    }
+}
+
+// Remove image
+function removeImage(imageId, panelId) {
+    // Remove from storage
+    window.panelImages[panelId] = window.panelImages[panelId].filter(img => img.id !== imageId);
+    
+    // Remove from DOM
+    const container = document.getElementById(`img-container-${imageId}`);
+    if (container) {
+        container.remove();
+    }
+    
+    // Hide gallery if no images left
+    const gallery = document.getElementById(`gallery-${panelId}`);
+    if (window.panelImages[panelId].length === 0) {
+        delete window.panelImages[panelId];
+        gallery.style.display = 'none';
+    }
+}
+
 // Responsive overlay scaling is now handled by vehicle-responsive.js
 
 // Load previous visual inspection data and display summary
@@ -633,23 +928,38 @@ function saveCurrentProgress() {
         }
     }
     
+    // Include images in saved data
+    if (window.panelImages && Object.keys(window.panelImages).length > 0) {
+        panelData.images = window.panelImages;
+    }
+    
     sessionStorage.setItem('panelAssessmentData', JSON.stringify(panelData));
 }
 
 // Restore previous panel assessments
 function restorePanelAssessments(data) {
     Object.keys(data).forEach(key => {
-        const field = document.querySelector(`[name="${key}"]`);
-        if (field) {
-            field.value = data[key];
-            
-            // If it's a condition field, update panel color
-            if (key.endsWith('-condition') && data[key]) {
-                const panelName = key.replace('-condition', '');
-                const panel = document.querySelector(`.panel-overlay[data-panel="${panelName}"]`);
-                if (panel) {
-                    panel.classList.remove('condition-good', 'condition-average', 'condition-bad');
-                    panel.classList.add(`condition-${data[key]}`);
+        if (key === 'images') {
+            // Restore images
+            window.panelImages = data.images;
+            Object.keys(data.images).forEach(panelId => {
+                data.images[panelId].forEach(imageInfo => {
+                    displayImage(imageInfo.id, imageInfo.data, panelId);
+                });
+            });
+        } else {
+            const field = document.querySelector(`[name="${key}"]`);
+            if (field) {
+                field.value = data[key];
+                
+                // If it's a condition field, update panel color
+                if (key.endsWith('-condition') && data[key]) {
+                    const panelName = key.replace('-condition', '');
+                    const panel = document.querySelector(`.panel-overlay[data-panel="${panelName}"]`);
+                    if (panel) {
+                        panel.classList.remove('condition-good', 'condition-average', 'condition-bad');
+                        panel.classList.add(`condition-${data[key]}`);
+                    }
                 }
             }
         }
