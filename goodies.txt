@@ -278,3 +278,7 @@ claude-code "Keep staging and production configurations in sync, but with enviro
 ```
 
 Laranvel Snappy for pdf
+
+ "Use the InspectionCards reusable system from public/js/inspection-cards.js and 
+  public/css/panel-cards.css to add panel cards with camera functionality to [PAGE
+  NAME]. Follow the single instruction pattern from INSPECTION_CARDS_USAGE.md."

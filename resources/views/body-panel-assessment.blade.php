@@ -248,6 +248,7 @@
 
 @section('additional-css')
 <link rel="stylesheet" href="{{ asset('css/vehicle-responsive-fix.css') }}">
+<link rel="stylesheet" href="{{ asset('css/panel-cards.css') }}">
 <style>
 /* Vehicle container - now handled by vehicle-responsive.js and CSS file */
 
