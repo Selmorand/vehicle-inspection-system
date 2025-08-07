@@ -330,10 +330,7 @@
                 <a href="{{ route('reports.index') }}" class="btn btn-light">
                     <i class="bi bi-arrow-left"></i> Back to Reports
                 </a>
-                <a href="{{ route('reports.pdf', $report->id) }}" class="btn btn-danger">
-                    <i class="bi bi-file-pdf"></i> Download PDF
-                </a>
-                <button onclick="window.print()" class="btn btn-light">
+                <button onclick="window.print()" class="btn btn-primary">
                     <i class="bi bi-printer"></i> Print
                 </button>
             </div>

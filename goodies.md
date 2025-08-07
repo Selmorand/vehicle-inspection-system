@@ -1,4 +1,5 @@
 npx @anthropic-ai/claude-code
+
 F:\Xampp\htdocs\vehicle-inspection> php artisan serve
 
 ● To view your project in the browser:
@@ -275,3 +276,5 @@ claude-code "Check my deployment configuration and environment files for any sec
 # Multi-environment sync
 claude-code "Keep staging and production configurations in sync, but with environment-appropriate database and API settings."
 ```
+
+Laranvel Snappy for pdf
