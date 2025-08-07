@@ -107,42 +107,71 @@ window.InspectionCards = (function() {
             const fieldLabel = field.label || fieldKey;
             const placeholder = field.placeholder || fieldLabel;
             
+            // Check if we should use field groups (for tyres layout) or simple layout (for panels/interior)
+            const useFieldGroups = !config.hasOverlays && config.containerId === 'tyresRimsAssessments';
+            
             if (field.options && Array.isArray(field.options)) {
                 // Select dropdown field
                 const optionsHtml = field.options.map(opt => 
                     `<option value="${opt.toLowerCase()}">${opt}</option>`
                 ).join('');
                 
-                fieldsHtml += `
-                    <div class="form-field-group">
-                        <div class="field-label">${fieldLabel}</div>
+                if (useFieldGroups) {
+                    fieldsHtml += `
+                        <div class="form-field-group">
+                            <div class="field-label">${fieldLabel}</div>
+                            <select class="form-select form-select-sm" name="${fieldName}">
+                                <option value="">${fieldLabel}</option>
+                                ${optionsHtml}
+                            </select>
+                        </div>
+                    `;
+                } else {
+                    fieldsHtml += `
                         <select class="form-select form-select-sm" name="${fieldName}">
                             <option value="">${fieldLabel}</option>
                             ${optionsHtml}
                         </select>
-                    </div>
-                `;
+                    `;
+                }
             } else if (field.type === 'textarea') {
                 // Textarea field
-                fieldsHtml += `
-                    <div class="form-field-group">
-                        <div class="field-label">${fieldLabel}</div>
+                if (useFieldGroups) {
+                    fieldsHtml += `
+                        <div class="form-field-group">
+                            <div class="field-label">${fieldLabel}</div>
+                            <textarea class="form-control form-control-sm" 
+                                   name="${fieldName}" 
+                                   placeholder="${placeholder}"
+                                   rows="1"></textarea>
+                        </div>
+                    `;
+                } else {
+                    fieldsHtml += `
                         <textarea class="form-control form-control-sm" 
                                name="${fieldName}" 
                                placeholder="${placeholder}"
                                rows="1"></textarea>
-                    </div>
-                `;
+                    `;
+                }
             } else {
                 // Text input field (default)
-                fieldsHtml += `
-                    <div class="form-field-group">
-                        <div class="field-label">${fieldLabel}</div>
+                if (useFieldGroups) {
+                    fieldsHtml += `
+                        <div class="form-field-group">
+                            <div class="field-label">${fieldLabel}</div>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="${fieldName}" 
+                                   placeholder="${placeholder}">
+                        </div>
+                    `;
+                } else {
+                    fieldsHtml += `
                         <input type="text" class="form-control form-control-sm" 
                                name="${fieldName}" 
                                placeholder="${placeholder}">
-                    </div>
-                `;
+                    `;
+                }
             }
         });
         
@@ -390,16 +419,24 @@ window.InspectionCards = (function() {
             });
         });
         
-        // Condition change handlers for body panels
+        // Condition change handlers for overlays
         document.addEventListener('change', function(e) {
             if (e.target.name && e.target.name.endsWith('-condition')) {
-                const panelName = e.target.name.replace('-condition', '');
-                const overlay = document.querySelector(`.panel-overlay[data-panel="${panelName}"]`);
+                const itemId = e.target.name.replace('-condition', '');
                 
-                if (overlay) {
-                    overlay.classList.remove('condition-good', 'condition-average', 'condition-bad', 'active');
-                    if (e.target.value) {
-                        overlay.classList.add(`condition-${e.target.value}`);
+                // Find the item configuration to get the correct panelId
+                const item = config.items.find(item => item.id === itemId);
+                const panelId = item ? item.panelId : itemId;
+                
+                // Only proceed if there's a panelId (some items like "Other" have null panelId)
+                if (panelId) {
+                    const overlay = document.querySelector(`.panel-overlay[data-panel="${panelId}"]`);
+                    
+                    if (overlay) {
+                        overlay.classList.remove('condition-good', 'condition-average', 'condition-bad', 'active');
+                        if (e.target.value) {
+                            overlay.classList.add(`condition-${e.target.value}`);
+                        }
                     }
                 }
             }
@@ -496,14 +533,10 @@ window.InspectionCards = (function() {
                 if (field) {
                     field.value = data[key];
                     
-                    // Handle condition changes for overlays
-                    if (key.endsWith('-condition') && data[key] && config.hasOverlays) {
-                        const panelName = key.replace('-condition', '');
-                        const overlay = document.querySelector(`.panel-overlay[data-panel="${panelName}"]`);
-                        if (overlay) {
-                            overlay.classList.remove('condition-good', 'condition-average', 'condition-bad');
-                            overlay.classList.add(`condition-${data[key]}`);
-                        }
+                    // Trigger change event to ensure condition colors are applied
+                    if (key.endsWith('-condition') && data[key]) {
+                        const changeEvent = new Event('change', { bubbles: true });
+                        field.dispatchEvent(changeEvent);
                     }
                 }
             }
