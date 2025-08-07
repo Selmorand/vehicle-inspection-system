@@ -431,7 +431,8 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Draft saved successfully!');
     });
     
-    document.getElementById('nextBtn').addEventListener('click', function() {
+    document.getElementById('nextBtn').addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent form submission
         InspectionCards.saveData();
         window.location.href = '/inspection/interior';
     });
