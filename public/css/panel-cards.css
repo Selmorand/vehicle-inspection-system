@@ -203,6 +203,27 @@
 .color-select option[value="Blue"] { background-color: #0000cd; color: white; }
 .color-select option[value="Other"] { background-color: #cccccc; }
 
+/* Condition dropdown color coding */
+select[value="good"] {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+select[value="average"] {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+select[value="bad"] {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+select[value="n/a"] {
+    background-color: #6c757d !important;
+    color: white !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .panel-controls {
