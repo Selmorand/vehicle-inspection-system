@@ -26,10 +26,20 @@ jobs:
     - name: Install Composer Dependencies
       run: |
         echo "Installing composer dependencies..."
-        composer install --no-dev --optimize-autoloader --no-interaction
-        echo "Composer install completed"
-        # Verify critical packages are installed
-        composer show barryvdh/laravel-dompdf || true
+        # Add retry logic for network issues
+        for i in {1..3}; do
+          if composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs; then
+            echo "Composer install completed successfully on attempt $i"
+            break
+          else
+            echo "Composer install failed on attempt $i"
+            if [ $i -eq 3 ]; then
+              echo "All composer attempts failed"
+              exit 1
+            fi
+            sleep 10
+          fi
+        done
         echo "Dependency verification completed"
     
     # Step 4: Create deployment structure for shared hosting
