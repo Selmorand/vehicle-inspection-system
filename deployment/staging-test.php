@@ -1,159 +1,137 @@
 <?php
-/**
- * Simple diagnostic script for staging environment
- * This file can be accessed directly at: https://alpha.selpro.co.za/staging-test.php
- */
-
-echo "<h1>Staging Environment Diagnostic</h1>";
+echo "<h1>ALPHA Vehicle Inspection - Staging Diagnostic Test</h1>";
 echo "<hr>";
 
-// PHP Version
-echo "<h2>PHP Configuration</h2>";
-echo "PHP Version: " . phpversion() . "<br>";
-echo "Memory Limit: " . ini_get('memory_limit') . "<br>";
-echo "Max Execution Time: " . ini_get('max_execution_time') . "<br>";
-echo "Upload Max Filesize: " . ini_get('upload_max_filesize') . "<br>";
-echo "<br>";
+// Test 1: PHP Version
+echo "<h2>1. PHP Version Test</h2>";
+echo "PHP Version: " . phpversion();
+if (version_compare(phpversion(), '8.2', '>=')) {
+    echo " ✅ OK (8.2+ required)";
+} else {
+    echo " ❌ FAIL (8.2+ required)";
+}
+echo "<br><br>";
 
-// Check if Laravel files exist
-echo "<h2>Laravel Files</h2>";
-$laravel_files = [
-    'artisan' => file_exists(__DIR__ . '/artisan'),
-    'bootstrap/app.php' => file_exists(__DIR__ . '/bootstrap/app.php'),
-    'vendor/autoload.php' => file_exists(__DIR__ . '/vendor/autoload.php'),
-    'app/Http/Controllers/ReportController.php' => file_exists(__DIR__ . '/app/Http/Controllers/ReportController.php'),
-    '.env' => file_exists(__DIR__ . '/.env')
+// Test 2: Laravel Files
+echo "<h2>2. Laravel Files Test</h2>";
+$laravelFiles = [
+    'artisan' => 'Laravel artisan command',
+    'app/Http/Controllers/Controller.php' => 'Base Controller',
+    'bootstrap/app.php' => 'Laravel bootstrap',
+    'config/app.php' => 'Application config',
+    'vendor/laravel/framework/src/Illuminate/Foundation/Application.php' => 'Laravel Framework'
 ];
 
-foreach ($laravel_files as $file => $exists) {
-    $status = $exists ? "✅ EXISTS" : "❌ MISSING";
-    echo "{$file}: {$status}<br>";
-}
-echo "<br>";
-
-// Check .env file contents (safely)
-echo "<h2>Environment Configuration</h2>";
-if (file_exists(__DIR__ . '/.env')) {
-    $env_content = file_get_contents(__DIR__ . '/.env');
-    $env_lines = explode("\n", $env_content);
-    
-    foreach ($env_lines as $line) {
-        $line = trim($line);
-        if (empty($line) || strpos($line, '#') === 0) continue;
-        
-        if (strpos($line, '=') !== false) {
-            list($key, $value) = explode('=', $line, 2);
-            $key = trim($key);
-            
-            // Hide sensitive values
-            if (in_array($key, ['DB_PASSWORD', 'APP_KEY'])) {
-                $value = '[HIDDEN]';
-            }
-            
-            echo "{$key} = {$value}<br>";
-        }
-    }
-} else {
-    echo "❌ .env file not found<br>";
-}
-echo "<br>";
-
-// Test database connection
-echo "<h2>Database Connection</h2>";
-if (file_exists(__DIR__ . '/.env')) {
-    $env_vars = [];
-    $env_content = file_get_contents(__DIR__ . '/.env');
-    $env_lines = explode("\n", $env_content);
-    
-    foreach ($env_lines as $line) {
-        $line = trim($line);
-        if (empty($line) || strpos($line, '#') === 0) continue;
-        
-        if (strpos($line, '=') !== false) {
-            list($key, $value) = explode('=', $line, 2);
-            $env_vars[trim($key)] = trim($value, '"\'');
-        }
-    }
-    
-    if (isset($env_vars['DB_HOST'], $env_vars['DB_DATABASE'], $env_vars['DB_USERNAME'], $env_vars['DB_PASSWORD'])) {
-        try {
-            $pdo = new PDO(
-                "mysql:host={$env_vars['DB_HOST']};dbname={$env_vars['DB_DATABASE']}", 
-                $env_vars['DB_USERNAME'], 
-                $env_vars['DB_PASSWORD'],
-                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-            );
-            echo "✅ Database connection successful<br>";
-            
-            // Check if inspection_reports table exists
-            $stmt = $pdo->query("SHOW TABLES LIKE 'inspection_reports'");
-            if ($stmt->rowCount() > 0) {
-                echo "✅ inspection_reports table exists<br>";
-                
-                // Check table structure
-                $stmt = $pdo->query("DESCRIBE inspection_reports");
-                echo "Table columns:<br>";
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    echo "- {$row['Field']} ({$row['Type']})<br>";
-                }
-            } else {
-                echo "❌ inspection_reports table missing - need to run migrations<br>";
-            }
-            
-        } catch (PDOException $e) {
-            echo "❌ Database connection failed: " . $e->getMessage() . "<br>";
-        }
+foreach ($laravelFiles as $file => $description) {
+    if (file_exists($file)) {
+        echo "✅ {$description}: {$file}<br>";
     } else {
-        echo "❌ Database configuration incomplete in .env<br>";
+        echo "❌ MISSING {$description}: {$file}<br>";
     }
-} else {
-    echo "❌ Cannot test database - .env file missing<br>";
 }
 echo "<br>";
 
-// Check Composer dependencies
-echo "<h2>Composer Dependencies</h2>";
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    echo "✅ Composer autoloader exists<br>";
-    
-    // Check for specific packages
-    $packages_to_check = [
-        'barryvdh/laravel-dompdf' => __DIR__ . '/vendor/barryvdh/laravel-dompdf',
-        'laravel/framework' => __DIR__ . '/vendor/laravel/framework'
-    ];
-    
-    foreach ($packages_to_check as $package => $path) {
-        if (is_dir($path)) {
-            echo "✅ {$package} installed<br>";
-        } else {
-            echo "❌ {$package} missing<br>";
-        }
-    }
-} else {
-    echo "❌ Composer dependencies not installed<br>";
-}
-echo "<br>";
-
-// Check storage permissions
-echo "<h2>File Permissions</h2>";
-$directories_to_check = [
-    'storage' => __DIR__ . '/storage',
-    'storage/app' => __DIR__ . '/storage/app',
-    'storage/logs' => __DIR__ . '/storage/logs',
-    'bootstrap/cache' => __DIR__ . '/bootstrap/cache'
+// Test 3: Application Files
+echo "<h2>3. Application Files Test</h2>";
+$appFiles = [
+    'resources/views/dashboard.blade.php' => 'Dashboard view',
+    'resources/views/visual-inspection.blade.php' => 'Visual inspection view',
+    'resources/views/physical-hoist-inspection.blade.php' => 'Physical hoist inspection view',
+    'public/js/inspection-cards.js' => 'InspectionCards JavaScript',
+    'public/css/panel-cards.css' => 'Panel cards CSS',
+    'app/Http/Controllers/InspectionController.php' => 'Inspection Controller',
+    'app/Models/InspectionReport.php' => 'Inspection Report Model'
 ];
 
-foreach ($directories_to_check as $name => $path) {
-    if (is_dir($path)) {
-        $perms = substr(sprintf('%o', fileperms($path)), -4);
-        $writable = is_writable($path) ? "✅ WRITABLE" : "❌ NOT WRITABLE";
-        echo "{$name}: {$perms} ({$writable})<br>";
+foreach ($appFiles as $file => $description) {
+    if (file_exists($file)) {
+        echo "✅ {$description}: {$file}<br>";
     } else {
-        echo "{$name}: ❌ DIRECTORY MISSING<br>";
+        echo "❌ MISSING {$description}: {$file}<br>";
     }
 }
+echo "<br>";
+
+// Test 4: Database Connection
+echo "<h2>4. Database Connection Test</h2>";
+try {
+    $pdo = new PDO(
+        "mysql:host=localhost;dbname=profirea_vehicle_inspection", 
+        "profirea_staging", 
+        "staging123!@#"
+    );
+    echo "✅ Database connection successful<br>";
+    
+    // Test tables
+    $stmt = $pdo->query("SHOW TABLES");
+    $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    echo "✅ Found " . count($tables) . " database tables<br>";
+    
+} catch (PDOException $e) {
+    echo "❌ Database connection failed: " . $e->getMessage() . "<br>";
+}
+echo "<br>";
+
+// Test 5: Storage Permissions
+echo "<h2>5. Storage Permissions Test</h2>";
+$storageWritable = is_writable('storage/app') && is_writable('storage/logs') && is_writable('storage/framework');
+if ($storageWritable) {
+    echo "✅ Storage directories are writable<br>";
+} else {
+    echo "❌ Storage directories not writable (set to 755)<br>";
+}
+echo "<br>";
+
+// Test 6: Environment Configuration
+echo "<h2>6. Environment Configuration</h2>";
+if (file_exists('.env')) {
+    echo "✅ .env file exists<br>";
+    $env = file_get_contents('.env');
+    if (strpos($env, 'APP_KEY=base64:') !== false && strpos($env, 'YOUR_APP_KEY_WILL_BE_GENERATED') === false) {
+        echo "✅ Application key is set<br>";
+    } else {
+        echo "⚠️ Application key needs to be generated (run artisan-web.php)<br>";
+    }
+} else {
+    echo "❌ .env file missing<br>";
+}
+echo "<br>";
+
+// Test 7: DomPDF (for report generation)
+echo "<h2>7. PDF Generation Test</h2>";
+if (file_exists('vendor/dompdf/dompdf/src/Dompdf.php')) {
+    echo "✅ DomPDF library is installed<br>";
+} else {
+    echo "❌ DomPDF library missing<br>";
+}
+echo "<br>";
+
+// Test 8: Image Assets
+echo "<h2>8. Image Assets Test</h2>";
+$imageFiles = [
+    'public/images/panels/FullVehicle.png' => 'Vehicle diagram',
+    'public/images/interior/interiorMain.png' => 'Interior diagram',
+    'public/images/logo.png' => 'Company logo'
+];
+
+foreach ($imageFiles as $file => $description) {
+    if (file_exists($file)) {
+        echo "✅ {$description}: {$file}<br>";
+    } else {
+        echo "❌ MISSING {$description}: {$file}<br>";
+    }
+}
+echo "<br>";
 
 echo "<hr>";
-echo "<p><strong>Generated:</strong> " . date('Y-m-d H:i:s') . "</p>";
-echo "<p><strong>Server:</strong> " . $_SERVER['SERVER_NAME'] . "</p>";
+echo "<h2>Next Steps</h2>";
+echo "<ol>";
+echo "<li><strong>If any files are missing:</strong> Re-upload the deployment files</li>";
+echo "<li><strong>If database connection fails:</strong> Check database credentials in .env</li>";
+echo "<li><strong>If app key needs generation:</strong> Run <a href='/artisan-web.php'>artisan-web.php</a></li>";
+echo "<li><strong>If all tests pass:</strong> Visit <a href='/'>the main application</a></li>";
+echo "</ol>";
+
+echo "<hr>";
+echo "<p><small>Generated: " . date('Y-m-d H:i:s T') . "</small></p>";
 ?>

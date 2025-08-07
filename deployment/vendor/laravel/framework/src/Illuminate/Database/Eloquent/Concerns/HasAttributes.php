@@ -1436,7 +1436,7 @@ trait HasAttributes
      *
      * @return \Illuminate\Contracts\Encryption\Encrypter
      */
-    protected static function currentEncrypter()
+    public static function currentEncrypter()
     {
         return static::$encrypter ?? Crypt::getFacadeRoot();
     }
@@ -2154,6 +2154,9 @@ trait HasAttributes
     public function discardChanges()
     {
         [$this->attributes, $this->changes, $this->previous] = [$this->original, [], []];
+
+        $this->classCastCache = [];
+        $this->attributeCastCache = [];
 
         return $this;
     }

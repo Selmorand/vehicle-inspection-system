@@ -6,13 +6,11 @@
       "Bash(rm:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
+      "Bash(git push:*)",
       "WebFetch(domain:alpha.selpro.co.za)",
       "Bash(mv:*)",
       "Bash(cp:*)",
       "Bash(true)"
-    ],
-    "deny": [
-      "Bash(git push:*)"
     ]
   }
 }

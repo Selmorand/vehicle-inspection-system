@@ -15,14 +15,6 @@
         </div>
     </div>
 
-    @if(session('error'))
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle"></i>
-        <strong>Notice:</strong> {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
     <!-- Search and Filter -->
     <div class="card mb-4">
         <div class="card-body">
@@ -103,11 +95,6 @@
                                            class="btn btn-sm btn-primary" 
                                            title="View Web Report">
                                             <i class="bi bi-eye"></i> View
-                                        </a>
-                                        <a href="{{ route('reports.download', $report->id) }}" 
-                                           class="btn btn-sm btn-success"
-                                           title="Download PDF">
-                                            <i class="bi bi-download"></i>
                                         </a>
                                         <form action="{{ route('reports.destroy', $report->id) }}" 
                                               method="POST" 

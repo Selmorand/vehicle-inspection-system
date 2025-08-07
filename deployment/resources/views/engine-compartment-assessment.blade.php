@@ -129,35 +129,7 @@
             </div>
         </div>
 
-        <!-- Section 2: Photographic Documentation -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header" style="background-color: var(--primary-color); color: white;">
-                        <h5 class="mb-0">Photographic Documentation</h5>
-                        <small class="text-light">Capture up to 16 images with captions (minimum 5 required)</small>
-                    </div>
-                    <div class="card-body">
-
-                        <!-- Image Grid -->
-                        <div class="row" id="imageGrid">
-                            <!-- Images will be dynamically added here -->
-                            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-                                <div class="image-slot empty-slot" onclick="captureImage(0)">
-                                    <div class="add-image-content">
-                                        <i class="bi bi-camera-fill mb-2" style="font-size: 2rem; color: var(--primary-color);"></i>
-                                        <p class="mb-0">Add Image</p>
-                                        <small class="text-muted">Tap to capture</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 3: Engine Component Overview Check -->
+        <!-- Section 2: Engine Component Overview Check -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card shadow-sm">
@@ -165,188 +137,10 @@
                         <h5 class="mb-0">Overview check:</h5>
                         <small class="text-light">Assess engine component conditions - colors will update automatically</small>
                     </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-bordered mb-0" id="componentAssessmentTable">
-                                <thead style="background-color: #b8dae0;">
-                                    <tr>
-                                        <th style="width: 40%;" class="text-center">Engine Component</th>
-                                        <th style="width: 20%;" class="text-center">Condition</th>
-                                        <th style="width: 40%;" class="text-center">Comments</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="component-row" data-component="brakefluid_cleanliness">
-                                        <td class="component-name">Brakefluid cleanliness</td>
-                                        <td class="condition-cell">
-                                            <select class="form-control condition-dropdown" name="components[brakefluid_cleanliness][condition]">
-                                                <option value="">Select...</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Average">Average</option>
-                                                <option value="Bad">Bad</option>
-                                                <option value="N/A">N/A</option>
-                                            </select>
-                                        </td>
-                                        <td class="comments-cell">
-                                            <textarea class="form-control component-comments" name="components[brakefluid_cleanliness][comments]" 
-                                                      rows="1" placeholder="Add comments if needed..."></textarea>
-                                        </td>
-                                    </tr>
-
-                                    <tr class="component-row" data-component="brakefluid_level">
-                                        <td class="component-name">Brakefluid level</td>
-                                        <td class="condition-cell">
-                                            <select class="form-control condition-dropdown" name="components[brakefluid_level][condition]">
-                                                <option value="">Select...</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Average">Average</option>
-                                                <option value="Bad">Bad</option>
-                                                <option value="N/A">N/A</option>
-                                            </select>
-                                        </td>
-                                        <td class="comments-cell">
-                                            <textarea class="form-control component-comments" name="components[brakefluid_level][comments]" 
-                                                      rows="1" placeholder="Add comments if needed..."></textarea>
-                                        </td>
-                                    </tr>
-
-                                    <tr class="component-row" data-component="coolant_level">
-                                        <td class="component-name">Coolant level</td>
-                                        <td class="condition-cell">
-                                            <select class="form-control condition-dropdown" name="components[coolant_level][condition]">
-                                                <option value="">Select...</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Average">Average</option>
-                                                <option value="Bad">Bad</option>
-                                                <option value="N/A">N/A</option>
-                                            </select>
-                                        </td>
-                                        <td class="comments-cell">
-                                            <textarea class="form-control component-comments" name="components[coolant_level][comments]" 
-                                                      rows="1" placeholder="Add comments if needed..."></textarea>
-                                        </td>
-                                    </tr>
-
-                                    <tr class="component-row" data-component="antifreeze_strength">
-                                        <td class="component-name">Antifreeze strength</td>
-                                        <td class="condition-cell">
-                                            <select class="form-control condition-dropdown" name="components[antifreeze_strength][condition]">
-                                                <option value="">Select...</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Average">Average</option>
-                                                <option value="Bad">Bad</option>
-                                                <option value="N/A">N/A</option>
-                                            </select>
-                                        </td>
-                                        <td class="comments-cell">
-                                            <textarea class="form-control component-comments" name="components[antifreeze_strength][comments]" 
-                                                      rows="1" placeholder="Add comments if needed..."></textarea>
-                                        </td>
-                                    </tr>
-
-                                    <tr class="component-row" data-component="fan_belt">
-                                        <td class="component-name">Fan belt</td>
-                                        <td class="condition-cell">
-                                            <select class="form-control condition-dropdown" name="components[fan_belt][condition]">
-                                                <option value="">Select...</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Average">Average</option>
-                                                <option value="Bad">Bad</option>
-                                                <option value="N/A">N/A</option>
-                                            </select>
-                                        </td>
-                                        <td class="comments-cell">
-                                            <textarea class="form-control component-comments" name="components[fan_belt][comments]" 
-                                                      rows="1" placeholder="Add comments if needed..."></textarea>
-                                        </td>
-                                    </tr>
-
-                                    <tr class="component-row" data-component="engine_oil_level">
-                                        <td class="component-name">Engine oil level</td>
-                                        <td class="condition-cell">
-                                            <select class="form-control condition-dropdown" name="components[engine_oil_level][condition]">
-                                                <option value="">Select...</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Average">Average</option>
-                                                <option value="Bad">Bad</option>
-                                                <option value="N/A">N/A</option>
-                                            </select>
-                                        </td>
-                                        <td class="comments-cell">
-                                            <textarea class="form-control component-comments" name="components[engine_oil_level][comments]" 
-                                                      rows="1" placeholder="Add comments if needed..."></textarea>
-                                        </td>
-                                    </tr>
-
-                                    <tr class="component-row" data-component="engine_oil_condition">
-                                        <td class="component-name">Engine oil condition</td>
-                                        <td class="condition-cell">
-                                            <select class="form-control condition-dropdown" name="components[engine_oil_condition][condition]">
-                                                <option value="">Select...</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Average">Average</option>
-                                                <option value="Bad">Bad</option>
-                                                <option value="N/A">N/A</option>
-                                            </select>
-                                        </td>
-                                        <td class="comments-cell">
-                                            <textarea class="form-control component-comments" name="components[engine_oil_condition][comments]" 
-                                                      rows="1" placeholder="Add comments if needed..."></textarea>
-                                        </td>
-                                    </tr>
-
-                                    <tr class="component-row" data-component="battery_condition">
-                                        <td class="component-name">Battery condition</td>
-                                        <td class="condition-cell">
-                                            <select class="form-control condition-dropdown" name="components[battery_condition][condition]">
-                                                <option value="">Select...</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Average">Average</option>
-                                                <option value="Bad">Bad</option>
-                                                <option value="N/A">N/A</option>
-                                            </select>
-                                        </td>
-                                        <td class="comments-cell">
-                                            <textarea class="form-control component-comments" name="components[battery_condition][comments]" 
-                                                      rows="1" placeholder="Add comments if needed..."></textarea>
-                                        </td>
-                                    </tr>
-
-                                    <tr class="component-row" data-component="engine_mounts">
-                                        <td class="component-name">Engine mounts</td>
-                                        <td class="condition-cell">
-                                            <select class="form-control condition-dropdown" name="components[engine_mounts][condition]">
-                                                <option value="">Select...</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Average">Average</option>
-                                                <option value="Bad">Bad</option>
-                                                <option value="N/A">N/A</option>
-                                            </select>
-                                        </td>
-                                        <td class="comments-cell">
-                                            <textarea class="form-control component-comments" name="components[engine_mounts][comments]" 
-                                                      rows="1" placeholder="Add comments if needed..."></textarea>
-                                        </td>
-                                    </tr>
-
-                                    <tr class="component-row" data-component="exhaust_system">
-                                        <td class="component-name">Exhaust system</td>
-                                        <td class="condition-cell">
-                                            <select class="form-control condition-dropdown" name="components[exhaust_system][condition]">
-                                                <option value="">Select...</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Average">Average</option>
-                                                <option value="Bad">Bad</option>
-                                                <option value="N/A">N/A</option>
-                                            </select>
-                                        </td>
-                                        <td class="comments-cell">
-                                            <textarea class="form-control component-comments" name="components[exhaust_system][comments]" 
-                                                      rows="1" placeholder="Add comments if needed..."></textarea>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <div class="card-body">
+                        <!-- Dynamic engine component assessments will be generated by JavaScript -->
+                        <div id="engineComponentAssessments">
+                            <!-- Component cards will be added here -->
                         </div>
                     </div>
                 </div>
@@ -369,50 +163,88 @@
     </form>
 </div>
 
-<!-- Image Capture Modal -->
-<div class="modal fade" id="imageCaptureModal" tabindex="-1" aria-labelledby="imageCaptureModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="imageCaptureModalLabel">Capture Engine Compartment Image</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="text-center">
-                    <video id="camera" width="100%" height="300" autoplay style="border: 2px solid #ccc; border-radius: 8px;"></video>
-                    <canvas id="captureCanvas" style="display: none;"></canvas>
-                </div>
-                <div class="mt-3">
-                    <label for="imageCategory" class="form-label">Image Category:</label>
-                    <select class="form-control" id="imageCategory">
-                        <option value="">Select category...</option>
-                        <option value="Engine Overview">Engine Overview</option>
-                        <option value="Engine Number">Engine Number</option>
-                        <option value="Engine Covers">Engine Covers</option>
-                        <option value="Fluid Levels">Fluid Levels</option>
-                        <option value="Belts & Hoses">Belts & Hoses</option>
-                        <option value="Electrical Components">Electrical Components</option>
-                        <option value="Structural Elements">Structural Elements</option>
-                        <option value="Damage Areas">Damage Areas</option>
-                        <option value="Fender Liners">Fender Liners</option>
-                        <option value="Headlight Areas">Headlight Areas</option>
-                        <option value="Additional Findings">Additional Findings</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="captureBtn">
-                    <i class="bi bi-camera-fill me-1"></i>Capture Image
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
 
 @section('additional-css')
+<link rel="stylesheet" href="{{ asset('css/panel-cards.css') }}">
 <style>
+/* Engine Component Assessment specific styling */
+#engineComponentAssessments .panel-controls {
+    display: grid;
+    grid-template-columns: 1fr 2fr auto;
+    gap: 10px;
+    align-items: start;
+}
+
+#engineComponentAssessments .form-field-group {
+    display: flex;
+    flex-direction: column;
+}
+
+#engineComponentAssessments .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 4px;
+    text-align: center;
+    background-color: #b8dae0;
+    padding: 4px 8px;
+    border-radius: 3px;
+}
+
+#engineComponentAssessments .form-control {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 14px;
+}
+
+#engineComponentAssessments .photo-btn {
+    align-self: end;
+    margin-bottom: 0;
+}
+
+/* Condition-based color coding for dropdowns */
+select[name$="-condition"] {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+select[name$="-condition"][value="good"] {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+select[name$="-condition"][value="average"] {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+select[name$="-condition"][value="bad"] {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+select[name$="-condition"][value="n/a"] {
+    background-color: #6c757d !important;
+    color: white !important;
+}
+
+/* Responsive design for tablets */
+@media (max-width: 768px) {
+    #engineComponentAssessments .panel-controls {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    #engineComponentAssessments .field-label {
+        text-align: left;
+    }
+    
+    #engineComponentAssessments .form-control {
+        text-align: left;
+    }
+}
+
 /* Engine Compartment Assessment Styling */
 .finding-section {
     border-left: 4px solid var(--primary-color);
@@ -440,117 +272,6 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Image Grid Styling */
-.image-slot {
-    aspect-ratio: 1;
-    width: 100%;
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background-color: #f8f9fa;
-}
-
-.image-slot:hover {
-    border-color: var(--primary-color);
-    background-color: #e8f4f8;
-    transform: translateY(-2px);
-}
-
-.image-slot.filled {
-    border: 2px solid var(--primary-color);
-    padding: 5px;
-}
-
-.add-image-content {
-    text-align: center;
-    color: #6c757d;
-}
-
-.captured-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 4px;
-}
-
-.image-caption {
-    margin-top: 5px;
-}
-
-.image-caption input {
-    font-size: 12px;
-    padding: 4px 8px;
-}
-
-.delete-image-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(220, 53, 69, 0.8);
-    border: none;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    color: white;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.delete-image-btn:hover {
-    background: rgba(220, 53, 69, 1);
-}
-
-/* Component Assessment Table */
-.component-name {
-    font-weight: 500;
-    background-color: #f8f9fa;
-}
-
-/* Condition Dropdown Color Coding */
-.condition-dropdown.condition-good {
-    background-color: #28a745;
-    color: white;
-    border-color: #28a745;
-}
-
-.condition-dropdown.condition-average {
-    background-color: #ffc107;
-    color: black;
-    border-color: #ffc107;
-}
-
-.condition-dropdown.condition-bad {
-    background-color: #dc3545;
-    color: white;
-    border-color: #dc3545;
-}
-
-.condition-dropdown.condition-na {
-    background-color: #6c757d;
-    color: white;
-    border-color: #6c757d;
-}
-
-/* Comments field styling */
-.component-comments {
-    transition: all 0.3s ease;
-    min-height: 38px;
-    resize: vertical;
-}
-
-.component-comments.required {
-    border-color: #dc3545;
-    background-color: #fff5f5;
-}
-
-.component-comments:focus {
-    box-shadow: 0 0 0 0.2rem rgba(79, 149, 155, 0.25);
-    border-color: var(--primary-color);
-}
 
 /* Progress indicators */
 .progress {
@@ -589,18 +310,15 @@
 @endsection
 
 @section('additional-js')
+<script src="{{ asset('js/inspection-cards.js') }}"></script>
 <script>
 // Engine compartment assessment data storage
 let engineCompartmentData = {
     findings: {},
-    images: [],
     components: {}
 };
 
-let currentImageSlot = 0;
-let maxImages = 16;
 let totalFindings = 7;
-let totalComponents = 10;
 
 document.addEventListener('DOMContentLoaded', function() {
     // Load previous inspection data if available
@@ -609,11 +327,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize finding checkboxes
     initializeFindingCheckboxes();
     
-    // Initialize component dropdowns
-    initializeComponentDropdowns();
+    // Initialize engine component assessments using InspectionCards
+    initializeEngineComponents();
     
-    // Initialize image grid
-    initializeImageGrid();
+    // Add color coding for condition dropdowns
+    document.addEventListener('change', function(e) {
+        if (e.target.name && e.target.name.endsWith('-condition')) {
+            const select = e.target;
+            // Set the value attribute for CSS selector
+            select.setAttribute('value', select.value);
+        }
+    });
 
     // Form submission handler
     document.getElementById('engineCompartmentForm').addEventListener('submit', function(e) {
@@ -637,6 +361,57 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Engine compartment assessment draft saved successfully!');
     });
 });
+
+// Function to initialize engine components with InspectionCards
+function initializeEngineComponents() {
+    // Initialize the reusable InspectionCards system for engine components
+    InspectionCards.init({
+        // Required Configuration
+        formId: 'engineCompartmentForm',
+        containerId: 'engineComponentAssessments',
+        storageKey: 'engineComponentsData',
+        
+        // Engine components specific configuration (no overlays)
+        hasOverlays: false,
+        
+        // All engine component items with camera
+        items: [
+            { id: 'brakefluid_cleanliness', category: 'Brakefluid cleanliness', panelId: 'brakefluid-cleanliness' },
+            { id: 'brakefluid_level', category: 'Brakefluid level', panelId: 'brakefluid-level' },
+            { id: 'coolant_level', category: 'Coolant level', panelId: 'coolant-level' },
+            { id: 'antifreeze_strength', category: 'Antifreeze strength', panelId: 'antifreeze-strength' },
+            { id: 'fan_belt', category: 'Fan belt', panelId: 'fan-belt' },
+            { id: 'engine_oil_level', category: 'Engine oil level', panelId: 'engine-oil-level' },
+            { id: 'engine_oil_condition', category: 'Engine oil condition', panelId: 'engine-oil-condition' },
+            { id: 'battery_condition', category: 'Battery condition', panelId: 'battery-condition' },
+            { id: 'engine_mounts', category: 'Engine mounts', panelId: 'engine-mounts' },
+            { id: 'exhaust_system', category: 'Exhaust system', panelId: 'exhaust-system' }
+        ],
+        
+        // Custom field configuration for engine components
+        fields: {
+            condition: { 
+                enabled: true, 
+                label: 'Condition', 
+                options: ['Good', 'Average', 'Bad', 'N/A'] 
+            },
+            comments: { 
+                enabled: true, 
+                label: 'Comments', 
+                type: 'textarea', 
+                placeholder: 'Add comments if needed...'
+            }
+        },
+        
+        // Callback for form submission
+        onFormSubmit: function(data) {
+            // Store the engine components data
+            sessionStorage.setItem('engineComponentsData', JSON.stringify(data));
+            // Continue with existing form submission logic
+            window.location.href = '/inspection/physical-hoist';
+        }
+    });
+}
 
 function initializeFindingCheckboxes() {
     const checkboxes = document.querySelectorAll('.finding-checkbox');
@@ -688,263 +463,6 @@ function hasAnyRelatedCheckboxSelected(notesContainer) {
     return false;
 }
 
-function initializeComponentDropdowns() {
-    const conditionDropdowns = document.querySelectorAll('.condition-dropdown');
-    
-    conditionDropdowns.forEach(dropdown => {
-        dropdown.addEventListener('change', function() {
-            const row = this.closest('.component-row');
-            const component = row.dataset.component;
-            const condition = this.value;
-            const commentsField = row.querySelector('.component-comments');
-            
-            // Update dropdown styling
-            updateConditionStyling(this, condition);
-            
-            // Handle comments field requirements
-            handleCommentsField(commentsField, condition);
-            
-            // Store the assessment data
-            if (condition) {
-                engineCompartmentData.components[component] = {
-                    condition: condition,
-                    comments: commentsField.value
-                };
-            } else {
-                delete engineCompartmentData.components[component];
-            }
-        });
-    });
-    
-    // Add listeners to comments fields
-    const commentsFields = document.querySelectorAll('.component-comments');
-    commentsFields.forEach(field => {
-        field.addEventListener('input', function() {
-            const row = this.closest('.component-row');
-            const component = row.dataset.component;
-            
-            if (engineCompartmentData.components[component]) {
-                engineCompartmentData.components[component].comments = this.value;
-            }
-        });
-    });
-}
-
-function updateConditionStyling(dropdown, condition) {
-    // Remove all condition classes
-    dropdown.classList.remove('condition-good', 'condition-average', 'condition-bad', 'condition-na');
-    
-    // Add appropriate class based on condition
-    if (condition === 'Good') {
-        dropdown.classList.add('condition-good');
-    } else if (condition === 'Average') {
-        dropdown.classList.add('condition-average');
-    } else if (condition === 'Bad') {
-        dropdown.classList.add('condition-bad');
-    } else if (condition === 'N/A') {
-        dropdown.classList.add('condition-na');
-    }
-}
-
-function handleCommentsField(commentsField, condition) {
-    if (condition === 'Bad') {
-        commentsField.classList.add('required');
-        commentsField.setAttribute('placeholder', 'Comments required for Bad condition...');
-        commentsField.focus();
-    } else {
-        commentsField.classList.remove('required');
-        commentsField.setAttribute('placeholder', 'Add comments if needed...');
-    }
-}
-
-function initializeImageGrid() {
-    // Initialize empty slots for remaining images
-    const imageGrid = document.getElementById('imageGrid');
-    
-    for (let i = 1; i < maxImages; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'col-lg-3 col-md-4 col-sm-6 mb-3';
-        slot.innerHTML = `
-            <div class="image-slot empty-slot" onclick="captureImage(${i})" style="display: none;">
-                <div class="add-image-content">
-                    <i class="bi bi-camera-fill mb-2" style="font-size: 2rem; color: var(--primary-color);"></i>
-                    <p class="mb-0">Add Image</p>
-                    <small class="text-muted">Tap to capture</small>
-                </div>
-            </div>
-        `;
-        imageGrid.appendChild(slot);
-    }
-}
-
-function captureImage(slotIndex) {
-    currentImageSlot = slotIndex;
-    const modal = new bootstrap.Modal(document.getElementById('imageCaptureModal'));
-    modal.show();
-    
-    // Initialize camera when modal is shown
-    setTimeout(() => {
-        initializeCamera();
-    }, 500);
-}
-
-function initializeCamera() {
-    const video = document.getElementById('camera');
-    
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-            .then(function(stream) {
-                video.srcObject = stream;
-                
-                // Add capture button event listener
-                document.getElementById('captureBtn').onclick = function() {
-                    capturePhotoFromVideo();
-                };
-            })
-            .catch(function(error) {
-                console.error('Error accessing camera:', error);
-                alert('Unable to access camera. Please ensure camera permissions are granted.');
-            });
-    } else {
-        alert('Camera not supported on this device.');
-    }
-}
-
-function capturePhotoFromVideo() {
-    const video = document.getElementById('camera');
-    const canvas = document.getElementById('captureCanvas');
-    const context = canvas.getContext('2d');
-    const category = document.getElementById('imageCategory').value;
-    
-    if (!category) {
-        alert('Please select an image category before capturing.');
-        return;
-    }
-    
-    // Set canvas dimensions
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    // Draw video frame to canvas
-    context.drawImage(video, 0, 0);
-    
-    // Convert to blob and process
-    canvas.toBlob(function(blob) {
-        if (blob.size > 2 * 1024 * 1024) { // 2MB limit
-            alert('Image too large. Please try again.');
-            return;
-        }
-        
-        // Create image data
-        const imageData = {
-            id: `img_${Date.now()}`,
-            blob: blob,
-            category: category,
-            caption: getDefaultCaption(category),
-            timestamp: new Date().toISOString(),
-            slotIndex: currentImageSlot
-        };
-        
-        // Add to data array
-        engineCompartmentData.images.push(imageData);
-        
-        // Display in grid
-        displayCapturedImage(imageData);
-        
-        // Close modal and stop camera
-        bootstrap.Modal.getInstance(document.getElementById('imageCaptureModal')).hide();
-        stopCamera();
-        
-        
-    }, 'image/jpeg', 0.8);
-}
-
-function getDefaultCaption(category) {
-    const captions = {
-        'Engine Overview': 'General engine compartment view',
-        'Engine Number': 'Engine number location (if visible)',
-        'Engine Covers': 'Engine cover condition/presence',
-        'Fluid Levels': 'Brake fluid, coolant, oil levels',
-        'Belts & Hoses': 'Fan belt and hose condition',
-        'Electrical Components': 'Battery, wiring, connections',
-        'Structural Elements': 'Engine mounts, brackets, frames',
-        'Damage Areas': 'Any identified damage or repairs',
-        'Fender Liners': 'Fender liner condition',
-        'Headlight Areas': 'Headlight brackets and surroundings',
-        'Additional Findings': 'Other notable observations'
-    };
-    return captions[category] || 'Engine compartment image';
-}
-
-function displayCapturedImage(imageData) {
-    const imageGrid = document.getElementById('imageGrid');
-    const slots = imageGrid.querySelectorAll('.col-lg-3');
-    const targetSlot = slots[imageData.slotIndex];
-    
-    // Create image URL from blob
-    const imageUrl = URL.createObjectURL(imageData.blob);
-    
-    // Update slot content
-    targetSlot.innerHTML = `
-        <div class="image-slot filled position-relative">
-            <img src="${imageUrl}" alt="${imageData.category}" class="captured-image">
-            <button type="button" class="delete-image-btn" onclick="deleteImage('${imageData.id}', ${imageData.slotIndex})">
-                <i class="bi bi-x"></i>
-            </button>
-            <div class="image-caption">
-                <input type="text" class="form-control" value="${imageData.caption}" 
-                       onchange="updateImageCaption('${imageData.id}', this.value)"
-                       placeholder="Add caption..." maxlength="100">
-                <small class="text-muted">${imageData.category}</small>
-            </div>
-        </div>
-    `;
-    
-    // Show next empty slot if available
-    const nextSlotIndex = imageData.slotIndex + 1;
-    if (nextSlotIndex < maxImages) {
-        const nextSlot = slots[nextSlotIndex].querySelector('.empty-slot');
-        if (nextSlot) {
-            nextSlot.style.display = 'flex';
-        }
-    }
-}
-
-function deleteImage(imageId, slotIndex) {
-    if (confirm('Are you sure you want to delete this image?')) {
-        // Remove from data array
-        engineCompartmentData.images = engineCompartmentData.images.filter(img => img.id !== imageId);
-        
-        // Reset slot to empty state
-        const imageGrid = document.getElementById('imageGrid');
-        const slots = imageGrid.querySelectorAll('.col-lg-3');
-        const targetSlot = slots[slotIndex];
-        
-        targetSlot.innerHTML = `
-            <div class="image-slot empty-slot" onclick="captureImage(${slotIndex})">
-                <div class="add-image-content">
-                    <i class="bi bi-camera-fill mb-2" style="font-size: 2rem; color: var(--primary-color);"></i>
-                    <p class="mb-0">Add Image</p>
-                    <small class="text-muted">Tap to capture</small>
-                </div>
-            </div>
-        `;
-    }
-}
-
-function updateImageCaption(imageId, newCaption) {
-    const image = engineCompartmentData.images.find(img => img.id === imageId);
-    if (image) {
-        image.caption = newCaption;
-    }
-}
-
-function stopCamera() {
-    const video = document.getElementById('camera');
-    if (video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop());
-    }
-}
 
 
 function validateEngineCompartmentAssessment() {
@@ -1002,28 +520,6 @@ function restoreEngineCompartmentData(data) {
             checkbox.checked = true;
             checkbox.dispatchEvent(new Event('change'));
         }
-    });
-    
-    // Restore component assessments
-    Object.keys(data.components).forEach(component => {
-        const componentData = data.components[component];
-        const conditionSelect = document.querySelector(`[name="components[${component}][condition]"]`);
-        const commentsField = document.querySelector(`[name="components[${component}][comments]"]`);
-        
-        if (conditionSelect && componentData.condition) {
-            conditionSelect.value = componentData.condition;
-            updateConditionStyling(conditionSelect, componentData.condition);
-            handleCommentsField(commentsField, componentData.condition);
-        }
-        
-        if (commentsField && componentData.comments) {
-            commentsField.value = componentData.comments;
-        }
-    });
-    
-    // Restore images
-    data.images.forEach(imageData => {
-        displayCapturedImage(imageData);
     });
 }
 </script>

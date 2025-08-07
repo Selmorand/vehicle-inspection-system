@@ -11,7 +11,7 @@
                 <ol class="breadcrumb justify-content-center">
                     <li class="breadcrumb-item"><a href="/inspection/visual" style="color: var(--primary-color);">Visual Inspection</a></li>
                     <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Body Panel Assessment</li>
-                    <li class="breadcrumb-item text-muted">Specific Area Images</li>
+                    <li class="breadcrumb-item text-muted">Interior Assessment</li>
                 </ol>
             </nav>
         </div>
@@ -32,9 +32,10 @@
                     <h5 class="mb-0">Vehicle Body Panels</h5>
                 </div>
                 <div class="card-body">
-                    <div class="vehicle-container">
-                        <!-- Base vehicle image -->
-                        <img src="/images/panels/FullVehicle.jpg" alt="Vehicle Base" class="base-vehicle" id="baseVehicle">
+                    <div class="vehicle-wrapper">
+                        <div class="vehicle-container">
+                            <!-- Base vehicle image -->
+                            <img src="/images/panels/FullVehicle.png" alt="Vehicle Base" class="base-vehicle" id="baseVehicle">
                         
                         <!-- All panel overlays with converted positions -->
                         <!-- Windscreen -->
@@ -49,71 +50,87 @@
                         <img src="/images/panels/rr-taillight.png" 
                              class="panel-overlay" 
                              data-panel="rr-taillight" 
-                             style="position: absolute; left: 820px; top: 1122px; width: 92px; height: 52px;"
+                             style="position: absolute; left: 756px; top: 1075px; width: 95px; height: 33px;"
                              title="RR Taillight" 
                              alt="RR Taillight">
                              
-                        <!-- Rear Right Quarter Panel -->
-                        <img src="/images/panels/rr-quarter-panel.png" 
+                        <!-- Rear Left Taillight -->
+                        <img src="/images/panels/lr-taillight.png" 
                              class="panel-overlay" 
-                             data-panel="rr-quarter-panel" 
-                             style="position: absolute; left: 56px; top: 102px; width: 271px; height: 141px;"
-                             title="RR Quarter Panel" 
-                             alt="RR Quarter Panel">
-                             
-                        <!-- Rear Right Door -->
-                        <img src="/images/panels/rr-door.png" 
-                             class="panel-overlay" 
-                             data-panel="rr-door" 
-                             style="position: absolute; left: 266px; top: 28px; width: 209px; height: 224px;"
-                             title="RR Door" 
-                             alt="RR Door">
-                             
-                        <!-- Roof -->
-                        <img src="/images/panels/roof.png" 
-                             class="panel-overlay" 
-                             data-panel="roof" 
-                             style="position: absolute; left: 299px; top: 380px; width: 283px; height: 221px;"
-                             title="Roof" 
-                             alt="Roof">
-                             
-                        <!-- Rear Window -->
-                        <img src="/images/panels/rear-window.png" 
-                             class="panel-overlay" 
-                             data-panel="rear-window" 
-                             style="position: absolute; left: 159px; top: 368px; width: 157px; height: 250px;"
-                             title="Rear Window" 
-                             alt="Rear Window">
+                             data-panel="lr-taillight" 
+                             style="position: absolute; left: 158px; top: 225px; width: 95px; height: 33px;"
+                             title="LR Taillight" 
+                             alt="LR Taillight">
                              
                         <!-- Rear Bumper -->
                         <img src="/images/panels/rear-bumper.png" 
                              class="panel-overlay" 
                              data-panel="rear-bumper" 
-                             style="position: absolute; left: 595px; top: 1182px; width: 340px; height: 68px;"
+                             style="position: absolute; left: 588px; top: 1180px; width: 374px; height: 85px;"
                              title="Rear Bumper" 
                              alt="Rear Bumper">
                              
-                        <!-- Left Rear Taillight -->
-                        <img src="/images/panels/lr-taillight.png" 
+                        <!-- Rear Window -->
+                        <img src="/images/panels/rear-window.png" 
                              class="panel-overlay" 
-                             data-panel="lr-taillight" 
-                             style="position: absolute; left: 622px; top: 1122px; width: 92px; height: 52px;"
-                             title="LR Taillight" 
-                             alt="LR Taillight">
+                             data-panel="rear-window" 
+                             style="position: absolute; left: 428px; top: 695px; width: 147px; height: 279px;"
+                             title="Rear Window" 
+                             alt="Rear Window">
+                             
+                        <!-- Roof -->
+                        <img src="/images/panels/roof.png" 
+                             class="panel-overlay" 
+                             data-panel="roof" 
+                             style="position: absolute; left: 380px; top: 400px; width: 244px; height: 552px;"
+                             title="Roof" 
+                             alt="Roof">
+                             
+                        <!-- Boot -->
+                        <img src="/images/panels/boot.png" 
+                             class="panel-overlay" 
+                             data-panel="boot" 
+                             style="position: absolute; left: 575px; top: 975px; width: 147px; height: 205px;"
+                             title="Boot" 
+                             alt="Boot">
+                             
+                        <!-- Bonnet -->
+                        <img src="/images/panels/bonnet.png" 
+                             class="panel-overlay" 
+                             data-panel="bonnet" 
+                             style="position: absolute; left: 283px; top: 175px; width: 147px; height: 205px;"
+                             title="Bonnet" 
+                             alt="Bonnet">
+                             
+                        <!-- Right Rear Quarter Panel -->
+                        <img src="/images/panels/rr-quarter-panel.png" 
+                             class="panel-overlay" 
+                             data-panel="rr-quarter-panel" 
+                             style="position: absolute; left: 677px; top: 690px; width: 231px; height: 294px;"
+                             title="RR Quarter Panel" 
+                             alt="RR Quarter Panel">
                              
                         <!-- Left Rear Quarter Panel -->
                         <img src="/images/panels/lr-quarter-panel.png" 
                              class="panel-overlay" 
                              data-panel="lr-quarter-panel" 
-                             style="position: absolute; left: 674px; top: 788px; width: 271px; height: 140px;"
+                             style="position: absolute; left: 98px; top: 370px; width: 231px; height: 294px;"
                              title="LR Quarter Panel" 
                              alt="LR Quarter Panel">
+                             
+                        <!-- Right Rear Door -->
+                        <img src="/images/panels/rr-door.png" 
+                             class="panel-overlay" 
+                             data-panel="rr-door" 
+                             style="position: absolute; left: 446px; top: 640px; width: 231px; height: 212px;"
+                             title="RR Door" 
+                             alt="RR Door">
                              
                         <!-- Left Rear Door -->
                         <img src="/images/panels/lr-door.png" 
                              class="panel-overlay" 
                              data-panel="lr-door" 
-                             style="position: absolute; left: 526px; top: 712px; width: 207px; height: 224px;"
+                             style="position: absolute; left: 326px; top: 501px; width: 231px; height: 212px;"
                              title="LR Door" 
                              alt="LR Door">
                              
@@ -121,7 +138,7 @@
                         <img src="/images/panels/lf-mirror.png" 
                              class="panel-overlay" 
                              data-panel="lf-mirror" 
-                             style="position: absolute; left: 368px; top: 1095px; width: 48px; height: 32px;"
+                             style="position: absolute; left: 918px; top: 225px; width: 48px; height: 32px;"
                              title="LF Mirror" 
                              alt="LF Mirror">
                              
@@ -129,7 +146,7 @@
                         <img src="/images/panels/lf-headlight.png" 
                              class="panel-overlay" 
                              data-panel="lf-headlight" 
-                             style="position: absolute; left: 295px; top: 1155px; width: 92px; height: 34px;"
+                             style="position: absolute; left: 844px; top: 159px; width: 91px; height: 34px;"
                              title="LF Headlight" 
                              alt="LF Headlight">
                              
@@ -188,30 +205,15 @@
                              style="position: absolute; left: 443px; top: 30px; width: 230px; height: 212px;"
                              title="FR Door" 
                              alt="FR Door">
-                             
-                        <!-- Boot -->
-                        <img src="/images/panels/boot.png" 
-                             class="panel-overlay" 
-                             data-panel="boot" 
-                             style="position: absolute; left: 73px; top: 363px; width: 141px; height: 267px;"
-                             title="Boot" 
-                             alt="Boot">
-                             
-                        <!-- Bonnet -->
-                        <img src="/images/panels/bonnet.png" 
-                             class="panel-overlay" 
-                             data-panel="bonnet" 
-                             style="position: absolute; left: 684px; top: 329px; width: 271px; height: 336px;"
-                             title="Bonnet" 
-                             alt="Bonnet">
+
+                        </div>
                     </div>
-                    
                 </div>
             </div>
         </div>
-
-        <!-- Assessment Form Section -->
-        <div class="col-lg-6">
+        
+        <!-- Panel Assessment Form -->
+        <div class="col-lg-6 mb-4">
             <div class="card shadow-sm">
                 <div class="card-header" style="background-color: var(--primary-color); color: white;">
                     <h5 class="mb-0">Panel Assessment Details</h5>
@@ -229,10 +231,10 @@
                             <button type="button" class="btn btn-outline-secondary" id="backBtn">
                                 <i class="bi bi-arrow-left me-1"></i>Back to Visual Inspection
                             </button>
-                            <div>
-                                <button type="button" class="btn btn-secondary me-2" id="saveDraftBtn">Save Draft</button>
-                                <button type="submit" class="btn btn-primary" id="nextBtn">
-                                    Continue to Specific Areas <i class="bi bi-arrow-right ms-1"></i>
+                            <div class="button-group-responsive">
+                                <button type="button" class="btn btn-secondary me-2 mb-2" id="saveDraftBtn">Save Draft</button>
+                                <button type="submit" class="btn btn-primary mb-2" id="nextBtn">
+                                    Continue to Interior Assessment <i class="bi bi-arrow-right ms-1"></i>
                                 </button>
                             </div>
                         </div>
@@ -245,19 +247,10 @@
 @endsection
 
 @section('additional-css')
+<link rel="stylesheet" href="{{ asset('css/vehicle-responsive-fix.css') }}">
+<link rel="stylesheet" href="{{ asset('css/panel-cards.css') }}">
 <style>
-/* Vehicle container - responsive */
-.vehicle-container {
-    position: relative;
-    max-width: 1005px;
-    width: 100%;
-    margin: 0 auto;
-    background-color: #f8f9fa;
-    padding: 0;
-    overflow: visible; /* Allow panels to show outside container if needed */
-    /* Create a scaling context for overlays */
-    transform-origin: top left;
-}
+/* Vehicle container - now handled by vehicle-responsive.js and CSS file */
 
 /* Base vehicle image - responsive */
 .base-vehicle {
@@ -288,47 +281,26 @@
     filter: brightness(0) saturate(100%) invert(21%) sepia(100%) saturate(7463%) hue-rotate(358deg) brightness(105%) contrast(115%);
 }
 
-/* Condition-based persistent colors - these take priority */
+/* Condition-based persistent colors for body panels */
 .panel-overlay.condition-good {
     opacity: 0.8 !important;
-    /* Green #277020 */
     filter: brightness(0) saturate(100%) invert(25%) sepia(98%) saturate(1044%) hue-rotate(73deg) brightness(92%) contrast(101%) !important;
 }
 
 .panel-overlay.condition-average {
     opacity: 0.8 !important;
-    /* Orange #f5a409 */
     filter: brightness(0) saturate(100%) invert(66%) sepia(68%) saturate(3428%) hue-rotate(8deg) brightness(102%) contrast(95%) !important;
 }
 
 .panel-overlay.condition-bad {
     opacity: 0.8 !important;
-    /* Red #c62121 */
     filter: brightness(0) saturate(100%) invert(16%) sepia(90%) saturate(3122%) hue-rotate(348deg) brightness(93%) contrast(87%) !important;
 }
 
-/* Form label hover effects */
-.form-label-wrapper {
-    transition: background-color 0.3s ease;
-    cursor: pointer;
-}
-
-.form-label-wrapper:hover,
-.form-label-wrapper.active {
-    background-color: rgba(220, 53, 69, 0.2);
-}
-
-/* Panel assessment highlighting */
-.panel-assessment {
-    border-left: 3px solid transparent;
-    padding-left: 10px;
-    transition: all 0.3s ease;
-    margin-bottom: 8px;
-}
-
-.panel-assessment.highlighted {
-    border-left-color: #dc3545;
-    background-color: rgba(220, 53, 69, 0.05);
+/* Panel card highlighting */
+.panel-card.highlighted {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
 }
 
 /* Responsive design for tablets and mobile */
@@ -351,325 +323,119 @@
         margin-bottom: 5px;
     }
 }
+
+/* Button responsive layout for tablets */
+@media (max-width: 768px) {
+    .button-group-responsive {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .button-group-responsive .btn {
+        width: 100%;
+        margin-right: 0 !important;
+    }
+    
+    /* Make the button container stack vertically on tablets */
+    .mt-4.d-flex.justify-content-between {
+        flex-direction: column !important;
+        gap: 10px;
+    }
+    
+    #backBtn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+}
+
+/* Ensure 5px margin bottom for Save Draft on all screen sizes */
+#saveDraftBtn {
+    margin-bottom: 5px !important;
+}
 </style>
 @endsection
 
 @section('additional-js')
+<script src="{{ asset('js/inspection-cards.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Load previous inspection data if available
-    loadPreviousData();
-    
-    // Initialize responsive overlay scaling
-    initializeResponsiveOverlays();
-    
-    // Panel names for form generation
-    const panelNames = [
-        { id: 'windscreen', name: 'Windscreen' },
-        { id: 'bonnet', name: 'Bonnet' },
-        { id: 'boot', name: 'Boot' },
-        { id: 'roof', name: 'Roof' },
-        { id: 'rear-window', name: 'Rear Window' },
-        { id: 'front-bumper', name: 'Front Bumper' },
-        { id: 'rear-bumper', name: 'Rear Bumper' },
-        { id: 'lf-headlight', name: 'Left Front Headlight' },
-        { id: 'fr-headlight', name: 'Right Front Headlight' },
-        { id: 'lr-taillight', name: 'Left Rear Taillight' },
-        { id: 'rr-taillight', name: 'Right Rear Taillight' },
-        { id: 'lf-mirror', name: 'Left Front Mirror' },
-        { id: 'fr-mirror', name: 'Right Front Mirror' },
-        { id: 'lf-fender', name: 'Left Front Fender' },
-        { id: 'fr-fender', name: 'Right Front Fender' },
-        { id: 'lf-door', name: 'Left Front Door' },
-        { id: 'fr-door', name: 'Right Front Door' },
-        { id: 'lr-door', name: 'Left Rear Door' },
-        { id: 'rr-door', name: 'Right Rear Door' },
-        { id: 'lr-quarter-panel', name: 'Left Rear Quarter Panel' },
-        { id: 'rr-quarter-panel', name: 'Right Rear Quarter Panel' }
-    ];
-
-    // Generate form fields for each panel
-    const assessmentContainer = document.getElementById('panelAssessments');
-    panelNames.forEach(panelInfo => {
-        const panelDiv = document.createElement('div');
-        panelDiv.className = 'panel-assessment';
-        panelDiv.dataset.panel = panelInfo.id;
+    // Initialize the reusable InspectionCards system
+    InspectionCards.init({
+        // Required Configuration
+        formId: 'panelAssessmentForm',
+        containerId: 'panelAssessments',
+        storageKey: 'panelAssessmentData',
         
-        panelDiv.innerHTML = `
-            <div class="form-label-wrapper p-2 rounded" data-panel-label="${panelInfo.id}">
-                <label class="form-label fw-bold mb-1">${panelInfo.name}</label>
-            </div>
-            <div class="row g-2">
-                <div class="col-md-3">
-                    <select class="form-select form-select-sm" name="${panelInfo.id}-condition">
-                        <option value="">Condition</option>
-                        <option value="good">Good</option>
-                        <option value="average">Average</option>
-                        <option value="bad">Bad</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <select class="form-select form-select-sm" name="${panelInfo.id}-comments">
-                        <option value="">Comments</option>
-                        <option value="scratched">Scratched</option>
-                        <option value="dented">Dented</option>
-                        <option value="cracked">Cracked</option>
-                        <option value="repainted">Repainted</option>
-                        <option value="replaced">Replaced</option>
-                    </select>
-                </div>
-                <div class="col-md-5">
-                    <input type="text" class="form-control form-control-sm" 
-                           name="${panelInfo.id}-additional" placeholder="Additional comments">
-                </div>
-            </div>
-        `;
+        // Body Panel specific configuration
+        hasOverlays: true,
+        overlaySelector: '.panel-overlay',
         
-        assessmentContainer.appendChild(panelDiv);
-    });
-
-    // Two-way highlighting functionality
-    const panelOverlays = document.querySelectorAll('.panel-overlay');
-    const formLabels = document.querySelectorAll('.form-label-wrapper');
-    const panelAssessments = document.querySelectorAll('.panel-assessment');
-
-    // Handle panel click
-    panelOverlays.forEach(overlay => {
-        const panelId = overlay.dataset.panel;
+        // Panel items data
+        items: [
+            { id: 'windscreen', category: 'Windscreen', panelId: 'windscreen' },
+            { id: 'bonnet', category: 'Bonnet', panelId: 'bonnet' },
+            { id: 'boot', category: 'Boot', panelId: 'boot' },
+            { id: 'roof', category: 'Roof', panelId: 'roof' },
+            { id: 'rear-window', category: 'Rear Window', panelId: 'rear-window' },
+            { id: 'front-bumper', category: 'Front Bumper', panelId: 'front-bumper' },
+            { id: 'rear-bumper', category: 'Rear Bumper', panelId: 'rear-bumper' },
+            { id: 'lf-headlight', category: 'Left Front Headlight', panelId: 'lf-headlight' },
+            { id: 'fr-headlight', category: 'Right Front Headlight', panelId: 'fr-headlight' },
+            { id: 'lr-taillight', category: 'Left Rear Taillight', panelId: 'lr-taillight' },
+            { id: 'rr-taillight', category: 'Right Rear Taillight', panelId: 'rr-taillight' },
+            { id: 'lf-mirror', category: 'Left Front Mirror', panelId: 'lf-mirror' },
+            { id: 'fr-mirror', category: 'Right Front Mirror', panelId: 'fr-mirror' },
+            { id: 'lf-fender', category: 'Left Front Fender', panelId: 'lf-fender' },
+            { id: 'fr-fender', category: 'Right Front Fender', panelId: 'fr-fender' },
+            { id: 'lf-door', category: 'Left Front Door', panelId: 'lf-door' },
+            { id: 'fr-door', category: 'Right Front Door', panelId: 'fr-door' },
+            { id: 'lr-door', category: 'Left Rear Door', panelId: 'lr-door' },
+            { id: 'rr-door', category: 'Right Rear Door', panelId: 'rr-door' },
+            { id: 'lr-quarter-panel', category: 'Left Rear Quarter Panel', panelId: 'lr-quarter-panel' },
+            { id: 'rr-quarter-panel', category: 'Right Rear Quarter Panel', panelId: 'rr-quarter-panel' }
+        ],
         
-        // Click handler - highlights form field
-        overlay.addEventListener('click', function() {
-            // Remove active class from all panels and labels
-            panelOverlays.forEach(p => p.classList.remove('active'));
-            formLabels.forEach(l => l.classList.remove('active'));
-            
-            // Add active class to clicked panel and corresponding form label
-            this.classList.add('active');
-            const correspondingLabel = document.querySelector(`[data-panel-label="${panelId}"]`);
-            if (correspondingLabel) {
-                correspondingLabel.classList.add('active');
-                // Scroll form into view
-                correspondingLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Custom field configuration
+        fields: {
+            condition: { 
+                enabled: true, 
+                label: 'Condition', 
+                options: ['Good', 'Average', 'Bad'] 
+            },
+            comments: { 
+                enabled: true, 
+                label: 'Additional comments', 
+                type: 'text', 
+                placeholder: 'Additional comments' 
             }
-        });
+        },
         
-        // Hover handlers for visual feedback
-        overlay.addEventListener('mouseenter', function() {
-            const correspondingAssessment = document.querySelector(`.panel-assessment[data-panel="${panelId}"]`);
-            if (correspondingAssessment) {
-                correspondingAssessment.classList.add('highlighted');
-            }
-        });
-        
-        overlay.addEventListener('mouseleave', function() {
-            const correspondingAssessment = document.querySelector(`.panel-assessment[data-panel="${panelId}"]`);
-            if (correspondingAssessment) {
-                correspondingAssessment.classList.remove('highlighted');
-            }
-        });
-    });
-
-    // Handle form label hover - highlights corresponding panel
-    formLabels.forEach(label => {
-        const panelId = label.dataset.panelLabel;
-        
-        label.addEventListener('mouseenter', function() {
-            const correspondingPanel = document.querySelector(`.panel-overlay[data-panel="${panelId}"]`);
-            if (correspondingPanel && 
-                !correspondingPanel.classList.contains('condition-good') && 
-                !correspondingPanel.classList.contains('condition-average') && 
-                !correspondingPanel.classList.contains('condition-bad')) {
-                correspondingPanel.classList.add('active');
-            }
-        });
-        
-        label.addEventListener('mouseleave', function() {
-            const correspondingPanel = document.querySelector(`.panel-overlay[data-panel="${panelId}"]`);
-            if (correspondingPanel) {
-                correspondingPanel.classList.remove('active');
-            }
-        });
-        
-        // Click handler for form labels
-        label.addEventListener('click', function() {
-            const correspondingPanel = document.querySelector(`.panel-overlay[data-panel="${panelId}"]`);
-            if (correspondingPanel) {
-                // Trigger click on the panel
-                correspondingPanel.click();
-            }
-        });
-    });
-    
-    // Handle condition changes - update panel colors
-    const conditionSelects = document.querySelectorAll('select[name$="-condition"]');
-    conditionSelects.forEach(select => {
-        select.addEventListener('change', function() {
-            const panelName = this.name.replace('-condition', '');
-            const correspondingPanel = document.querySelector(`.panel-overlay[data-panel="${panelName}"]`);
-            
-            if (correspondingPanel) {
-                // Remove existing condition classes
-                correspondingPanel.classList.remove('condition-good', 'condition-average', 'condition-bad', 'active');
-                
-                // Add new condition class
-                if (this.value) {
-                    correspondingPanel.classList.add(`condition-${this.value}`);
-                }
-            }
-        });
-    });
-
-    // Form submission handler
-    document.getElementById('panelAssessmentForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Collect form data
-        const formData = new FormData(this);
-        const assessmentData = {};
-        
-        for (let [key, value] of formData.entries()) {
-            if (value && key !== '_token') {
-                assessmentData[key] = value;
-            }
+        // Callback for form submission
+        onFormSubmit: function(data) {
+            sessionStorage.setItem('panelAssessmentData', JSON.stringify(data));
+            window.location.href = '/inspection/interior';
         }
-        
-        console.log('Assessment Data:', assessmentData);
-        alert('Assessment saved! (Frontend only - backend integration pending)');
     });
-
-    // Navigation button handlers
+    
+    // Handle navigation buttons
     document.getElementById('backBtn').addEventListener('click', function() {
-        // Save current progress before going back
-        saveCurrentProgress();
-        window.location.href = '/inspection/visual';
+        if (confirm('Are you sure you want to go back? Any unsaved data will be lost.')) {
+            window.location.href = '/inspection/visual';
+        }
     });
-
+    
     document.getElementById('saveDraftBtn').addEventListener('click', function() {
-        saveCurrentProgress();
-        alert('Assessment draft saved successfully!');
+        InspectionCards.saveData();
+        alert('Draft saved successfully!');
     });
-
-    // Update form submission to proceed to next section
-    document.getElementById('panelAssessmentForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Save the panel assessment data
-        saveCurrentProgress();
-        
-        // Navigate to specific area images section
-        window.location.href = '/inspection/specific-areas';
+    
+    document.getElementById('nextBtn').addEventListener('click', function() {
+        InspectionCards.saveData();
+        window.location.href = '/inspection/interior';
     });
 });
-
-// Initialize responsive overlay scaling
-function initializeResponsiveOverlays() {
-    const baseVehicle = document.getElementById('baseVehicle');
-    const vehicleContainer = document.querySelector('.vehicle-container');
-    const overlays = document.querySelectorAll('.panel-overlay');
-    
-    function scaleOverlays() {
-        if (!baseVehicle || overlays.length === 0) return;
-        
-        // Wait for image to load
-        if (baseVehicle.naturalWidth === 0) {
-            setTimeout(scaleOverlays, 100);
-            return;
-        }
-        
-        // Calculate scaling factor based on actual vs natural image size
-        const naturalWidth = 1005; // Original design width
-        const actualWidth = baseVehicle.offsetWidth;
-        const scaleFactor = actualWidth / naturalWidth;
-        
-        // Apply scaling to container and all overlays
-        vehicleContainer.style.transform = `scale(${scaleFactor})`;
-        vehicleContainer.style.transformOrigin = 'top left';
-        vehicleContainer.style.width = `${naturalWidth}px`;
-        vehicleContainer.style.height = `${baseVehicle.naturalHeight}px`;
-        
-        // Adjust container wrapper to account for scaling
-        const scaledHeight = baseVehicle.naturalHeight * scaleFactor;
-        vehicleContainer.parentElement.style.height = `${scaledHeight}px`;
-    }
-    
-    // Scale on load and resize
-    if (baseVehicle.complete) {
-        scaleOverlays();
-    } else {
-        baseVehicle.addEventListener('load', scaleOverlays);
-    }
-    
-    window.addEventListener('resize', scaleOverlays);
-}
-
-// Load previous visual inspection data and display summary
-function loadPreviousData() {
-    const visualData = sessionStorage.getItem('visualInspectionData');
-    if (visualData) {
-        const data = JSON.parse(visualData);
-        
-        // Display inspection summary at top of page
-        displayInspectionSummary(data);
-        
-        // Load any existing panel assessment data
-        const panelData = sessionStorage.getItem('panelAssessmentData');
-        if (panelData) {
-            restorePanelAssessments(JSON.parse(panelData));
-        }
-    }
-}
-
-// Display summary of visual inspection data
-function displayInspectionSummary(data) {
-    const breadcrumbContainer = document.querySelector('.breadcrumb').parentElement.parentElement;
-    const summaryDiv = document.createElement('div');
-    summaryDiv.className = 'row mb-3';
-    summaryDiv.innerHTML = `
-        <div class="col-12">
-            <div class="alert alert-info">
-                <strong>Inspection Details:</strong>
-                ${data.manufacturer} ${data.model} (${data.vehicle_type}) | 
-                VIN: ${data.vin} | 
-                Inspector: ${data.inspector_name} |
-                Images: ${data.images ? data.images.length : 0} uploaded
-            </div>
-        </div>
-    `;
-    breadcrumbContainer.parentNode.insertBefore(summaryDiv, breadcrumbContainer.nextSibling);
-}
-
-// Save current panel assessment progress
-function saveCurrentProgress() {
-    const formData = new FormData(document.getElementById('panelAssessmentForm'));
-    const panelData = {};
-    
-    for (let [key, value] of formData.entries()) {
-        if (value && key !== '_token') {
-            panelData[key] = value;
-        }
-    }
-    
-    sessionStorage.setItem('panelAssessmentData', JSON.stringify(panelData));
-}
-
-// Restore previous panel assessments
-function restorePanelAssessments(data) {
-    Object.keys(data).forEach(key => {
-        const field = document.querySelector(`[name="${key}"]`);
-        if (field) {
-            field.value = data[key];
-            
-            // If it's a condition field, update panel color
-            if (key.endsWith('-condition') && data[key]) {
-                const panelName = key.replace('-condition', '');
-                const panel = document.querySelector(`.panel-overlay[data-panel="${panelName}"]`);
-                if (panel) {
-                    panel.classList.remove('condition-good', 'condition-average', 'condition-bad');
-                    panel.classList.add(`condition-${data[key]}`);
-                }
-            }
-        }
-    });
-}
 </script>
+<script src="{{ asset('js/vehicle-responsive.js') }}"></script>
 @endsection

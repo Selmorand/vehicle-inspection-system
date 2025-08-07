@@ -428,6 +428,13 @@ window.InspectionCards = (function() {
                 const item = config.items.find(item => item.id === itemId);
                 const panelId = item ? item.panelId : itemId;
                 
+                // Update dropdown color coding
+                e.target.classList.remove('condition-good', 'condition-average', 'condition-bad', 'condition-na');
+                if (e.target.value) {
+                    const conditionClass = e.target.value === 'n/a' ? 'condition-na' : `condition-${e.target.value}`;
+                    e.target.classList.add(conditionClass);
+                }
+                
                 // Only proceed if there's a panelId (some items like "Other" have null panelId)
                 if (panelId) {
                     const overlay = document.querySelector(`.panel-overlay[data-panel="${panelId}"]`);
@@ -533,8 +540,14 @@ window.InspectionCards = (function() {
                 if (field) {
                     field.value = data[key];
                     
-                    // Trigger change event to ensure condition colors are applied
+                    // Apply condition color coding for dropdowns
                     if (key.endsWith('-condition') && data[key]) {
+                        // Apply dropdown color class
+                        field.classList.remove('condition-good', 'condition-average', 'condition-bad', 'condition-na');
+                        const conditionClass = data[key] === 'n/a' ? 'condition-na' : `condition-${data[key]}`;
+                        field.classList.add(conditionClass);
+                        
+                        // Trigger change event to ensure overlay colors are applied
                         const changeEvent = new Event('change', { bubbles: true });
                         field.dispatchEvent(changeEvent);
                     }

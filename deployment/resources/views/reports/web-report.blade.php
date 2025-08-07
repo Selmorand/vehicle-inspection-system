@@ -3,8 +3,7 @@
 @section('title', 'Inspection Report - ' . ($report->report_number ?? 'Report'))
 
 @section('additional-css')
-<!-- Use local fallback for lightbox CSS if CDN fails -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet" onerror="this.remove()">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet">
 <style>
     .web-report {
         max-width: 1200px;
@@ -331,10 +330,7 @@
                 <a href="{{ route('reports.index') }}" class="btn btn-light">
                     <i class="bi bi-arrow-left"></i> Back to Reports
                 </a>
-                <a href="{{ route('reports.pdf', $report->id) }}" class="btn btn-danger">
-                    <i class="bi bi-file-pdf"></i> Download PDF
-                </a>
-                <button onclick="window.print()" class="btn btn-light">
+                <button onclick="window.print()" class="btn btn-primary">
                     <i class="bi bi-printer"></i> Print
                 </button>
             </div>
@@ -903,27 +899,17 @@
 @endsection
 
 @section('additional-js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js" onerror="console.log('Lightbox CDN failed, using fallback')"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Configure lightbox if available
-    if (typeof lightbox !== 'undefined') {
-        lightbox.option({
-            'resizeDuration': 200,
-            'wrapAround': true,
-            'albumLabel': 'Image %1 of %2',
-            'fadeDuration': 300,
-            'imageFadeDuration': 300
-        });
-    } else {
-        // Fallback: simple image click behavior
-        document.querySelectorAll('[data-lightbox]').forEach(function(link) {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                window.open(this.href, '_blank');
-            });
-        });
-    }
+    // Configure lightbox
+    lightbox.option({
+        'resizeDuration': 200,
+        'wrapAround': true,
+        'albumLabel': 'Image %1 of %2',
+        'fadeDuration': 300,
+        'imageFadeDuration': 300
+    });
     
     // Add loading states for images
     const images = document.querySelectorAll('.image-card img');

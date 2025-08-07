@@ -244,7 +244,7 @@ claude-code "Test my staging deployment at alpha.selpro.co.za and verify the for
 claude-code "Staging tests passed. Prepare this for production deployment with proper production environment settings."
 ```
 
-## Custom Deployment Patterns
+## Custom Deployment Patterns  git push origin main
 
 You can create custom patterns for your specific needs:
 
