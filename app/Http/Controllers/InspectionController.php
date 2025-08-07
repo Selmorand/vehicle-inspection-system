@@ -24,19 +24,9 @@ class InspectionController extends Controller
         return view('body-panel-assessment');
     }
 
-    public function specificAreaImages()
-    {
-        return view('specific-area-images');
-    }
-
     public function interiorAssessment()
     {
         return view('interior-assessment');
-    }
-
-    public function interiorSpecificImages()
-    {
-        return view('interior-specific-images');
     }
 
     public function serviceBooklet()
@@ -233,63 +223,6 @@ class InspectionController extends Controller
         }
     }
 
-    public function saveSpecificAreaImages(Request $request)
-    {
-        // TESTING: Relaxed validation for testing navigation
-        // TODO: Restore required validations before production
-        $validated = $request->validate([
-            'inspection_id' => 'nullable|exists:inspections,id',
-            'area_images' => 'nullable|array',
-            'area_images.*' => 'image|max:10240' // 10MB max per image
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-            // Handle missing inspection_id for testing
-            $inspectionId = $validated['inspection_id'];
-            if (!$inspectionId) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Specific area images saved (testing mode)'
-                ]);
-            }
-            
-            $inspection = Inspection::findOrFail($inspectionId);
-
-            // Handle specific area image uploads
-            if ($request->hasFile('area_images')) {
-                foreach ($request->file('area_images') as $areaName => $image) {
-                    $path = $image->store('inspections/' . $inspection->id . '/specific-areas', 'public');
-                    
-                    InspectionImage::create([
-                        'inspection_id' => $inspection->id,
-                        'image_type' => 'specific_area',
-                        'area_name' => $areaName,
-                        'file_path' => $path,
-                        'original_name' => $image->getClientOriginalName()
-                    ]);
-                }
-            }
-
-            // Update inspection status if all sections are complete
-            $inspection->update(['status' => 'completed']);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Specific area images saved successfully'
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error saving images: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 
     public function saveInteriorAssessment(Request $request)
     {
@@ -350,60 +283,6 @@ class InspectionController extends Controller
         }
     }
 
-    public function saveInteriorSpecificImages(Request $request)
-    {
-        // TESTING: Relaxed validation for testing navigation
-        // TODO: Restore required validations before production
-        $validated = $request->validate([
-            'inspection_id' => 'nullable|exists:inspections,id',
-            'interior_images' => 'nullable|array',
-            'interior_images.*' => 'image|max:10240' // 10MB max per image
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-            // Handle missing inspection_id for testing
-            $inspectionId = $validated['inspection_id'];
-            if (!$inspectionId) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Interior specific images saved (testing mode)'
-                ]);
-            }
-            
-            $inspection = Inspection::findOrFail($inspectionId);
-
-            // Handle interior specific image uploads
-            if ($request->hasFile('interior_images')) {
-                foreach ($request->file('interior_images') as $areaName => $image) {
-                    $path = $image->store('inspections/' . $inspection->id . '/interior-specific', 'public');
-                    
-                    InspectionImage::create([
-                        'inspection_id' => $inspection->id,
-                        'image_type' => 'interior_specific',
-                        'area_name' => $areaName,
-                        'file_path' => $path,
-                        'original_name' => $image->getClientOriginalName()
-                    ]);
-                }
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Interior specific images saved successfully'
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error saving interior images: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 
     public function saveServiceBooklet(Request $request)
     {

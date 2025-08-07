@@ -18,9 +18,7 @@ Route::controller(InspectionController::class)->group(function () {
     // View routes
     Route::get('/inspection/visual', 'visualInspection')->name('inspection.visual');
     Route::get('/inspection/body-panel', 'bodyPanelAssessment')->name('inspection.body-panel');
-    Route::get('/inspection/specific-areas', 'specificAreaImages')->name('inspection.specific-areas');
     Route::get('/inspection/interior', 'interiorAssessment')->name('inspection.interior');
-    Route::get('/inspection/interior-images', 'interiorSpecificImages')->name('inspection.interior-images');
     Route::get('/inspection/service-booklet', 'serviceBooklet')->name('inspection.service-booklet');
     Route::get('/inspection/tyres-rims', 'tyresRimsAssessment')->name('inspection.tyres-rims');
     Route::get('/inspection/mechanical-report', 'mechanicalReport')->name('inspection.mechanical-report');
@@ -30,9 +28,7 @@ Route::controller(InspectionController::class)->group(function () {
     // API routes for saving data
     Route::post('/api/inspection/visual', 'saveVisualInspection')->name('api.inspection.visual');
     Route::post('/api/inspection/body-panel', 'saveBodyPanelAssessment')->name('api.inspection.body-panel');
-    Route::post('/api/inspection/specific-areas', 'saveSpecificAreaImages')->name('api.inspection.specific-areas');
     Route::post('/api/inspection/interior', 'saveInteriorAssessment')->name('api.inspection.interior');
-    Route::post('/api/inspection/interior-images', 'saveInteriorSpecificImages')->name('api.inspection.interior-images');
     Route::post('/api/inspection/service-booklet', 'saveServiceBooklet')->name('api.inspection.service-booklet');
     Route::post('/api/inspection/tyres-rims', 'saveTyresRimsAssessment')->name('api.inspection.tyres-rims');
     Route::post('/api/inspection/mechanical-report', 'saveMechanicalReport')->name('api.inspection.mechanical-report');

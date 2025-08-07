@@ -232,12 +232,12 @@
 
                         <div class="mt-4 d-flex justify-content-between">
                             <button type="button" class="btn btn-outline-secondary" id="backBtn">
-                                <i class="bi bi-arrow-left me-1"></i>Back to Specific Areas
+                                <i class="bi bi-arrow-left me-1"></i>Back to Body Panel Assessment
                             </button>
                             <div class="button-group-responsive">
                                 <button type="button" class="btn btn-secondary me-2 mb-2" id="saveDraftBtn">Save Draft</button>
                                 <button type="submit" class="btn btn-primary mb-2" id="nextBtn">
-                                    Continue to Next Section <i class="bi bi-arrow-right ms-1"></i>
+                                    Continue to Service Booklet <i class="bi bi-arrow-right ms-1"></i>
                                 </button>
                             </div>
                         </div>
@@ -709,14 +709,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Save the interior assessment data
         saveCurrentProgress();
         
-        // Navigate to next section (update this as needed)
-        alert('Interior assessment saved! (Frontend only - backend integration pending)');
+        // Navigate to service booklet
+        window.location.href = '/inspection/service-booklet';
     });
 
     // Navigation button handlers
     document.getElementById('backBtn').addEventListener('click', function() {
         saveCurrentProgress();
-        window.location.href = '/inspection/specific-areas';
+        window.location.href = '/inspection/body-panel';
     });
 
     document.getElementById('saveDraftBtn').addEventListener('click', function() {

@@ -11,7 +11,7 @@
                 <ol class="breadcrumb justify-content-center">
                     <li class="breadcrumb-item"><a href="/inspection/visual" style="color: var(--primary-color);">Visual Inspection</a></li>
                     <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Body Panel Assessment</li>
-                    <li class="breadcrumb-item text-muted">Specific Area Images</li>
+                    <li class="breadcrumb-item text-muted">Interior Assessment</li>
                 </ol>
             </nav>
         </div>
@@ -234,7 +234,7 @@
                             <div class="button-group-responsive">
                                 <button type="button" class="btn btn-secondary me-2 mb-2" id="saveDraftBtn">Save Draft</button>
                                 <button type="submit" class="btn btn-primary mb-2" id="nextBtn">
-                                    Continue to Specific Areas <i class="bi bi-arrow-right ms-1"></i>
+                                    Continue to Interior Assessment <i class="bi bi-arrow-right ms-1"></i>
                                 </button>
                             </div>
                         </div>
@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Callback for form submission
         onFormSubmit: function(data) {
             sessionStorage.setItem('panelAssessmentData', JSON.stringify(data));
-            window.location.href = '/inspection/specific-areas';
+            window.location.href = '/inspection/interior';
         }
     });
     
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('nextBtn').addEventListener('click', function() {
         InspectionCards.saveData();
-        window.location.href = '/inspection/specific-areas';
+        window.location.href = '/inspection/interior';
     });
 });
 </script>
