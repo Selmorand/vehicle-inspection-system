@@ -36,7 +36,7 @@
                     <div class="interior-wrapper">
                         <div class="interior-container">
                             <!-- Base interior image -->
-                            <img src="/images/interior/Interior.png" alt="Interior Base" class="base-interior" id="baseInterior">
+                            <img src="/images/interior/interiorMain.png" alt="Interior Base" class="base-interior" id="baseInterior">
                             
                             <!-- Interior panel overlays with correct positioning -->
                             <!-- Dash -->
