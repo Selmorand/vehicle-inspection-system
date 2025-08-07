@@ -38,118 +38,168 @@
                             <!-- Base interior image -->
                             <img src="/images/interior/Interior.png" alt="Interior Base" class="base-interior" id="baseInterior">
                             
-                            <!-- Interior panel overlays -->
+                            <!-- Interior panel overlays with correct positioning -->
                             <!-- Dash -->
-                            <img src="/images/interior/dash.png" 
+                            <img src="/images/interior/Dash.png" 
                                  class="panel-overlay" 
-                                 data-panel="dash" 
-                                 style="position: absolute; left: 44.9%; top: 10.4%; width: 13.4%; height: 12.0%;"
+                                 data-panel="dash"
+                                 style="position: absolute; left: 6.07%; top: 4.25%; width: 88.36%; height: 17.68%; z-index: 2;"
                                  title="Dash" 
                                  alt="Dash">
-                                 
-                            <!-- Centre Console -->
-                            <img src="/images/interior/centre-console.png" 
-                                 class="panel-overlay" 
-                                 data-panel="centre-console" 
-                                 style="position: absolute; left: 45.1%; top: 28.7%; width: 13.0%; height: 23.2%;"
-                                 title="Centre Console" 
-                                 alt="Centre Console">
-                                 
+                        
                             <!-- Steering Wheel -->
                             <img src="/images/interior/steering-wheel.png" 
                                  class="panel-overlay" 
-                                 data-panel="steering-wheel" 
-                                 style="position: absolute; left: 38.5%; top: 18.6%; width: 8.8%; height: 14.5%;"
+                                 data-panel="steering-wheel"
+                                 style="position: absolute; left: 59.20%; top: 17.68%; width: 23.88%; height: 8.56%; z-index: 3;"
                                  title="Steering Wheel" 
                                  alt="Steering Wheel">
-                                 
+                        
+                            <!-- Individual Button Components -->
+                            <img src="/images/interior/buttons-RF.png" 
+                                 class="panel-overlay buttons-group" 
+                                 data-panel="buttons"
+                                 style="position: absolute; left: 87.16%; top: 19.69%; width: 8.46%; height: 5.92%; z-index: 2;"
+                                 title="Buttons RF" 
+                                 alt="Buttons RF">
+                        
+                            <img src="/images/interior/buttons-centre.png" 
+                                 class="panel-overlay buttons-group" 
+                                 data-panel="buttons"
+                                 style="position: absolute; left: 47.36%; top: 18.86%; width: 6.47%; height: 4.59%; z-index: 2;"
+                                 title="Buttons Centre" 
+                                 alt="Buttons Centre">
+                        
+                            <img src="/images/interior/buttons-ML.png" 
+                                 class="panel-overlay buttons-group" 
+                                 data-panel="buttons"
+                                 style="position: absolute; left: 45.27%; top: 26.72%; width: 2.99%; height: 2.92%; z-index: 2;"
+                                 title="Buttons ML" 
+                                 alt="Buttons ML">
+                        
+                            <img src="/images/interior/buttons-MR.png" 
+                                 class="panel-overlay buttons-group" 
+                                 data-panel="buttons"
+                                 style="position: absolute; left: 52.44%; top: 26.93%; width: 2.99%; height: 2.78%; z-index: 2;"
+                                 title="Buttons MR" 
+                                 alt="Buttons MR">
+                        
+                            <img src="/images/interior/buttons-FL.png" 
+                                 class="panel-overlay buttons-group" 
+                                 data-panel="buttons"
+                                 style="position: absolute; left: 7.66%; top: 22.61%; width: 3.58%; height: 2.51%; z-index: 2;"
+                                 title="Buttons FL" 
+                                 alt="Buttons FL">
+                        
+                            <img src="/images/interior/buttons-RL.png" 
+                                 class="panel-overlay buttons-group" 
+                                 data-panel="buttons"
+                                 style="position: absolute; left: 10.35%; top: 51.42%; width: 3.28%; height: 2.30%; z-index: 2;"
+                                 title="Buttons RL" 
+                                 alt="Buttons RL">
+                        
+                            <img src="/images/interior/buttons-RR.png" 
+                                 class="panel-overlay buttons-group" 
+                                 data-panel="buttons"
+                                 style="position: absolute; left: 87.66%; top: 50.87%; width: 3.88%; height: 2.71%; z-index: 2;"
+                                 title="Buttons RR" 
+                                 alt="Buttons RR">
+                        
                             <!-- Driver Seat -->
                             <img src="/images/interior/driver-seat.png" 
                                  class="panel-overlay" 
-                                 data-panel="driver-seat" 
-                                 style="position: absolute; left: 25.4%; top: 35.8%; width: 18.3%; height: 34.1%;"
+                                 data-panel="driver-seat"
+                                 style="position: absolute; left: 55.52%; top: 18.86%; width: 34.43%; height: 31.25%;"
                                  title="Driver Seat" 
                                  alt="Driver Seat">
-                                 
+                        
                             <!-- Passenger Seat -->
                             <img src="/images/interior/passenger-seat.png" 
                                  class="panel-overlay" 
-                                 data-panel="passenger-seat" 
-                                 style="position: absolute; left: 59.7%; top: 35.8%; width: 18.3%; height: 34.1%;"
+                                 data-panel="passenger-seat"
+                                 style="position: absolute; left: 11.44%; top: 20.74%; width: 33.03%; height: 29.23%;"
                                  title="Passenger Seat" 
                                  alt="Passenger Seat">
-                                 
+                        
                             <!-- FR Door Panel -->
-                            <img src="/images/interior/fr-door-panel.png" 
+                            <img src="/images/interior/fr-dOORPANEL.png" 
                                  class="panel-overlay" 
-                                 data-panel="fr-door-panel" 
-                                 style="position: absolute; left: 79.6%; top: 23.9%; width: 20.4%; height: 50.4%;"
+                                 data-panel="fr-door-panel"
+                                 style="position: absolute; left: 87.86%; top: 14.13%; width: 9.65%; height: 32.78%;"
                                  title="FR Door Panel" 
                                  alt="FR Door Panel">
-                                 
+                        
                             <!-- FL Door Panel -->
-                            <img src="/images/interior/fl-door-panel.png" 
+                            <img src="/images/interior/FL Doorpanel.png" 
                                  class="panel-overlay" 
-                                 data-panel="fl-door-panel" 
-                                 style="position: absolute; left: 0.0%; top: 23.9%; width: 20.4%; height: 50.4%;"
+                                 data-panel="fl-door-panel"
+                                 style="position: absolute; left: 3.08%; top: 14.13%; width: 10.05%; height: 33.47%;"
                                  title="FL Door Panel" 
                                  alt="FL Door Panel">
-                                 
+                        
                             <!-- Rear Seat -->
-                            <img src="/images/interior/rear-seat.png" 
+                            <img src="/images/interior/Rear-Seat.png" 
                                  class="panel-overlay" 
-                                 data-panel="rear-seat" 
-                                 style="position: absolute; left: 25.4%; top: 74.3%; width: 53.2%; height: 25.7%;"
+                                 data-panel="rear-seat"
+                                 style="position: absolute; left: 13.03%; top: 49.55%; width: 73.33%; height: 27.84%;"
                                  title="Rear Seat" 
                                  alt="Rear Seat">
-                                 
-                            <!-- RR Door Panel -->
-                            <img src="/images/interior/rr-door-panel.png" 
-                                 class="panel-overlay" 
-                                 data-panel="rr-door-panel" 
-                                 style="position: absolute; left: 79.6%; top: 74.3%; width: 20.4%; height: 25.7%;"
-                                 title="RR Door Panel" 
-                                 alt="RR Door Panel">
-                                 
-                            <!-- LR Door Panel -->
-                            <img src="/images/interior/lr-door-panel.png" 
-                                 class="panel-overlay" 
-                                 data-panel="lr-door-panel" 
-                                 style="position: absolute; left: 0.0%; top: 74.3%; width: 20.4%; height: 25.7%;"
-                                 title="LR Door Panel" 
-                                 alt="LR Door Panel">
-                                 
+                        
                             <!-- Backboard -->
                             <img src="/images/interior/backboard.png" 
                                  class="panel-overlay" 
-                                 data-panel="backboard" 
-                                 style="position: absolute; left: 25.4%; top: 70.0%; width: 53.2%; height: 4.3%;"
+                                 data-panel="backboard"
+                                 style="position: absolute; left: 10.65%; top: 76.53%; width: 80.80%; height: 19.14%;"
                                  title="Backboard" 
                                  alt="Backboard">
-                                 
-                            <!-- Boot -->
-                            <img src="/images/interior/boot.png" 
+                        
+                            <!-- RR Door Panel -->
+                            <img src="/images/interior/RR-Door-Panel.png" 
                                  class="panel-overlay" 
-                                 data-panel="boot" 
-                                 style="position: absolute; left: 38.5%; top: 2.5%; width: 26.8%; height: 7.9%;"
+                                 data-panel="rr-door-panel"
+                                 style="position: absolute; left: 84.98%; top: 47.11%; width: 11.84%; height: 30.83%;"
+                                 title="RR Door Panel" 
+                                 alt="RR Door Panel">
+                        
+                            <!-- LR Door Panel -->
+                            <img src="/images/interior/LR-DoorPanel.png" 
+                                 class="panel-overlay" 
+                                 data-panel="lr-door-panel"
+                                 style="position: absolute; left: 4.38%; top: 47.18%; width: 13.03%; height: 30.83%;"
+                                 title="LR Door Panel" 
+                                 alt="LR Door Panel">
+                        
+                            <!-- Boot -->
+                            <img src="/images/interior/Boot.png" 
+                                 class="panel-overlay" 
+                                 data-panel="boot"
+                                 style="position: absolute; left: 10.25%; top: 91.15%; width: 80.70%; height: 8.70%;"
                                  title="Boot" 
                                  alt="Boot">
-                                 
-                            <!-- Gear Lever -->
-                            <img src="/images/interior/gearlever.png" 
+                        
+                            <!-- Centre Console -->
+                            <img src="/images/interior/Centre-Consol.png" 
                                  class="panel-overlay" 
-                                 data-panel="gearlever" 
-                                 style="position: absolute; left: 50.7%; top: 51.9%; width: 7.4%; height: 8.6%;"
+                                 data-panel="centre-console"
+                                 style="position: absolute; left: 39.20%; top: 17.82%; width: 22.59%; height: 33.68%;"
+                                 title="Centre Console" 
+                                 alt="Centre Console">
+                        
+                            <!-- Gear Lever -->
+                            <img src="/images/interior/Gear-Lever.png" 
+                                 class="panel-overlay" 
+                                 data-panel="gearlever"
+                                 style="position: absolute; left: 47.56%; top: 27.00%; width: 5.37%; height: 4.52%;"
                                  title="Gear Lever" 
                                  alt="Gear Lever">
-                                 
-                            <!-- Buttons -->
-                            <img src="/images/interior/buttons.png" 
-                                 class="panel-overlay buttons-group" 
-                                 data-panel="buttons" 
-                                 style="position: absolute; left: 49.3%; top: 22.5%; width: 5.6%; height: 6.2%;"
-                                 title="Buttons" 
-                                 alt="Buttons">
+                        
+                            <!-- Air Vents -->
+                            <img src="/images/interior/Airvents.png" 
+                                 class="panel-overlay" 
+                                 data-panel="air-vents"
+                                 style="position: absolute; left: 7.06%; top: 12.67%; width: 86.37%; height: 10.44%; z-index: 1;"
+                                 title="Air Vents" 
+                                 alt="Air Vents">
 
                         </div>
                     </div>
@@ -194,18 +244,23 @@
 @section('additional-css')
 <link rel="stylesheet" href="{{ asset('css/panel-cards.css') }}">
 <style>
-/* Interior container and base styling */
+/* Interior container - responsive for tablet-first design */
 .interior-container {
     position: relative;
+    max-width: 1005px;
     width: 100%;
-    max-width: 600px;
     margin: 0 auto;
+    background-color: #f8f9fa;
+    padding: 0;
+    overflow: visible;
 }
 
+/* Base interior image - fully responsive */
 .base-interior {
     width: 100%;
     height: auto;
     display: block;
+    max-width: 1005px;
 }
 
 /* Panel overlay styling */
@@ -305,6 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { id: 'interior_90', category: 'Boot', panelId: 'boot' },
             { id: 'interior_91', category: 'Centre Console', panelId: 'centre-console' },
             { id: 'interior_92', category: 'Gear Lever', panelId: 'gearlever' },
+            { id: 'interior_94', category: 'Air Vents', panelId: 'air-vents' },
             { id: 'interior_93', category: 'Other', panelId: null }
         ],
         
