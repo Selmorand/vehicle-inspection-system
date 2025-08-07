@@ -7,7 +7,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "WebFetch(domain:alpha.selpro.co.za)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(cp:*)",
+      "Bash(true)"
     ],
     "deny": [
       "Bash(git push:*)"
