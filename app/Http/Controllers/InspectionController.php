@@ -252,7 +252,7 @@ class InspectionController extends Controller
                 foreach ($validated['interior_data'] as $itemId => $data) {
                     // Store interior assessment data
                     // You may need to create an InteriorAssessment model for this
-                    \DB::table('interior_assessments')->updateOrInsert(
+                    DB::table('interior_assessments')->updateOrInsert(
                         [
                             'inspection_id' => $inspection->id,
                             'item_id' => $itemId
@@ -378,7 +378,7 @@ class InspectionController extends Controller
                 foreach ($validated['tyres_data'] as $fieldName => $value) {
                     // Store tyres assessment data
                     // You may need to create a TyresAssessment model for this
-                    \DB::table('tyres_assessments')->updateOrInsert(
+                    DB::table('tyres_assessments')->updateOrInsert(
                         [
                             'inspection_id' => $inspection->id,
                             'field_name' => $fieldName
@@ -435,7 +435,7 @@ class InspectionController extends Controller
                 foreach ($validated['mechanical_data'] as $component => $data) {
                     // Store mechanical assessment data
                     // You may need to create a MechanicalAssessment model for this
-                    \DB::table('mechanical_assessments')->updateOrInsert(
+                    DB::table('mechanical_assessments')->updateOrInsert(
                         [
                             'inspection_id' => $inspection->id,
                             'component_name' => $component
@@ -899,7 +899,12 @@ class InspectionController extends Controller
             'inspection' => [
                 'inspector' => $visualData['inspector_name'] ?? 'Not specified',
                 'date' => $visualData['inspection_datetime'] ?? now()->format('Y-m-d H:i'),
-                'diagnostic_report' => $visualData['diagnostic_report'] ?? 'No diagnostic report provided'
+                'diagnostic_report' => $visualData['diagnostic_report'] ?? 'No diagnostic report provided',
+                'diagnostic_file' => [
+                    'name' => $visualData['diagnostic_file_name'] ?? null,
+                    'data' => $visualData['diagnostic_file_data'] ?? null,
+                    'size' => $visualData['diagnostic_file_size'] ?? null
+                ]
             ],
             'images' => [
                 'visual' => isset($visualData['images']) ? $this->formatImagesForDisplay($visualData['images']) : []

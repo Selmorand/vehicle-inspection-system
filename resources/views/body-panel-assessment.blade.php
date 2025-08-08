@@ -155,34 +155,134 @@
 @section('additional-js')
 <script src="{{ asset('js/inspection-cards.js') }}"></script>
 <script>
-// Function to load CSV data and generate panel overlays
+// Load CSV data from panelimages2.csv with corrected coordinates
 async function loadBodyPanelData() {
     try {
-        const response = await fetch('/panelimages.csv');
-        const csvText = await response.text();
-        
-        // Parse CSV
-        const lines = csvText.trim().split('\n');
-        const headers = lines[0].split(',');
-        const panels = [];
-        
-        for (let i = 1; i < lines.length; i++) {
-            const values = lines[i].split(',');
-            const panel = {};
-            headers.forEach((header, index) => {
-                panel[header] = values[index];
-            });
-            panels.push(panel);
+        const response = await fetch('/panelimages2.csv');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        return panels;
+        const csvText = await response.text();
+        const lines = csvText.trim().split('\n');
+        const panels = [];
+        
+        // Skip first line (headers) but process all data lines
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',');
+            if (values[0] && values[1] && values[2] && values[3] && values[4]) {
+                let imageName = values[0];
+                const x = parseInt(values[1]);
+                const y = parseInt(values[2]); 
+                const w = parseInt(values[3]);
+                const h = parseInt(values[4]);
+                
+                // Add .png extension if missing (for rims)
+                if (!imageName.includes('.png')) {
+                    imageName = imageName + '.png';
+                }
+                
+                // Fix typo in CSV filename
+                if (imageName === 'rear-bumber.png') {
+                    imageName = 'rear-bumper.png';
+                }
+                
+                // Create panel ID from image name
+                const id = imageName.replace('.png', '').replace(/-/g, '-');
+                
+                // Create proper name from ID
+                let name = id.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+                
+                // Fix specific names and handle typos - use full labels
+                if (id === 'rear-bumber') name = 'Rear Bumper'; // Handle CSV typo
+                if (id === 'lr-quarter-panel') name = 'Left Rear Quarter Panel';
+                if (id === 'rr-quarter-panel') name = 'Right Rear Quarter Panel';
+                if (id === 'rr-rim') name = 'Right Rear Rim';
+                if (id === 'rf-rim') name = 'Right Front Rim';
+                if (id === 'lf-rim') name = 'Left Front Rim';
+                if (id === 'lr-rim') name = 'Left Rear Rim';
+                // Update other abbreviations to full labels
+                if (id === 'fr-door') name = 'Right Front Door';
+                if (id === 'fr-fender') name = 'Right Front Fender';
+                if (id === 'fr-headlight') name = 'Right Front Headlight';
+                if (id === 'fr-mirror') name = 'Right Front Mirror';
+                if (id === 'lf-door') name = 'Left Front Door';
+                if (id === 'lf-fender') name = 'Left Front Fender';
+                if (id === 'lf-headlight') name = 'Left Front Headlight';
+                if (id === 'lf-mirror') name = 'Left Front Mirror';
+                if (id === 'lr-door') name = 'Left Rear Door';
+                if (id === 'lr-taillight') name = 'Left Rear Taillight';
+                if (id === 'rr-door') name = 'Right Rear Door';
+                if (id === 'rr-taillight') name = 'Right Rear Taillight';
+                
+                panels.push({
+                    id: id,
+                    name: name,
+                    image_file: imageName,
+                    x: x,
+                    y: y,
+                    w: w,
+                    h: h,
+                    z_index: id.includes('rim') ? '2' : '1' // Rims have higher z-index
+                });
+                
+                console.log(`Panel ${i}: ${name} (${imageName}) - ${x},${y},${w},${h}`);
+            }
+        }
+        
+        console.log(`Loaded ${panels.length} panels from panelImages2.csv`);
+        
+        // Reorder exactly as specified by user
+        const desiredOrder = [
+            // 1. Right components
+            'fr-fender', 'fr-door', 'rf-rim', 'rr-door', 'rr-rim', 'rr-quarter-panel',
+            // 2. Center/Main components
+            'bonnet', 'windscreen', 'roof', 'rear-window', 'boot',
+            // 3. Left components
+            'lf-fender', 'lf-door', 'lf-rim', 'lr-door', 'lr-rim', 'lr-quarter-panel',
+            // 4. Front components
+            'front-bumper', 'lf-headlight', 'fr-headlight', 'fr-mirror', 'lf-mirror',
+            // 5. Rear components
+            'lr-taillight', 'rr-taillight', 'rear-bumper'
+        ];
+        
+        const orderedPanels = [];
+        desiredOrder.forEach(panelId => {
+            const panel = panels.find(p => p.id === panelId);
+            if (panel) {
+                orderedPanels.push(panel);
+            }
+        });
+        
+        console.log('Panel order:', orderedPanels.map(p => p.name));
+        return orderedPanels;
+        
     } catch (error) {
-        console.error('Error loading panel data:', error);
-        return [];
+        console.error('Error loading panelimages2.csv:', error);
+        console.log('Falling back to test data with just correct panels...');
+        
+        // Fallback to correct panels only
+        return [
+            {id: 'windscreen', name: 'Windscreen', image_file: 'windscreen.png', position_left: '57.31%', position_top: '25.87%', width: '14.63%', height: '20.62%', z_index: '1'},
+            {id: 'bonnet', name: 'Bonnet', image_file: 'bonnet.png', position_left: '68.06%', position_top: '24.32%', width: '26.97%', height: '24.83%', z_index: '1'},
+            {id: 'front-bumper', name: 'Front Bumper', image_file: 'front-bumper.png', position_left: '4.18%', position_top: '87.21%', width: '37.21%', height: '6.28%', z_index: '1'}
+        ];
     }
 }
 
-// Function to generate panel overlays from CSV data
+// Function to convert pixel coordinates to percentages
+function convertPixelsToPercentages(left, top, width, height, baseWidth = 1005, baseHeight = 1353) {
+    return {
+        left: ((left / baseWidth) * 100).toFixed(2) + '%',
+        top: ((top / baseHeight) * 100).toFixed(2) + '%',
+        width: ((width / baseWidth) * 100).toFixed(2) + '%',
+        height: ((height / baseHeight) * 100).toFixed(2) + '%'
+    };
+}
+
+// Function to generate panel overlays from panel data
 function generatePanelOverlays(panels) {
     const container = document.querySelector('.body-panel-container');
     
@@ -192,10 +292,25 @@ function generatePanelOverlays(panels) {
         img.className = 'panel-overlay';
         img.setAttribute('data-panel', panel.id);
         img.style.position = 'absolute';
-        img.style.left = panel.position_left;
-        img.style.top = panel.position_top;
-        img.style.width = panel.width;
-        img.style.height = panel.height;
+        
+        // Check if coordinates are already percentages or need conversion from pixels
+        if (panel.x !== undefined && panel.y !== undefined) {
+            // Convert from pixels to percentages using new CSV format
+            const converted = convertPixelsToPercentages(panel.x, panel.y, panel.w, panel.h);
+            img.style.left = converted.left;
+            img.style.top = converted.top;
+            img.style.width = converted.width;
+            img.style.height = converted.height;
+            
+            console.log(`${panel.name}: ${panel.x}px,${panel.y}px,${panel.w}px,${panel.h}px → ${converted.left},${converted.top},${converted.width},${converted.height}`);
+        } else if (typeof panel.position_left === 'string' && panel.position_left.includes('%')) {
+            // Already percentages (fallback data)
+            img.style.left = panel.position_left;
+            img.style.top = panel.position_top;
+            img.style.width = panel.width;
+            img.style.height = panel.height;
+        }
+        
         if (panel.z_index) {
             img.style.zIndex = panel.z_index;
         }
@@ -216,7 +331,7 @@ function convertToInspectionCardsFormat(panels) {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-    // Load panel data from CSV
+    // Load panel data from panelimages2.csv
     const panelData = await loadBodyPanelData();
     
     if (panelData.length > 0) {

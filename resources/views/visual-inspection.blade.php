@@ -429,11 +429,29 @@ function testVisualReport() {
     
     // Convert FormData to object
     for (let [key, value] of formData.entries()) {
-        visualData[key] = value;
+        // Handle file inputs separately
+        if (key === 'diagnostic_file' && value instanceof File && value.size > 0) {
+            // Convert PDF file to base64
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                visualData.diagnostic_file_data = e.target.result;
+                visualData.diagnostic_file_name = value.name;
+                visualData.diagnostic_file_size = value.size;
+                console.log('PDF file captured:', value.name);
+                continueProcesing();
+            };
+            reader.readAsDataURL(value);
+            return; // Wait for file to be read
+        } else if (key !== 'diagnostic_file') {
+            visualData[key] = value;
+        }
     }
     
     // Debug: Log the data being sent
     console.log('Form data being sent:', visualData);
+    continueProcesing();
+    
+    function continueProcesing() {
     
     // Get images from sessionStorage (if any)
     const storedImages = sessionStorage.getItem('visualInspectionImages');
@@ -471,6 +489,7 @@ function testVisualReport() {
     }
     
     submitTestForm();
+    } // End of continueProcesing
     
     function submitTestForm() {
         // Create a form to POST to the test endpoint

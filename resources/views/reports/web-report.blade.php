@@ -433,6 +433,47 @@
             </div>
             @endif
 
+            <!-- Diagnostic Report Section -->
+            @if(!empty($inspectionData['inspection']['diagnostic_report']) || !empty($inspectionData['inspection']['diagnostic_file']['name']))
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="bi bi-file-text"></i>
+                    Diagnostic Report
+                </h2>
+                
+                @if(!empty($inspectionData['inspection']['diagnostic_report']))
+                <div class="info-card mb-3">
+                    <div class="info-label">Diagnostic Findings</div>
+                    <div class="info-value" style="white-space: pre-wrap;">{{ $inspectionData['inspection']['diagnostic_report'] }}</div>
+                </div>
+                @endif
+                
+                @if(!empty($inspectionData['inspection']['diagnostic_file']['name']))
+                <div class="info-card">
+                    <div class="info-label">Attached PDF Report</div>
+                    <div class="info-value">
+                        <i class="bi bi-file-pdf text-danger"></i> {{ $inspectionData['inspection']['diagnostic_file']['name'] }}
+                        <br>
+                        <small class="text-muted">Size: {{ number_format($inspectionData['inspection']['diagnostic_file']['size'] / 1024, 2) }} KB</small>
+                        <br>
+                        @if(!empty($inspectionData['inspection']['diagnostic_file']['data']))
+                        <a href="{{ $inspectionData['inspection']['diagnostic_file']['data'] }}" 
+                           download="{{ $inspectionData['inspection']['diagnostic_file']['name'] }}" 
+                           class="btn btn-sm btn-outline-primary mt-2">
+                            <i class="bi bi-download"></i> Download PDF
+                        </a>
+                        <button type="button" 
+                                class="btn btn-sm btn-outline-secondary mt-2 ms-2"
+                                onclick="showPdfInModal('{{ $inspectionData['inspection']['diagnostic_file']['data'] }}', '{{ $inspectionData['inspection']['diagnostic_file']['name'] }}')">
+                            <i class="bi bi-eye"></i> View PDF
+                        </button>
+                        @endif
+                    </div>
+                </div>
+                @endif
+            </div>
+            @endif
+
             <!-- Body Panel Assessment -->
             @if(!empty($inspectionData['body_panels']['assessments']))
             <div class="section">
@@ -978,6 +1019,45 @@ document.addEventListener('DOMContentLoaded', function() {
         img.src = src;
         titleDiv.textContent = title || 'Inspection Image';
         overlay.style.display = 'flex';
+    }
+    
+    // Function to show PDF in modal
+    function showPdfInModal(pdfData, fileName) {
+        // Create a new modal for PDF
+        const pdfModal = document.createElement('div');
+        pdfModal.innerHTML = `
+            <div class="pdf-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                <div class="pdf-modal-content" style="position: relative; width: 90%; height: 90%; background: white; border-radius: 8px; padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h5 style="margin: 0;">${fileName}</h5>
+                        <button class="pdf-close-btn" style="background: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;">Close</button>
+                    </div>
+                    <iframe src="${pdfData}" style="width: 100%; height: calc(100% - 50px); border: none; border-radius: 4px;"></iframe>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(pdfModal);
+        
+        // Close modal handler
+        pdfModal.querySelector('.pdf-close-btn').addEventListener('click', function() {
+            pdfModal.remove();
+        });
+        
+        // Close on overlay click
+        pdfModal.querySelector('.pdf-modal-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                pdfModal.remove();
+            }
+        });
+        
+        // Close on Escape key
+        const escHandler = function(e) {
+            if (e.key === 'Escape') {
+                pdfModal.remove();
+                document.removeEventListener('keydown', escHandler);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
     }
     
     // Add loading states for images

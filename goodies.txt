@@ -281,3 +281,23 @@ Laranvel Snappy for pdf
 
  "Use the InspectionCards reusable system from public/js/inspection-cards.js and 
   public/css/panel-cards.css to add panel cards with camera functionality to inspection/tyres-rims. Follow the single instruction pattern from INSPECTION_CARDS_USAGE.md."
+
+  ● For the Body Panel Assessment, use this prompt tomorrow:
+
+  "Add test report functionality to Body Panel Assessment using the TestReportHandler  
+  module. The form ID is 'body-panel-form', sessionStorage key is 'bodyPanelData', and 
+  it should show body panel conditions, comments, and any captured images in the test  
+  report with working image modals."
+
+  This will:
+  - Add the Test Report View button to the body panel page
+  - Capture all form data including panel conditions and comments
+  - Include any images from the InspectionCards camera functionality
+  - Use the same modal system we perfected for Visual Inspection
+  - Create a test endpoint for viewing the body panel report
+
+  The TestReportHandler module will handle everything automatically - just need to
+  initialize it with those parameters.
+
+  Sleep well! 👍
+  
