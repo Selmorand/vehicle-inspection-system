@@ -10,7 +10,8 @@
       "WebFetch(domain:alpha.selpro.co.za)",
       "Bash(mv:*)",
       "Bash(cp:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(git restore:*)"
     ]
   }
 }

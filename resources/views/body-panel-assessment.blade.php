@@ -65,6 +65,9 @@
                                 <i class="bi bi-arrow-left me-1"></i>Back to Visual Inspection
                             </button>
                             <div class="button-group-responsive">
+                                <button type="button" class="btn btn-success me-2 mb-2" id="simplePreviewBtn">
+                                    <i class="bi bi-eye me-1"></i>Simple Preview
+                                </button>
                                 <button type="button" class="btn btn-secondary me-2 mb-2" id="saveDraftBtn">Save Draft</button>
                                 <button type="submit" class="btn btn-primary mb-2" id="nextBtn">
                                     Continue to Interior Assessment <i class="bi bi-arrow-right ms-1"></i>
@@ -154,6 +157,7 @@
 
 @section('additional-js')
 <script src="{{ asset('js/inspection-cards.js') }}"></script>
+<script src="{{ asset('js/test-report-handler.js') }}"></script>
 <script>
 // Load CSV data from panelimages2.csv with corrected coordinates
 async function loadBodyPanelData() {
@@ -331,8 +335,29 @@ function convertToInspectionCardsFormat(panels) {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
+    // Check if this is a new inspection (coming from dashboard or direct URL)
+    // Clear data only if not coming from within the inspection flow
+    const referrer = document.referrer;
+    const isFromInspectionFlow = referrer.includes('/inspection/');
+    const hasInspectionId = sessionStorage.getItem('currentInspectionId');
+    
+    // If not from inspection flow and no current inspection ID, start fresh
+    if (!isFromInspectionFlow && !hasInspectionId) {
+        // Starting a new inspection - clear all data
+        sessionStorage.removeItem('bodyPanelAssessmentData');
+        sessionStorage.removeItem('bodyPanelAssessmentImages');
+        sessionStorage.removeItem('visualInspectionData');
+        sessionStorage.removeItem('interiorAssessmentData');
+        
+        // Set a new inspection ID
+        const newInspectionId = 'inspection_' + Date.now();
+        sessionStorage.setItem('currentInspectionId', newInspectionId);
+    }
+    
     // Load panel data from panelimages2.csv
     const panelData = await loadBodyPanelData();
+    // Store panel data globally for test report use
+    window.currentPanelData = panelData;
     
     if (panelData.length > 0) {
         // Generate panel overlays
@@ -396,11 +421,355 @@ document.addEventListener('DOMContentLoaded', async function() {
         alert('Draft saved successfully!');
     });
     
+    // Simple Preview button handler
+    document.getElementById('simplePreviewBtn').addEventListener('click', function() {
+        console.log('Simple Preview clicked');
+        
+        // Get form data directly from InspectionCards
+        let formData = {};
+        let imageData = {};
+        
+        try {
+            if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+                formData = InspectionCards.getFormData();
+                imageData = InspectionCards.getImages();
+                console.log('Preview - Form Data:', formData);
+                console.log('Preview - Image Data:', imageData);
+            }
+        } catch (e) {
+            console.error('Error getting data:', e);
+        }
+        
+        // If no data from InspectionCards, try manual collection
+        if (Object.keys(formData).length === 0) {
+            const form = document.getElementById('bodyPanelAssessmentForm');
+            if (form) {
+                const formDataObj = new FormData(form);
+                for (let [key, value] of formDataObj.entries()) {
+                    if (value && key !== '_token') {
+                        formData[key] = value;
+                    }
+                }
+            }
+        }
+        
+        if (Object.keys(formData).length === 0) {
+            alert('No data to preview. Please fill out at least one panel assessment.');
+            return;
+        }
+        
+        // Prepare data for preview
+        const previewData = {
+            data: formData,
+            images: imageData
+        };
+        
+        // Submit to preview endpoint
+        fetch('/preview/body-panel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(previewData)
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Open preview in new window
+            const previewWindow = window.open('', '_blank');
+            previewWindow.document.write(html);
+            previewWindow.document.close();
+        })
+        .catch(error => {
+            console.error('Preview error:', error);
+            alert('Error generating preview: ' + error.message);
+        });
+    });
+    
     document.getElementById('nextBtn').addEventListener('click', function(e) {
         e.preventDefault(); // Prevent form submission
         InspectionCards.saveData();
         window.location.href = '/inspection/interior';
     });
+
+    // Debug button to test data capture
+    document.getElementById('debugDataBtn').addEventListener('click', function() {
+        console.log('=== DEBUG: Comprehensive form inspection ===');
+        
+        // 1. Check if form exists
+        const form = document.getElementById('bodyPanelAssessmentForm');
+        console.log('1. Form element:', form);
+        
+        // 2. Check if container exists
+        const container = document.getElementById('bodyPanelAssessments');
+        console.log('2. Container element:', container);
+        console.log('   Container HTML:', container ? container.innerHTML : 'NOT FOUND');
+        
+        // 3. Check all form inputs
+        const allInputs = form ? Array.from(form.querySelectorAll('input, select, textarea')) : [];
+        console.log('3. All form inputs (' + allInputs.length + '):', allInputs);
+        allInputs.forEach((input, index) => {
+            console.log(`   Input ${index}:`, {
+                name: input.name,
+                type: input.type,
+                value: input.value,
+                element: input
+            });
+        });
+        
+        // 4. Check InspectionCards status
+        console.log('4. InspectionCards available:', typeof InspectionCards !== 'undefined');
+        if (typeof InspectionCards !== 'undefined') {
+            try {
+                const formData = InspectionCards.getFormData();
+                const images = InspectionCards.getImages();
+                console.log('   InspectionCards form data:', formData);
+                console.log('   InspectionCards images:', images);
+            } catch (e) {
+                console.error('   InspectionCards error:', e);
+            }
+        }
+        
+        // 5. Check sessionStorage
+        console.log('5. SessionStorage:');
+        console.log('   bodyPanelAssessmentData:', sessionStorage.getItem('bodyPanelAssessmentData'));
+        console.log('   bodyPanelAssessmentImages:', sessionStorage.getItem('bodyPanelAssessmentImages'));
+        
+        // 6. Check panel overlays
+        const overlays = document.querySelectorAll('.panel-overlay');
+        console.log('6. Panel overlays found:', overlays.length);
+        
+        // 7. Check if any panels have been clicked/activated
+        const activeOverlays = document.querySelectorAll('.panel-overlay.active');
+        console.log('7. Active panel overlays:', activeOverlays.length);
+        
+        // 8. Manual form data collection
+        const manualData = {};
+        if (form) {
+            const formDataObj = new FormData(form);
+            for (let [key, value] of formDataObj.entries()) {
+                if (value && key !== '_token') {
+                    manualData[key] = value;
+                }
+            }
+        }
+        console.log('8. Manual form data collection:', manualData);
+        
+        // 9. Save and check again
+        if (typeof InspectionCards !== 'undefined' && InspectionCards.saveData) {
+            console.log('9. Forcing save data...');
+            InspectionCards.saveData();
+            
+            setTimeout(() => {
+                const afterSaveData = sessionStorage.getItem('bodyPanelAssessmentData');
+                console.log('   After save - sessionStorage:', afterSaveData);
+            }, 200);
+        }
+        
+        alert('Debug complete! Check the console for detailed information.');
+    });
+    
+    // Initialize TestReportHandler for body panel assessment
+    TestReportHandler.init('bodyPanelAssessmentForm', 'bodyPanelAssessmentData', '/test-reports/body-panel', 'bodyPanel');
+    
+    // Add custom test report handler for body panel with panel diagram
+    document.getElementById('testReportBtn').addEventListener('click', function() {
+        console.log('=== Test Report Button Clicked ===');
+        
+        // Get form data directly first (don't rely on sessionStorage)
+        let directFormData = {};
+        let directImageData = {};
+        
+        try {
+            if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+                directFormData = InspectionCards.getFormData();
+                directImageData = InspectionCards.getImages();
+                console.log('Direct InspectionCards Form Data:', directFormData);
+                console.log('Direct InspectionCards Images:', directImageData);
+            }
+        } catch (e) {
+            console.error('Error getting InspectionCards data:', e);
+        }
+        
+        // Manual form collection as backup
+        const form = document.getElementById('bodyPanelAssessmentForm');
+        const manualFormData = {};
+        if (form) {
+            const formDataObj = new FormData(form);
+            for (let [key, value] of formDataObj.entries()) {
+                if (value && key !== '_token') {
+                    manualFormData[key] = value;
+                }
+            }
+            console.log('Manual Form Data:', manualFormData);
+        }
+        
+        // Use the best available data
+        let finalData = Object.keys(directFormData).length > 0 ? directFormData : manualFormData;
+        let finalImages = Object.keys(directImageData).length > 0 ? directImageData : {};
+        
+        console.log('=== Final Data to Send ===');
+        console.log('Final form data:', finalData);
+        console.log('Final images:', finalImages);
+        
+        if (Object.keys(finalData).length === 0) {
+            alert('No form data found. Please fill out at least one panel assessment (click on panels and select conditions).');
+            return;
+        }
+        
+        // Try to save for future use (but don't rely on it)
+        try {
+            InspectionCards.saveData();
+            console.log('Data saved to sessionStorage (if quota allows)');
+        } catch (e) {
+            console.warn('Could not save to sessionStorage:', e.message);
+        }
+        
+        // Process the report with direct data
+        processBodyPanelReportDirect(finalData, finalImages);
+    });
 });
+
+// Function to process body panel report data and submit to test endpoint
+function processBodyPanelReport(savedData, savedImages) {
+    let formData = {};
+    let imageData = {};
+    
+    // Try to get current form data directly from InspectionCards
+    if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+        formData = InspectionCards.getFormData();
+        imageData = InspectionCards.getImages();
+        console.log('Got form data from InspectionCards:', formData);
+        console.log('Got image data from InspectionCards:', imageData);
+    } else if (savedData) {
+        // Fallback to savedData
+        try {
+            formData = JSON.parse(savedData);
+            imageData = savedImages ? JSON.parse(savedImages) : {};
+        } catch (e) {
+            console.error('Error parsing saved data:', e);
+        }
+    }
+    
+    // If still no data, collect manually from form
+    if (Object.keys(formData).length === 0) {
+        console.log('No form data found, collecting manually from form');
+        const form = document.getElementById('bodyPanelAssessmentForm');
+        if (form) {
+            const formDataObj = new FormData(form);
+            for (let [key, value] of formDataObj.entries()) {
+                if (value && key !== '_token') {
+                    formData[key] = value;
+                }
+            }
+        }
+    }
+    
+    console.log('Final form data to send:', formData);
+    console.log('Final image data to send:', imageData);
+    
+    // Check if we have any actual form data
+    if (Object.keys(formData).length === 0) {
+        alert('No form data found. Please fill out at least one panel assessment before generating the report.');
+        return;
+    }
+    
+    const reportData = {
+        section: 'bodyPanel',
+        timestamp: new Date().toLocaleString(),
+        data: formData,
+        images: imageData,
+        panelDiagram: {
+            basePath: '/images/panels/',
+            panels: window.currentPanelData || [] // Use loaded panel data
+        }
+    };
+    
+    console.log('Sending report data:', reportData);
+    
+    // Submit to test endpoint
+    fetch('/test-reports/body-panel', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify(reportData)
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (response.ok) {
+            // Open test report in new tab
+            window.open('/test-reports/body-panel', '_blank');
+        } else {
+            return response.text().then(text => {
+                console.error('Server response:', text);
+                throw new Error(`Server error: ${response.status} - ${text}`);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error generating test report:', error);
+        alert('Error generating test report: ' + error.message);
+    });
+}
+
+// Function to process body panel report data directly (without sessionStorage)
+function processBodyPanelReportDirect(formData, imageData) {
+    console.log('Processing report with direct data');
+    
+    const reportData = {
+        section: 'bodyPanel',
+        timestamp: new Date().toLocaleString(),
+        data: formData,
+        images: imageData,
+        panelDiagram: {
+            basePath: '/images/panels/',
+            panels: window.currentPanelData || []
+        }
+    };
+    
+    console.log('Sending direct report data:', reportData);
+    
+    // First send to quick debug to see exact format
+    fetch('/quick-debug/body-panel', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify(reportData)
+    })
+    .then(response => response.json())
+    .then(debugResult => {
+        console.log('Quick debug result:', debugResult);
+        
+        // Now send to actual test endpoint
+        return fetch('/test-reports/body-panel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(reportData)
+        });
+    })
+    .then(response => {
+        console.log('Final response status:', response.status);
+        if (response.ok) {
+            // Open test report in new tab
+            window.open('/test-reports/body-panel', '_blank');
+        } else {
+            return response.text().then(text => {
+                console.error('Server response:', text);
+                throw new Error(`Server error: ${response.status} - ${text}`);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error generating test report:', error);
+        alert('Error generating test report: ' + error.message);
+    });
+}
 </script>
 @endsection

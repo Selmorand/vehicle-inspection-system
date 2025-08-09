@@ -986,6 +986,9 @@
                 <button type="button" class="btn btn-outline-secondary me-3" id="backBtn">
                     <i class="bi bi-arrow-left me-1"></i>Back to Engine Compartment
                 </button>
+                <button type="button" class="btn btn-info me-3" id="simplePreviewBtn">
+                    <i class="bi bi-eye me-1"></i>Preview Report
+                </button>
                 <button type="button" class="btn btn-secondary me-3" id="saveDraftBtn">Save Draft</button>
                 <button type="submit" class="btn btn-success" id="completeInspectionBtn" form="physicalHoistForm">
                     <i class="bi bi-check-circle me-1"></i>Complete Inspection
@@ -1256,6 +1259,34 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = '/inspection/engine-compartment';
     });
 
+    document.getElementById('simplePreviewBtn').addEventListener('click', function() {
+        // Collect all form data for preview
+        const formData = collectPhysicalHoistFormData();
+        
+        // Open preview in new tab
+        fetch('/preview/physical-hoist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                data: formData,
+                images: {} // Physical hoist images if implemented
+            })
+        })
+        .then(response => response.text())
+        .then(html => {
+            const previewWindow = window.open('', '_blank', 'width=1200,height=800');
+            previewWindow.document.write(html);
+            previewWindow.document.close();
+        })
+        .catch(error => {
+            console.error('Preview error:', error);
+            alert('Error generating preview. Please try again.');
+        });
+    });
+
     document.getElementById('saveDraftBtn').addEventListener('click', function() {
         saveCurrentProgress();
         alert('Physical hoist inspection draft saved successfully!');
@@ -1270,18 +1301,18 @@ function initializeSuspensionSystem() {
         storageKey: 'suspensionSystemData',
         hasOverlays: false,
         items: [
-            { id: 'lf_shock_leaks', category: 'LF Shock leaks', panelId: 'lf-shock-leaks' },
-            { id: 'rf_shock_leaks', category: 'RF Shock leaks', panelId: 'rf-shock-leaks' },
-            { id: 'lr_shock_leaks', category: 'LR Shock leaks', panelId: 'lr-shock-leaks' },
-            { id: 'rr_shock_leaks', category: 'RR Shock leaks', panelId: 'rr-shock-leaks' },
-            { id: 'lf_shock_mounts', category: 'LF Shock mounts', panelId: 'lf-shock-mounts' },
-            { id: 'rf_shock_mounts', category: 'RF Shock mounts', panelId: 'rf-shock-mounts' },
-            { id: 'lr_shock_mounts', category: 'LR Shock mounts', panelId: 'lr-shock-mounts' },
-            { id: 'rr_shock_mounts', category: 'RR Shock mounts', panelId: 'rr-shock-mounts' },
-            { id: 'lf_control_arm_cracks', category: 'LF Control arm cracks', panelId: 'lf-control-arm-cracks' },
-            { id: 'rf_control_arm_cracks', category: 'RF Control arm cracks', panelId: 'rf-control-arm-cracks' },
-            { id: 'lf_control_arm_play', category: 'LF control arm play', panelId: 'lf-control-arm-play' },
-            { id: 'rf_control_arm_play', category: 'RF control arm play', panelId: 'rf-control-arm-play' }
+            { id: 'lf_shock_leaks', category: 'Left Front Shock leaks', panelId: 'lf-shock-leaks' },
+            { id: 'rf_shock_leaks', category: 'Right Front Shock leaks', panelId: 'rf-shock-leaks' },
+            { id: 'lr_shock_leaks', category: 'Left Rear Shock leaks', panelId: 'lr-shock-leaks' },
+            { id: 'rr_shock_leaks', category: 'Right Rear Shock leaks', panelId: 'rr-shock-leaks' },
+            { id: 'lf_shock_mounts', category: 'Left Front Shock mounts', panelId: 'lf-shock-mounts' },
+            { id: 'rf_shock_mounts', category: 'Right Front Shock mounts', panelId: 'rf-shock-mounts' },
+            { id: 'lr_shock_mounts', category: 'Left Rear Shock mounts', panelId: 'lr-shock-mounts' },
+            { id: 'rr_shock_mounts', category: 'Right Rear Shock mounts', panelId: 'rr-shock-mounts' },
+            { id: 'lf_control_arm_cracks', category: 'Left Front Control arm cracks', panelId: 'lf-control-arm-cracks' },
+            { id: 'rf_control_arm_cracks', category: 'Right Front Control arm cracks', panelId: 'rf-control-arm-cracks' },
+            { id: 'lf_control_arm_play', category: 'Left Front control arm play', panelId: 'lf-control-arm-play' },
+            { id: 'rf_control_arm_play', category: 'Right Front control arm play', panelId: 'rf-control-arm-play' }
         ],
         fields: {
             primary_condition: { enabled: true, label: 'Primary Condition', options: ['Good', 'Average', 'Bad', 'N/A'] },
@@ -1327,8 +1358,8 @@ function initializeDrivetrainSystem() {
         storageKey: 'drivetrainSystemData',
         hasOverlays: false,
         items: [
-            { id: 'lf_cv_joint', category: 'LF CV joint', panelId: 'lf-cv-joint' },
-            { id: 'rf_cv_joint', category: 'RF CV joint', panelId: 'rf-cv-joint' },
+            { id: 'lf_cv_joint', category: 'Left Front CV joint', panelId: 'lf-cv-joint' },
+            { id: 'rf_cv_joint', category: 'Right Front CV joint', panelId: 'rf-cv-joint' },
             { id: 'propshaft', category: 'Propshaft', panelId: 'propshaft' },
             { id: 'centre_bearing', category: 'Centre Bearing', panelId: 'centre-bearing' },
             { id: 'differential_mounting', category: 'Differential mounting', panelId: 'differential-mounting' },
@@ -1473,6 +1504,34 @@ function saveCurrentProgress() {
     
     // Update data with current form values
     sessionStorage.setItem('physicalHoistData', JSON.stringify(updatedData));
+}
+
+function collectPhysicalHoistFormData() {
+    const formData = {};
+    const form = document.getElementById('physicalHoistForm');
+    
+    if (!form) {
+        console.error('Physical hoist form not found');
+        return { all: {} };
+    }
+    
+    // Get all form inputs
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        if (input.name && input.value && input.name !== '_token') {
+            formData[input.name] = input.value;
+        }
+    });
+    
+    console.log('Collected physical hoist form data:', formData);
+    
+    return {
+        all: formData,
+        suspension: {},  // Will be populated by categories if needed
+        engine: {},
+        drivetrain: {}
+    };
 }
 
 function restorePhysicalHoistData(data) {

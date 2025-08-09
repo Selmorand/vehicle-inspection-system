@@ -12,6 +12,7 @@ window.InspectionCards = (function() {
     
     let config = {};
     let images = {};
+    let cameraListenersAttached = false;
     
     /**
      * Initialize inspection cards functionality
@@ -221,26 +222,32 @@ window.InspectionCards = (function() {
             };
         }
 
-        // Photo button click handlers
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.photo-btn')) {
-                const btn = e.target.closest('.photo-btn');
-                const panelId = btn.dataset.panel;
-                const fileInput = document.getElementById(`camera-${panelId}`);
-                if (fileInput) fileInput.click();
-            }
-        });
-
-        // File input change handlers
-        document.querySelectorAll('.camera-input').forEach(input => {
-            input.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const panelId = this.id.replace('camera-', '');
-                    processImage(file, panelId);
+        // Only attach camera event listeners once to prevent duplicates
+        if (!cameraListenersAttached) {
+            // Photo button click handlers
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.photo-btn')) {
+                    const btn = e.target.closest('.photo-btn');
+                    const panelId = btn.dataset.panel;
+                    const fileInput = document.getElementById(`camera-${panelId}`);
+                    if (fileInput) fileInput.click();
                 }
             });
-        });
+
+            // File input change handlers using event delegation (works for dynamically added elements)
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('camera-input')) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const panelId = e.target.id.replace('camera-', '');
+                        processImage(file, panelId);
+                    }
+                }
+            });
+            
+            cameraListenersAttached = true;
+            console.log('Camera event listeners attached once');
+        }
     }
     
     /**
@@ -495,11 +502,61 @@ window.InspectionCards = (function() {
     }
     
     /**
-     * Save current data to sessionStorage
+     * Save current data to sessionStorage with quota handling
      */
     function saveCurrentData() {
         const data = collectFormData();
-        sessionStorage.setItem(config.storageKey, JSON.stringify(data));
+        
+        try {
+            const jsonData = JSON.stringify(data);
+            sessionStorage.setItem(config.storageKey, jsonData);
+            console.log('Data saved successfully to sessionStorage');
+        } catch (e) {
+            if (e.name === 'QuotaExceededError') {
+                console.warn('SessionStorage quota exceeded, attempting cleanup...');
+                
+                // Try to free up space
+                try {
+                    // Remove old/large items first
+                    const itemsToRemove = ['visualInspectionImages', 'interiorAssessmentImages', 'tyresRimsImages'];
+                    itemsToRemove.forEach(key => {
+                        if (sessionStorage.getItem(key)) {
+                            console.log(`Removing ${key} to free space`);
+                            sessionStorage.removeItem(key);
+                        }
+                    });
+                    
+                    // Try again with cleaned storage
+                    sessionStorage.setItem(config.storageKey, JSON.stringify(data));
+                    console.log('Data saved after cleanup');
+                } catch (e2) {
+                    console.error('Still unable to save after cleanup, using fallback');
+                    
+                    // Fallback: Save only form data without images
+                    try {
+                        const dataWithoutImages = { ...data };
+                        delete dataWithoutImages.images;
+                        sessionStorage.setItem(config.storageKey, JSON.stringify(dataWithoutImages));
+                        
+                        // Store images separately in smaller chunks if needed
+                        if (data.images && Object.keys(data.images).length > 0) {
+                            try {
+                                sessionStorage.setItem(config.imageStorageKey, JSON.stringify(data.images));
+                            } catch (e3) {
+                                console.warn('Cannot save images due to quota, continuing without images');
+                            }
+                        }
+                        console.log('Data saved without images due to quota limits');
+                    } catch (e3) {
+                        console.error('Critical: Cannot save any data to sessionStorage', e3);
+                        alert('Warning: Unable to save assessment data due to storage limits. Your progress may not be preserved.');
+                    }
+                }
+            } else {
+                console.error('Error saving data to sessionStorage:', e);
+                throw e;
+            }
+        }
     }
     
     /**

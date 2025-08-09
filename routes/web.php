@@ -38,6 +38,16 @@ Route::controller(InspectionController::class)->group(function () {
     Route::post('/api/inspection/upload-image', 'uploadImage')->name('api.inspection.upload-image');
     Route::post('/api/inspection/complete', 'completeInspection')->name('api.inspection.complete');
     Route::match(['GET', 'POST'], '/test/visual-report', 'testVisualReport')->name('test.visual-report');
+    Route::match(['GET', 'POST'], '/test-reports/body-panel', 'testBodyPanelReport')->name('test.body-panel-report');
+    Route::match(['GET', 'POST'], '/debug/body-panel-data', 'debugBodyPanelData')->name('debug.body-panel-data');
+    Route::match(['GET', 'POST'], '/quick-debug/body-panel', 'quickDebugBodyPanel')->name('quick-debug.body-panel');
+    Route::post('/preview/body-panel', 'previewBodyPanel')->name('preview.body-panel');
+    Route::post('/preview/interior', 'previewInterior')->name('preview.interior');
+    Route::post('/preview/service-booklet', 'previewServiceBooklet')->name('preview.service-booklet');
+    Route::post('/preview/tyres-rims', 'previewTyresRims')->name('preview.tyres-rims');
+    Route::post('/preview/mechanical-report', 'previewMechanicalReport')->name('preview.mechanical-report');
+    Route::post('/preview/engine-compartment', 'previewEngineCompartment')->name('preview.engine-compartment');
+    Route::post('/preview/physical-hoist', 'previewPhysicalHoist')->name('preview.physical-hoist');
 });
 
 // Image handling routes

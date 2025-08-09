@@ -18,7 +18,7 @@
                     <li class="breadcrumb-item"><a href="/inspection/tyres-rims" style="color: var(--primary-color);">Tyres & Rims Assessment</a></li>
                     <li class="breadcrumb-item"><a href="/inspection/mechanical-report" style="color: var(--primary-color);">Mechanical Report</a></li>
                     <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Engine Compartment</li>
-                    <li class="breadcrumb-item text-muted">Final Report</li>
+                    <li class="breadcrumb-item text-muted" id="nextStepBreadcrumb">Physical Hoist</li>
                 </ol>
             </nav>
         </div>
@@ -154,8 +154,14 @@
                 <button type="button" class="btn btn-outline-secondary me-3" id="backBtn">
                     <i class="bi bi-arrow-left me-1"></i>Back to Mechanical Report
                 </button>
+                <button type="button" class="btn btn-success me-3" id="simplePreviewBtn">
+                    <i class="bi bi-eye me-1"></i>Simple Preview
+                </button>
                 <button type="button" class="btn btn-secondary me-3" id="saveDraftBtn">Save Draft</button>
-                <button type="submit" class="btn btn-primary" id="nextBtn" form="engineCompartmentForm">
+                <button type="submit" class="btn btn-success" id="completeConditionBtn" form="engineCompartmentForm" style="display: none;">
+                    <i class="bi bi-check-circle me-1"></i>Complete Condition Report
+                </button>
+                <button type="submit" class="btn btn-primary" id="continueTechnicalBtn" form="engineCompartmentForm" style="display: none;">
                     Continue to Physical Hoist Inspection <i class="bi bi-arrow-right ms-1"></i>
                 </button>
             </div>
@@ -330,6 +336,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize engine component assessments using InspectionCards
     initializeEngineComponents();
     
+    // Show appropriate navigation button based on inspection type
+    setupNavigationButtons();
+    
     // Add color coding for condition dropdowns
     document.addEventListener('change', function(e) {
         if (e.target.name && e.target.name.endsWith('-condition')) {
@@ -359,6 +368,99 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('saveDraftBtn').addEventListener('click', function() {
         saveCurrentProgress();
         alert('Engine compartment assessment draft saved successfully!');
+    });
+
+    // Simple Preview button handler
+    document.getElementById('simplePreviewBtn').addEventListener('click', function() {
+        console.log('Engine Compartment Simple Preview clicked');
+        
+        // Collect findings data (checkboxes and notes)
+        let findingsData = {};
+        const checkboxes = document.querySelectorAll('.finding-checkbox');
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                findingsData[checkbox.name] = checkbox.value;
+            }
+        });
+        
+        const notesInputs = document.querySelectorAll('textarea[name^="findings["]');
+        notesInputs.forEach(input => {
+            if (input.value) {
+                findingsData[input.name] = input.value;
+            }
+        });
+        
+        console.log('Findings data:', findingsData);
+        
+        // Collect engine components data
+        let componentsData = {};
+        let allImages = {};
+        
+        try {
+            if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+                componentsData = InspectionCards.getFormData() || {};
+                allImages = InspectionCards.getImages() || {};
+                console.log('Components data from InspectionCards:', componentsData);
+                console.log('Images from InspectionCards:', allImages);
+            }
+        } catch (e) {
+            console.warn('Could not get data from InspectionCards:', e);
+        }
+        
+        // Manual collection as fallback
+        const form = document.getElementById('engineCompartmentForm');
+        if (form) {
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.value && input.name && input.name !== '_token' && !input.name.startsWith('findings[')) {
+                    componentsData[input.name] = input.value;
+                }
+            });
+        }
+        
+        // Check if we have any data
+        const totalFindings = Object.keys(findingsData).length;
+        const totalComponents = Object.keys(componentsData).length;
+        const totalData = totalFindings + totalComponents;
+        
+        if (totalData === 0) {
+            alert('No data to preview. Please:\n\n1. Check relevant findings boxes\n2. Add notes if needed\n3. Assess engine components\n4. Upload images if required');
+            return;
+        }
+        
+        console.log(`Found ${totalData} total form fields (${totalFindings} findings + ${totalComponents} components)`);
+        
+        // Prepare combined data for preview
+        const previewData = {
+            data: {
+                findings: findingsData,
+                components: componentsData
+            },
+            images: allImages
+        };
+        
+        console.log('Sending Engine Compartment preview data:', previewData);
+        
+        // Submit to preview endpoint
+        fetch('/preview/engine-compartment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(previewData)
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Open preview in new window
+            const previewWindow = window.open('', '_blank');
+            previewWindow.document.write(html);
+            previewWindow.document.close();
+        })
+        .catch(error => {
+            console.error('Preview error:', error);
+            alert('Error generating preview: ' + error.message);
+        });
     });
 });
 
@@ -521,6 +623,62 @@ function restoreEngineCompartmentData(data) {
             checkbox.dispatchEvent(new Event('change'));
         }
     });
+}
+
+function setupNavigationButtons() {
+    const inspectionType = sessionStorage.getItem('inspectionType');
+    const completeConditionBtn = document.getElementById('completeConditionBtn');
+    const continueTechnicalBtn = document.getElementById('continueTechnicalBtn');
+    const nextStepBreadcrumb = document.getElementById('nextStepBreadcrumb');
+    
+    console.log('Setting up navigation buttons for inspection type:', inspectionType);
+    
+    if (inspectionType === 'condition') {
+        // Show "Complete Condition Report" button
+        completeConditionBtn.style.display = 'inline-block';
+        continueTechnicalBtn.style.display = 'none';
+        
+        // Update breadcrumb
+        nextStepBreadcrumb.textContent = 'Report Complete';
+        nextStepBreadcrumb.innerHTML = '<i class="bi bi-check-circle"></i> Report Complete';
+        
+        // Update form submission to complete the condition report
+        completeConditionBtn.onclick = function() {
+            saveCurrentProgress();
+            alert('Condition Report completed successfully!');
+            // Could redirect to a completion page or back to dashboard
+            window.location.href = '/dashboard';
+        };
+        
+    } else if (inspectionType === 'technical') {
+        // Show "Continue to Physical Hoist" button
+        completeConditionBtn.style.display = 'none';
+        continueTechnicalBtn.style.display = 'inline-block';
+        
+        // Update breadcrumb
+        nextStepBreadcrumb.textContent = 'Physical Hoist';
+        
+        // Update form submission to continue to physical hoist
+        continueTechnicalBtn.onclick = function() {
+            saveCurrentProgress();
+            window.location.href = '/inspection/physical-hoist';
+        };
+        
+    } else {
+        // Default: assume technical inspection if no type is set
+        completeConditionBtn.style.display = 'none';
+        continueTechnicalBtn.style.display = 'inline-block';
+        
+        // Keep default breadcrumb text
+        nextStepBreadcrumb.textContent = 'Physical Hoist';
+        
+        continueTechnicalBtn.onclick = function() {
+            saveCurrentProgress();
+            window.location.href = '/inspection/physical-hoist';
+        };
+        
+        console.log('No inspection type found, defaulting to technical inspection');
+    }
 }
 </script>
 @endsection

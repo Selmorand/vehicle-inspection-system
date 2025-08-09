@@ -914,6 +914,899 @@ class InspectionController extends Controller
         return view('reports.web-report', compact('report', 'inspectionData'));
     }
 
+    public function testBodyPanelReport(Request $request)
+    {
+        // Get data from request - handle both nested and flat structure
+        $bodyPanelData = $request->input('data', []);
+        $bodyPanelImages = $request->input('images', []);
+        $panelDiagram = $request->input('panelDiagram', []);
+        
+        // Debug logging - show exactly what we received
+        \Log::info('Body Panel Test Report Request RAW:', [
+            'raw_input' => $request->all(),
+            'raw_content' => $request->getContent(),
+            'content_type' => $request->header('Content-Type')
+        ]);
+        
+        // Try to parse JSON body if it's JSON
+        $jsonData = null;
+        try {
+            $rawContent = $request->getContent();
+            if ($rawContent) {
+                $jsonData = json_decode($rawContent, true);
+                \Log::info('Parsed JSON data:', $jsonData);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error parsing JSON:', $e->getMessage());
+        }
+        
+        // If we have JSON data, use that structure
+        if ($jsonData && isset($jsonData['data'])) {
+            $bodyPanelData = $jsonData['data'];
+            $bodyPanelImages = $jsonData['images'] ?? [];
+            $panelDiagram = $jsonData['panelDiagram'] ?? [];
+        }
+        
+        // Debug the extracted data
+        \Log::info('Extracted Data:', [
+            'bodyPanelData' => $bodyPanelData,
+            'bodyPanelImages' => $bodyPanelImages,
+            'panelDiagram' => $panelDiagram
+        ]);
+        
+        // Check if we have real form data
+        $hasRealData = !empty($bodyPanelData) && is_array($bodyPanelData) && count($bodyPanelData) > 0;
+        
+        if (!$hasRealData) {
+            \Log::error('No valid body panel form data found', [
+                'bodyPanelData' => $bodyPanelData,
+                'is_array' => is_array($bodyPanelData),
+                'count' => is_array($bodyPanelData) ? count($bodyPanelData) : 'not_array'
+            ]);
+            return response()->json(['error' => 'No body panel assessment data found. Please fill out the form first.'], 400);
+        }
+        
+        \Log::info('Processing real form data from body panel assessment with ' . count($bodyPanelData) . ' fields');
+
+        // Create basic report structure
+        $report = (object)[
+            'id' => 1,
+            'report_number' => 'TEST-BODY-PANEL-' . date('Ymd-His'),
+            'inspection_date' => now()->toDateString(),
+            'status' => 'test',
+            'created_at' => now(),
+            'updated_at' => now()
+        ];
+
+        // Format body panel data for display
+        $formattedBodyPanels = [];
+        $panels = [];
+        
+        // Group fields by panel
+        foreach ($bodyPanelData as $key => $value) {
+            if (strpos($key, 'body_panel_') === 0) {
+                // Extract panel ID and field type
+                $parts = explode('-', $key);
+                if (count($parts) >= 2) {
+                    $panelId = str_replace('body_panel_', '', $parts[0]);
+                    $fieldType = $parts[1];
+                    
+                    if (!isset($panels[$panelId])) {
+                        $panels[$panelId] = [];
+                    }
+                    $panels[$panelId][$fieldType] = $value;
+                }
+            }
+        }
+        
+        // Convert to formatted display format
+        foreach ($panels as $panelId => $panelData) {
+            if (isset($panelData['condition'])) {
+                // Create proper panel name
+                $panelName = str_replace('_', ' ', $panelId);
+                $panelName = ucwords($panelName);
+                
+                // Handle special cases for proper naming
+                $panelName = str_replace([' Fr ', ' Lf ', ' Lr ', ' Rr '], 
+                                       [' Right Front ', ' Left Front ', ' Left Rear ', ' Right Rear '], 
+                                       $panelName);
+                
+                $formattedBodyPanels[] = [
+                    'name' => $panelName,
+                    'condition' => $panelData['condition'] ?? 'Not specified',
+                    'comments' => $panelData['comments'] ?? 'No comments',
+                    'additional_comments' => $panelData['additional_comments'] ?? '',
+                    'images' => $bodyPanelImages['body_panel_' . $panelId] ?? []
+                ];
+            }
+        }
+
+        // Create inspection data for body panel report - ONLY real data
+        $inspectionData = [
+            'data_source' => 'Real form data from Body Panel Assessment',
+            'inspection' => [
+                'date' => now()->format('Y-m-d H:i'),
+                'body_panels' => $formattedBodyPanels
+            ],
+            'panelDiagram' => empty($panelDiagram) ? [
+                'basePath' => '/images/panels/',
+                'panels' => [
+                    ['id' => 'rear_bumper', 'name' => 'Rear Bumper', 'image_file' => 'rear-bumper.png', 'x' => 627, 'y' => 1176, 'w' => 374, 'h' => 85],
+                    ['id' => 'front_bumper', 'name' => 'Front Bumper', 'image_file' => 'front-bumper.png', 'x' => 42, 'y' => 1181, 'w' => 374, 'h' => 85],
+                    ['id' => 'bonnet', 'name' => 'Bonnet', 'image_file' => 'bonnet.png', 'x' => 684, 'y' => 329, 'w' => 271, 'h' => 336],
+                    ['id' => 'windscreen', 'name' => 'Windscreen', 'image_file' => 'windscreen.png', 'x' => 576, 'y' => 350, 'w' => 147, 'h' => 279],
+                    ['id' => 'fr_door', 'name' => 'Right Front Door', 'image_file' => 'fr-door.png', 'x' => 599, 'y' => 664, 'w' => 128, 'h' => 236],
+                    ['id' => 'lf_door', 'name' => 'Left Front Door', 'image_file' => 'lf-door.png', 'x' => 279, 'y' => 664, 'w' => 128, 'h' => 236]
+                ]
+            ] : $panelDiagram,
+            'images' => [
+                'body_panel' => $this->formatImagesForDisplay($bodyPanelImages)
+            ]
+        ];
+
+        return view('reports.body-panel-report', compact('report', 'inspectionData'));
+    }
+
+    public function debugBodyPanelData(Request $request)
+    {
+        $debugInfo = [
+            'request_method' => $request->method(),
+            'all_inputs' => $request->all(),
+            'input_data' => $request->input('data', 'NOT_FOUND'),
+            'input_images' => $request->input('images', 'NOT_FOUND'),
+            'json_decode_test' => null,
+            'headers' => $request->headers->all(),
+            'content_type' => $request->header('Content-Type'),
+            'raw_content' => $request->getContent()
+        ];
+
+        // Test JSON decode
+        try {
+            $rawContent = $request->getContent();
+            if ($rawContent) {
+                $debugInfo['json_decode_test'] = json_decode($rawContent, true);
+            }
+        } catch (\Exception $e) {
+            $debugInfo['json_decode_error'] = $e->getMessage();
+        }
+
+        // Log the debug info
+        \Log::info('Body Panel Debug Info:', $debugInfo);
+
+        return response()->json([
+            'message' => 'Debug info logged and returned',
+            'debug_info' => $debugInfo
+        ]);
+    }
+
+    public function quickDebugBodyPanel(Request $request)
+    {
+        $rawContent = $request->getContent();
+        $allInputs = $request->all();
+        
+        $result = [
+            'method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'raw_content' => $rawContent,
+            'raw_content_length' => strlen($rawContent),
+            'all_inputs' => $allInputs,
+            'has_data_key' => isset($allInputs['data']),
+            'data_value' => $allInputs['data'] ?? 'NOT_FOUND'
+        ];
+        
+        if ($rawContent) {
+            try {
+                $jsonData = json_decode($rawContent, true);
+                $result['json_parsed'] = $jsonData;
+                $result['json_has_data'] = isset($jsonData['data']);
+                $result['json_data_type'] = isset($jsonData['data']) ? gettype($jsonData['data']) : 'NONE';
+                $result['json_data_count'] = isset($jsonData['data']) && is_array($jsonData['data']) ? count($jsonData['data']) : 'NOT_ARRAY';
+            } catch (\Exception $e) {
+                $result['json_error'] = $e->getMessage();
+            }
+        }
+        
+        \Log::info('Quick Debug Body Panel:', $result);
+        
+        return response()->json($result);
+    }
+
+    public function previewBodyPanel(Request $request)
+    {
+        // Get the raw data from the request
+        $rawContent = $request->getContent();
+        $jsonData = json_decode($rawContent, true);
+        
+        // Extract the form data and images
+        $formData = $jsonData['data'] ?? [];
+        $images = $jsonData['images'] ?? [];
+        
+        // Process the form data to group by panels
+        $panels = [];
+        foreach ($formData as $key => $value) {
+            if (strpos($key, 'body_panel_') === 0 && $value) {
+                // Extract panel name and field type
+                $parts = explode('-', $key);
+                if (count($parts) >= 2) {
+                    $panelId = str_replace('body_panel_', '', $parts[0]);
+                    $fieldType = $parts[1];
+                    
+                    if (!isset($panels[$panelId])) {
+                        $panels[$panelId] = [
+                            'name' => $this->formatPanelName($panelId),
+                            'data' => []
+                        ];
+                    }
+                    $panels[$panelId]['data'][$fieldType] = $value;
+                }
+            }
+        }
+        
+        // Add image counts to panels
+        foreach ($images as $panelKey => $panelImages) {
+            $panelId = str_replace('-', '_', $panelKey);
+            if (isset($panels[$panelId])) {
+                $panels[$panelId]['image_count'] = count($panelImages);
+                $panels[$panelId]['has_images'] = true;
+            }
+        }
+        
+        // Return a simple view with the data
+        return view('previews.body-panel', [
+            'panels' => $panels,
+            'totalPanels' => count($panels),
+            'totalImages' => array_sum(array_map('count', $images)),
+            'rawDataSize' => strlen($rawContent)
+        ]);
+    }
+    
+    private function formatPanelName($panelId)
+    {
+        // Convert underscores to hyphens for consistency with JavaScript
+        $id = str_replace('_', '-', $panelId);
+        
+        // Create base name
+        $name = str_replace(['-', '_'], ' ', $panelId);
+        $name = ucwords($name);
+        
+        // Apply exact naming convention from body-panel-assessment.blade.php
+        $exactNames = [
+            'lr-quarter-panel' => 'Left Rear Quarter Panel',
+            'lr_quarter_panel' => 'Left Rear Quarter Panel',
+            'rr-quarter-panel' => 'Right Rear Quarter Panel',
+            'rr_quarter_panel' => 'Right Rear Quarter Panel',
+            'rr-rim' => 'Right Rear Rim',
+            'rr_rim' => 'Right Rear Rim',
+            'rf-rim' => 'Right Front Rim',
+            'rf_rim' => 'Right Front Rim',
+            'lf-rim' => 'Left Front Rim',
+            'lf_rim' => 'Left Front Rim',
+            'lr-rim' => 'Left Rear Rim',
+            'lr_rim' => 'Left Rear Rim',
+            'fr-door' => 'Right Front Door',
+            'fr_door' => 'Right Front Door',
+            'fr-fender' => 'Right Front Fender',
+            'fr_fender' => 'Right Front Fender',
+            'fr-headlight' => 'Right Front Headlight',
+            'fr_headlight' => 'Right Front Headlight',
+            'fr-mirror' => 'Right Front Mirror',
+            'fr_mirror' => 'Right Front Mirror',
+            'lf-door' => 'Left Front Door',
+            'lf_door' => 'Left Front Door',
+            'lf-fender' => 'Left Front Fender',
+            'lf_fender' => 'Left Front Fender',
+            'lf-headlight' => 'Left Front Headlight',
+            'lf_headlight' => 'Left Front Headlight',
+            'lf-mirror' => 'Left Front Mirror',
+            'lf_mirror' => 'Left Front Mirror',
+            'lr-door' => 'Left Rear Door',
+            'lr_door' => 'Left Rear Door',
+            'lr-taillight' => 'Left Rear Taillight',
+            'lr_taillight' => 'Left Rear Taillight',
+            'rr-door' => 'Right Rear Door',
+            'rr_door' => 'Right Rear Door',
+            'rr-taillight' => 'Right Rear Taillight',
+            'rr_taillight' => 'Right Rear Taillight',
+            'rear-bumper' => 'Rear Bumper',
+            'rear_bumper' => 'Rear Bumper',
+            'front-bumper' => 'Front Bumper',
+            'front_bumper' => 'Front Bumper',
+            'bonnet' => 'Bonnet',
+            'windscreen' => 'Windscreen',
+            'roof' => 'Roof',
+            'boot' => 'Boot',
+            'rear-window' => 'Rear Window',
+            'rear_window' => 'Rear Window'
+        ];
+        
+        // Check if we have an exact match
+        if (isset($exactNames[$id])) {
+            return $exactNames[$id];
+        }
+        if (isset($exactNames[$panelId])) {
+            return $exactNames[$panelId];
+        }
+        
+        // Otherwise return the formatted name
+        return $name;
+    }
+
+    public function previewInterior(Request $request)
+    {
+        // Get the raw data from the request
+        $rawContent = $request->getContent();
+        $jsonData = json_decode($rawContent, true);
+        
+        // Extract the form data and images
+        $formData = $jsonData['data'] ?? [];
+        $images = $jsonData['images'] ?? [];
+        
+        // Map interior IDs to component names (from interior-assessment.blade.php)
+        $interiorMapping = [
+            'interior_78' => 'Steering Wheel',
+            'interior_80' => 'Driver Seat',
+            'interior_81' => 'Passenger Seat',
+            'interior_83' => 'FR Door Panel',
+            'interior_84' => 'FL Door Panel',
+            'interior_85' => 'Rear Seat',
+            'interior_88' => 'RR Door Panel',
+            'interior_89' => 'LR Door Panel',
+            'interior_91' => 'Centre Console',
+            'interior_94' => 'Air Vents',
+            'interior_77' => 'Dash',
+            'interior_79' => 'Buttons',
+            'interior_82' => 'Headliner',
+            'interior_86' => 'Backboard',
+            'interior_87' => 'Sun Visor',
+            'interior_90' => 'Floor Mat',
+            'interior_92' => 'Boot',
+            'interior_93' => 'Spare Wheel'
+        ];
+        
+        // Process the form data to group by components
+        $components = [];
+        foreach ($formData as $key => $value) {
+            if (strpos($key, 'interior_') === 0 && $value) {
+                // Extract component ID and field type
+                $parts = explode('-', $key);
+                if (count($parts) >= 2) {
+                    $componentKey = $parts[0]; // e.g., "interior_78"
+                    $fieldType = $parts[1];    // e.g., "condition"
+                    
+                    // Get the proper component name from mapping
+                    $componentName = $interiorMapping[$componentKey] ?? $this->formatComponentName(str_replace('interior_', '', $componentKey));
+                    
+                    if (!isset($components[$componentKey])) {
+                        $components[$componentKey] = [
+                            'name' => $componentName,
+                            'data' => []
+                        ];
+                    }
+                    $components[$componentKey]['data'][$fieldType] = $value;
+                }
+            }
+        }
+        
+        // Add image counts to components
+        foreach ($images as $componentKey => $componentImages) {
+            $componentId = str_replace('-', '_', $componentKey);
+            if (isset($components[$componentId])) {
+                $components[$componentId]['image_count'] = count($componentImages);
+                $components[$componentId]['has_images'] = true;
+            }
+        }
+        
+        // Return a simple view with the data
+        return view('previews.interior', [
+            'components' => $components,
+            'totalComponents' => count($components),
+            'totalImages' => array_sum(array_map('count', $images)),
+            'rawDataSize' => strlen($rawContent)
+        ]);
+    }
+
+    public function previewServiceBooklet(Request $request)
+    {
+        // Get the raw data from the request
+        $rawContent = $request->getContent();
+        $jsonData = json_decode($rawContent, true);
+        
+        // Extract the form data and images
+        $formData = $jsonData['data'] ?? [];
+        $images = $jsonData['images'] ?? [];
+        
+        // Service Booklet has simpler structure - just comments and recommendations
+        $serviceData = [];
+        
+        if (isset($formData['service_comments']) && $formData['service_comments']) {
+            $serviceData['service_comments'] = [
+                'name' => 'Service History Comments',
+                'value' => $formData['service_comments'],
+                'type' => 'textarea'
+            ];
+        }
+        
+        if (isset($formData['service_recommendations']) && $formData['service_recommendations']) {
+            $serviceData['service_recommendations'] = [
+                'name' => 'Service Recommendations',
+                'value' => $formData['service_recommendations'],
+                'type' => 'textarea'
+            ];
+        }
+        
+        // Process service booklet images
+        $totalImages = 0;
+        if (isset($images['service_booklet_images'])) {
+            $totalImages = count($images['service_booklet_images']);
+            $serviceData['images'] = [
+                'name' => 'Service Booklet Images',
+                'count' => $totalImages,
+                'has_images' => $totalImages > 0
+            ];
+        }
+        
+        // Return a simple view with the data
+        return view('previews.service-booklet', [
+            'serviceData' => $serviceData,
+            'totalFields' => count($serviceData),
+            'totalImages' => $totalImages,
+            'rawDataSize' => strlen($rawContent)
+        ]);
+    }
+
+    public function previewTyresRims(Request $request)
+    {
+        // Get the raw data from the request
+        $rawContent = $request->getContent();
+        $jsonData = json_decode($rawContent, true);
+        
+        // Extract the form data and images
+        $formData = $jsonData['data'] ?? [];
+        $images = $jsonData['images'] ?? [];
+        
+        // Map tyre IDs to proper names
+        $tyreMapping = [
+            'front_left' => 'Front Left Tyre',
+            'front_right' => 'Front Right Tyre', 
+            'rear_left' => 'Rear Left Tyre',
+            'rear_right' => 'Rear Right Tyre',
+            'spare' => 'Spare Tyre'
+        ];
+        
+        // Process the form data to group by tyres
+        $tyres = [];
+        foreach ($formData as $key => $value) {
+            if ($value) {
+                // Parse field name like "front_left-size" or "rear_right-manufacture"
+                $parts = explode('-', $key);
+                if (count($parts) >= 2) {
+                    $tyreId = $parts[0];    // e.g., "front_left"
+                    $fieldType = $parts[1];  // e.g., "size"
+                    
+                    // Get the proper tyre name from mapping
+                    $tyreName = $tyreMapping[$tyreId] ?? $this->formatTyreName($tyreId);
+                    
+                    if (!isset($tyres[$tyreId])) {
+                        $tyres[$tyreId] = [
+                            'name' => $tyreName,
+                            'data' => []
+                        ];
+                    }
+                    $tyres[$tyreId]['data'][$fieldType] = $value;
+                }
+            }
+        }
+        
+        // Add image counts to tyres
+        foreach ($images as $tyreKey => $tyreImages) {
+            $tyreId = str_replace('-', '_', $tyreKey);
+            if (isset($tyres[$tyreId])) {
+                $tyres[$tyreId]['image_count'] = count($tyreImages);
+                $tyres[$tyreId]['has_images'] = true;
+            }
+        }
+        
+        // Return a simple view with the data
+        return view('previews.tyres-rims', [
+            'tyres' => $tyres,
+            'totalTyres' => count($tyres),
+            'totalImages' => array_sum(array_map('count', $images)),
+            'rawDataSize' => strlen($rawContent)
+        ]);
+    }
+
+    public function previewMechanicalReport(Request $request)
+    {
+        // Get the raw data from the request
+        $rawContent = $request->getContent();
+        $jsonData = json_decode($rawContent, true);
+        
+        // Extract the form data and images
+        $formData = $jsonData['data'] ?? [];
+        $images = $jsonData['images'] ?? [];
+        
+        // Get all data (includes both mechanical and braking)
+        $allData = $formData['all'] ?? [];
+        $mechanicalData = $formData['mechanical'] ?? [];
+        $brakingData = $formData['braking'] ?? [];
+        
+        // Use allData as primary source, fallback to separated data
+        $dataToProcess = !empty($allData) ? $allData : array_merge($mechanicalData, $brakingData);
+        
+        \Log::info('Mechanical Report Preview Data:', [
+            'allData' => $allData,
+            'mechanicalData' => $mechanicalData, 
+            'brakingData' => $brakingData,
+            'dataToProcess' => $dataToProcess
+        ]);
+        
+        // Process mechanical components
+        $mechanicalComponents = [];
+        foreach ($dataToProcess as $key => $value) {
+            if ($value && strpos($key, 'brake_') === false) {
+                \Log::info("Processing mechanical key: {$key} = {$value}");
+                
+                // Try different parsing approaches
+                $componentId = null;
+                $fieldType = null;
+                
+                // Method 1: Parse field names like "final_drive_noise-condition" 
+                if (strpos($key, '-') !== false) {
+                    $parts = explode('-', $key);
+                    if (count($parts) >= 2) {
+                        $componentId = $parts[0];
+                        $fieldType = $parts[1];
+                        \Log::info("Method 1 - Dash separator: component={$componentId}, field={$fieldType}");
+                    }
+                }
+                // Method 2: Parse field names like "final_drive_noise_condition"
+                elseif (preg_match('/^(.+)_(condition|comments)$/', $key, $matches)) {
+                    $componentId = $matches[1];
+                    $fieldType = $matches[2];
+                    \Log::info("Method 2 - Underscore separator: component={$componentId}, field={$fieldType}");
+                }
+                
+                if ($componentId && $fieldType) {
+                    $componentName = $this->formatMechanicalComponentName($componentId);
+                    \Log::info("Mapped component: {$componentId} -> {$componentName}");
+                    
+                    if (!isset($mechanicalComponents[$componentId])) {
+                        $mechanicalComponents[$componentId] = [
+                            'name' => $componentName,
+                            'data' => []
+                        ];
+                    }
+                    $mechanicalComponents[$componentId]['data'][$fieldType] = $value;
+                } else {
+                    \Log::warning("Could not parse mechanical field: {$key}");
+                }
+            }
+        }
+        
+        // Process braking system data
+        $brakingComponents = [];
+        foreach ($dataToProcess as $key => $value) {
+            if ($value && strpos($key, 'brake_') === 0) {
+                \Log::info("Processing brake key: {$key} = {$value}");
+                
+                // Parse brake field names like "brake_front_left-pad_life" or "brake_rear_right-disc_condition"
+                $withoutBrake = str_replace('brake_', '', $key);
+                
+                // Check if it uses dash separator (newer format)
+                if (strpos($withoutBrake, '-') !== false) {
+                    $parts = explode('-', $withoutBrake);
+                    if (count($parts) >= 2) {
+                        $position = $parts[0]; // e.g., "front_left"
+                        $fieldType = $parts[1]; // e.g., "pad_life"
+                        \Log::info("Brake parsing (dash): position={$position}, field={$fieldType}");
+                    }
+                } else {
+                    // Fallback to underscore parsing (older format)
+                    $keyParts = explode('_', $withoutBrake);
+                    \Log::info("Brake key parts: " . implode(', ', $keyParts));
+                    
+                    if (count($keyParts) >= 3) {
+                        $position = $keyParts[0] . '_' . $keyParts[1]; // e.g., "front_left"
+                        $fieldType = implode('_', array_slice($keyParts, 2)); // e.g., "pad_life"
+                        \Log::info("Brake parsing (underscore): position={$position}, field={$fieldType}");
+                    }
+                }
+                
+                if (isset($position) && isset($fieldType)) {
+                    $positionName = $this->formatBrakePositionName($position);
+                    
+                    if (!isset($brakingComponents[$position])) {
+                        $brakingComponents[$position] = [
+                            'name' => $positionName,
+                            'data' => []
+                        ];
+                    }
+                    $brakingComponents[$position]['data'][$fieldType] = $value;
+                } else {
+                    \Log::warning("Could not parse brake field: {$key} (not enough parts)");
+                }
+            }
+        }
+        
+        // Add image counts
+        foreach ($images as $componentKey => $componentImages) {
+            // Check if it matches mechanical or braking components
+            $componentId = str_replace('-', '_', $componentKey);
+            if (isset($mechanicalComponents[$componentId])) {
+                $mechanicalComponents[$componentId]['image_count'] = count($componentImages);
+                $mechanicalComponents[$componentId]['has_images'] = true;
+            } elseif (isset($brakingComponents[$componentId])) {
+                $brakingComponents[$componentId]['image_count'] = count($componentImages);
+                $brakingComponents[$componentId]['has_images'] = true;
+            }
+        }
+        
+        \Log::info('Processed Components:', [
+            'mechanical' => $mechanicalComponents,
+            'braking' => $brakingComponents
+        ]);
+        
+        // Return a simple view with the data
+        return view('previews.mechanical-report', [
+            'mechanicalComponents' => $mechanicalComponents,
+            'brakingComponents' => $brakingComponents,
+            'totalMechanicalComponents' => count($mechanicalComponents),
+            'totalBrakingComponents' => count($brakingComponents),
+            'totalImages' => array_sum(array_map('count', $images)),
+            'rawDataSize' => strlen($rawContent),
+            'debugData' => $dataToProcess // For debugging
+        ]);
+    }
+
+    public function previewEngineCompartment(Request $request)
+    {
+        // Get the raw data from the request
+        $rawContent = $request->getContent();
+        $jsonData = json_decode($rawContent, true);
+        
+        // Extract the form data and images
+        $formData = $jsonData['data'] ?? [];
+        $images = $jsonData['images'] ?? [];
+        
+        // Separate findings and components data
+        $findingsData = $formData['findings'] ?? [];
+        $componentsData = $formData['components'] ?? [];
+        
+        \Log::info('Engine Compartment Preview Data:', [
+            'findings' => $findingsData,
+            'components' => $componentsData,
+            'images' => $images
+        ]);
+        
+        // Process findings data
+        $processedFindings = [];
+        foreach ($findingsData as $key => $value) {
+            // Remove "findings[" and "]" from key names
+            $cleanKey = str_replace(['findings[', ']'], '', $key);
+            
+            // Map to readable names
+            $findingName = $this->formatEngineCompartmentFinding($cleanKey);
+            
+            if ($findingName) {
+                $processedFindings[] = [
+                    'key' => $cleanKey,
+                    'name' => $findingName,
+                    'value' => $value,
+                    'type' => (strpos($cleanKey, '_notes') !== false) ? 'note' : 'finding'
+                ];
+            }
+        }
+        
+        // Process engine components data
+        $engineComponents = [];
+        foreach ($componentsData as $key => $value) {
+            if ($value) {
+                // Parse field names like "brakefluid_cleanliness-condition" or "engine_oil_level-comments"
+                $parts = explode('-', $key);
+                if (count($parts) >= 2) {
+                    $componentId = $parts[0];
+                    $fieldType = $parts[1];
+                    
+                    $componentName = $this->formatEngineComponentName($componentId);
+                    
+                    if (!isset($engineComponents[$componentId])) {
+                        $engineComponents[$componentId] = [
+                            'name' => $componentName,
+                            'data' => []
+                        ];
+                    }
+                    $engineComponents[$componentId]['data'][$fieldType] = $value;
+                }
+            }
+        }
+        
+        // Add image counts to components
+        foreach ($images as $componentKey => $componentImages) {
+            $componentId = str_replace('-', '_', $componentKey);
+            if (isset($engineComponents[$componentId])) {
+                $engineComponents[$componentId]['image_count'] = count($componentImages);
+                $engineComponents[$componentId]['has_images'] = true;
+            }
+        }
+        
+        \Log::info('Processed Engine Compartment Data:', [
+            'findings' => $processedFindings,
+            'components' => $engineComponents
+        ]);
+        
+        // Return a simple view with the data
+        return view('previews.engine-compartment', [
+            'findings' => $processedFindings,
+            'engineComponents' => $engineComponents,
+            'totalFindings' => count($processedFindings),
+            'totalComponents' => count($engineComponents),
+            'totalImages' => array_sum(array_map('count', $images)),
+            'rawDataSize' => strlen($rawContent)
+        ]);
+    }
+    
+    private function formatEngineCompartmentFinding($findingKey)
+    {
+        // Map finding keys to readable names
+        $findingsMapping = [
+            'engine_number_not_visible' => 'Engine number verification: not possible to verify engine number (not visible without dismantling)',
+            'engine_number_notes' => 'Engine Number Notes',
+            'no_deficiencies' => 'During the inspection of the Engine Compartment, no deficiencies were detected',
+            'no_structural_damage' => 'During the inspection no structural damage was visible/found',
+            'general_inspection_notes' => 'General Inspection Notes',
+            'engine_covers_partial' => 'Engine covers are partially present',
+            'undercarriage_missing' => 'Undercarriage was not present on the vehicle, replacement suggested',
+            'engine_covers_absent' => 'Engine covers not present at all',
+            'headlight_repairs' => 'Previous repairs/damages has been found on headlights/headlight brackets',
+            'fenderliner_damages' => 'All fenderliners were present during the inspection but damages has been found',
+            'component_presence_notes' => 'Component Presence Notes'
+        ];
+        
+        return $findingsMapping[$findingKey] ?? ucwords(str_replace('_', ' ', $findingKey));
+    }
+    
+    private function formatEngineComponentName($componentId)
+    {
+        // Map component IDs to proper names
+        $componentMapping = [
+            'brakefluid_cleanliness' => 'Brake Fluid Cleanliness',
+            'brakefluid_level' => 'Brake Fluid Level',
+            'coolant_level' => 'Coolant Level',
+            'antifreeze_strength' => 'Antifreeze Strength',
+            'fan_belt' => 'Fan Belt',
+            'engine_oil_level' => 'Engine Oil Level',
+            'engine_oil_condition' => 'Engine Oil Condition',
+            'battery_condition' => 'Battery Condition',
+            'engine_mounts' => 'Engine Mounts',
+            'exhaust_system' => 'Exhaust System'
+        ];
+        
+        return $componentMapping[$componentId] ?? ucwords(str_replace('_', ' ', $componentId));
+    }
+    
+    private function formatMechanicalComponentName($componentId)
+    {
+        // Map component IDs to proper names
+        $componentMapping = [
+            'final_drive_noise' => 'Final Drive Operation (Noise)',
+            'instrument_control' => 'Instrument/Control Function',
+            'road_holding' => 'Road Holding/Stability',
+            'gearbox_operation' => 'Gearbox Operation/Noise',
+            'clutch_operation' => 'Clutch Operation',
+            'general_steering' => 'General Steering/Handling',
+            'engine_performance' => 'Engine Performance',
+            'cooling_fan' => 'Cooling Fan Operation',
+            'footbrake_operation' => 'Footbrake Operation',
+            'engine_noise' => 'Engine Noise',
+            'power_steering' => 'Power Steering',
+            'handbrake_operation' => 'Hand/Park Brake Operation',
+            'excess_smoke' => 'Excess Smoke',
+            'warning_lights' => 'Warning Lights',
+            'overheating' => 'Overheating',
+            'auto_changes' => 'Auto Changes/Kick-down',
+            '4wd_operation' => '4WD Operation',
+            'cruise_control' => 'Cruise Control',
+            'airconditioning' => 'Air Conditioning',
+            'heating' => 'Heating',
+            'air_suspension' => 'Air Suspension',
+            'electric_windows' => 'Electric Windows',
+            'sunroof' => 'Sunroof',
+            'central_locking' => 'Central Locking',
+            'vented_heated_seats' => 'Vented/Heated Seats',
+            'electronic_seat_adjustments' => 'Electronic Seat Adjustments',
+            'control_arm_noise' => 'Control Arm (Noise)',
+            'brake_noise' => 'Brake (Noise)',
+            'suspension_noise' => 'Suspension (Noise)',
+            'oil_leaks' => 'Oil Leaks'
+        ];
+        
+        return $componentMapping[$componentId] ?? ucwords(str_replace('_', ' ', $componentId));
+    }
+    
+    private function formatBrakePositionName($position)
+    {
+        $positionMapping = [
+            'front_left' => 'Front Left',
+            'front_right' => 'Front Right',
+            'rear_left' => 'Rear Left',
+            'rear_right' => 'Rear Right'
+        ];
+        
+        return $positionMapping[$position] ?? ucwords(str_replace('_', ' ', $position));
+    }
+    
+    private function formatTyreName($tyreId)
+    {
+        // Convert underscores to spaces and capitalize each word
+        return ucwords(str_replace('_', ' ', $tyreId)) . ' Tyre';
+    }
+    
+    private function formatComponentName($componentId)
+    {
+        // Convert underscores to hyphens for consistency
+        $id = str_replace('_', '-', $componentId);
+        
+        // Create base name
+        $name = str_replace(['-', '_'], ' ', $componentId);
+        $name = ucwords($name);
+        
+        // Apply exact naming convention for interior components
+        $exactNames = [
+            'dash' => 'Dash',
+            'steering-wheel' => 'Steering Wheel',
+            'steering_wheel' => 'Steering Wheel',
+            'buttons' => 'Buttons',
+            'buttons-rf' => 'Buttons RF',
+            'buttons_rf' => 'Buttons RF',
+            'buttons-centre' => 'Buttons Centre',
+            'buttons_centre' => 'Buttons Centre',
+            'buttons-ml' => 'Buttons ML',
+            'buttons_ml' => 'Buttons ML',
+            'buttons-mr' => 'Buttons MR',
+            'buttons_mr' => 'Buttons MR',
+            'buttons-fl' => 'Buttons FL',
+            'buttons_fl' => 'Buttons FL',
+            'buttons-rl' => 'Buttons RL',
+            'buttons_rl' => 'Buttons RL',
+            'buttons-rr' => 'Buttons RR',
+            'buttons_rr' => 'Buttons RR',
+            'driver-seat' => 'Driver Seat',
+            'driver_seat' => 'Driver Seat',
+            'passenger-seat' => 'Passenger Seat',
+            'passenger_seat' => 'Passenger Seat',
+            'fr-door-panel' => 'FR Door Panel',
+            'fr_door_panel' => 'FR Door Panel',
+            'fl-door-panel' => 'FL Door Panel',
+            'fl_door_panel' => 'FL Door Panel',
+            'rear-seat' => 'Rear Seat',
+            'rear_seat' => 'Rear Seat',
+            'backboard' => 'Backboard',
+            'rr-door-panel' => 'RR Door Panel',
+            'rr_door_panel' => 'RR Door Panel',
+            'rl-door-panel' => 'RL Door Panel',
+            'rl_door_panel' => 'RL Door Panel',
+            'centre-console' => 'Centre Console',
+            'centre_console' => 'Centre Console',
+            'headliner' => 'Headliner',
+            'sun-visor' => 'Sun Visor',
+            'sun_visor' => 'Sun Visor',
+            'floor-mat' => 'Floor Mat',
+            'floor_mat' => 'Floor Mat',
+            'boot' => 'Boot'
+        ];
+        
+        // Check if we have an exact match
+        if (isset($exactNames[$id])) {
+            return $exactNames[$id];
+        }
+        if (isset($exactNames[$componentId])) {
+            return $exactNames[$componentId];
+        }
+        
+        // Otherwise return the formatted name
+        return $name;
+    }
+
     /**
      * Format images for display in web report
      */
@@ -924,14 +1817,203 @@ class InspectionController extends Controller
         }
 
         $formattedImages = [];
+        $counter = 1;
+        
         foreach ($images as $index => $image) {
+            // Handle different image formats
+            if (is_array($image)) {
+                // If image is an array with data/src properties
+                $imageData = $image['data'] ?? $image['src'] ?? $image;
+                $areaName = $image['area_name'] ?? 'Body panel image ' . $counter;
+                $timestamp = $image['timestamp'] ?? now()->format('Y-m-d H:i:s');
+            } else {
+                // If image is a direct data URL string
+                $imageData = $image;
+                $areaName = 'Body panel image ' . $counter;
+                $timestamp = now()->format('Y-m-d H:i:s');
+            }
+            
             $formattedImages[] = [
-                'data_url' => $image, // The image is already a data URL from sessionStorage
-                'area_name' => 'Visual inspection image ' . ($index + 1),
-                'timestamp' => now()->format('Y-m-d H:i:s')
+                'data_url' => $imageData,
+                'area_name' => $areaName,
+                'timestamp' => $timestamp
             ];
+            
+            $counter++;
         }
 
         return $formattedImages;
     }
+
+    public function previewPhysicalHoist(Request $request)
+    {
+        // Get the raw data from the request
+        $rawContent = $request->getContent();
+        $jsonData = json_decode($rawContent, true);
+        
+        // Extract the form data and images
+        $formData = $jsonData['data'] ?? [];
+        $images = $jsonData['images'] ?? [];
+        
+        // Get all data from different categories
+        $allData = $formData['all'] ?? [];
+        $suspensionData = $formData['suspension'] ?? [];
+        $engineData = $formData['engine'] ?? [];
+        $drivetrainData = $formData['drivetrain'] ?? [];
+        
+        // Use allData as primary source, fallback to separated data
+        $dataToProcess = !empty($allData) ? $allData : array_merge($suspensionData, $engineData, $drivetrainData);
+        
+        \Log::info('Physical Hoist Preview Data:', [
+            'allData' => $allData,
+            'suspensionData' => $suspensionData, 
+            'engineData' => $engineData,
+            'drivetrainData' => $drivetrainData,
+            'dataToProcess' => $dataToProcess
+        ]);
+        
+        // Process components by category
+        $suspensionComponents = [];
+        $engineComponents = [];
+        $drivetrainComponents = [];
+        
+        foreach ($dataToProcess as $key => $value) {
+            if ($value) {
+                \Log::info("Processing physical hoist key: {$key} = {$value}");
+                
+                // Parse field names like "lf_shock_leaks-primary_condition" 
+                if (strpos($key, '-') !== false) {
+                    $parts = explode('-', $key);
+                    if (count($parts) >= 2) {
+                        $componentId = $parts[0];
+                        $fieldType = $parts[1];
+                        \Log::info("Parsed: component={$componentId}, field={$fieldType}");
+                        
+                        $componentName = $this->formatPhysicalHoistComponentName($componentId);
+                        $category = $this->getPhysicalHoistCategory($componentId);
+                        
+                        // Determine which category this component belongs to
+                        if ($category === 'suspension') {
+                            if (!isset($suspensionComponents[$componentId])) {
+                                $suspensionComponents[$componentId] = [
+                                    'name' => $componentName,
+                                    'data' => []
+                                ];
+                            }
+                            $suspensionComponents[$componentId]['data'][$fieldType] = $value;
+                        } elseif ($category === 'engine') {
+                            if (!isset($engineComponents[$componentId])) {
+                                $engineComponents[$componentId] = [
+                                    'name' => $componentName,
+                                    'data' => []
+                                ];
+                            }
+                            $engineComponents[$componentId]['data'][$fieldType] = $value;
+                        } elseif ($category === 'drivetrain') {
+                            if (!isset($drivetrainComponents[$componentId])) {
+                                $drivetrainComponents[$componentId] = [
+                                    'name' => $componentName,
+                                    'data' => []
+                                ];
+                            }
+                            $drivetrainComponents[$componentId]['data'][$fieldType] = $value;
+                        }
+                    }
+                } else {
+                    \Log::warning("Could not parse physical hoist field: {$key}");
+                }
+            }
+        }
+        
+        // Count totals
+        $totalSuspensionComponents = count($suspensionComponents);
+        $totalEngineComponents = count($engineComponents);
+        $totalDrivetrainComponents = count($drivetrainComponents);
+        $totalImages = count($images);
+        $rawDataSize = strlen(json_encode($dataToProcess));
+        
+        // Pass data to preview template
+        return view('previews.physical-hoist', compact(
+            'suspensionComponents',
+            'engineComponents', 
+            'drivetrainComponents',
+            'totalSuspensionComponents',
+            'totalEngineComponents',
+            'totalDrivetrainComponents',
+            'totalImages',
+            'rawDataSize',
+            'dataToProcess'
+        ));
+    }
+
+    /**
+     * Format physical hoist component names for display
+     */
+    private function formatPhysicalHoistComponentName($componentId)
+    {
+        $componentMapping = [
+            // Suspension System
+            'lf_shock_leaks' => 'Left Front Shock Leaks',
+            'rf_shock_leaks' => 'Right Front Shock Leaks',
+            'lr_shock_leaks' => 'Left Rear Shock Leaks',
+            'rr_shock_leaks' => 'Right Rear Shock Leaks',
+            'lf_shock_mounts' => 'Left Front Shock Mounts',
+            'rf_shock_mounts' => 'Right Front Shock Mounts',
+            'lr_shock_mounts' => 'Left Rear Shock Mounts',
+            'rr_shock_mounts' => 'Right Rear Shock Mounts',
+            'lf_control_arm_cracks' => 'Left Front Control Arm Cracks',
+            'rf_control_arm_cracks' => 'Right Front Control Arm Cracks',
+            'lf_control_arm_play' => 'Left Front Control Arm Play',
+            'rf_control_arm_play' => 'Right Front Control Arm Play',
+            
+            // Engine System
+            'engine_mountings' => 'Engine Mountings',
+            'engine_oil_viscosity' => 'Engine Oil Viscosity',
+            'engine_oil_level' => 'Engine Oil Level',
+            'gearbox_mountings' => 'Gearbox Mountings',
+            'gearbox_oil_viscosity' => 'Gearbox Oil Viscosity',
+            'gearbox_oil_level' => 'Gearbox Oil Level',
+            'timing_cover' => 'Timing Cover',
+            'sump' => 'Sump',
+            'side_shafts' => 'Side Shafts',
+            'front_main_seal' => 'Front Main Seal',
+            'rear_main_seal' => 'Rear Main Seal',
+            
+            // Drivetrain System
+            'lf_cv_joint' => 'Left Front CV Joint',
+            'rf_cv_joint' => 'Right Front CV Joint',
+            'propshaft' => 'Propshaft',
+            'centre_bearing' => 'Centre Bearing',
+            'differential_mounting' => 'Differential Mounting'
+        ];
+        
+        return $componentMapping[$componentId] ?? ucwords(str_replace('_', ' ', $componentId));
+    }
+
+    /**
+     * Determine which category a physical hoist component belongs to
+     */
+    private function getPhysicalHoistCategory($componentId)
+    {
+        $suspensionComponents = ['lf_shock_leaks', 'rf_shock_leaks', 'lr_shock_leaks', 'rr_shock_leaks', 
+                                'lf_shock_mounts', 'rf_shock_mounts', 'lr_shock_mounts', 'rr_shock_mounts',
+                                'lf_control_arm_cracks', 'rf_control_arm_cracks', 'lf_control_arm_play', 'rf_control_arm_play'];
+        
+        $engineComponents = ['engine_mountings', 'engine_oil_viscosity', 'engine_oil_level', 'gearbox_mountings',
+                            'gearbox_oil_viscosity', 'gearbox_oil_level', 'timing_cover', 'sump', 'side_shafts',
+                            'front_main_seal', 'rear_main_seal'];
+        
+        $drivetrainComponents = ['lf_cv_joint', 'rf_cv_joint', 'propshaft', 'centre_bearing', 'differential_mounting'];
+        
+        if (in_array($componentId, $suspensionComponents)) {
+            return 'suspension';
+        } elseif (in_array($componentId, $engineComponents)) {
+            return 'engine';
+        } elseif (in_array($componentId, $drivetrainComponents)) {
+            return 'drivetrain';
+        }
+        
+        return 'unknown';
+    }
+
 }

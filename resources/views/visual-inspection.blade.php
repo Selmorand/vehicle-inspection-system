@@ -202,6 +202,26 @@ let uploadedImages = [];
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if this is a new inspection (coming from dashboard or direct URL)
+    // Clear data only if not coming from within the inspection flow
+    const referrer = document.referrer;
+    const isFromInspectionFlow = referrer.includes('/inspection/');
+    const hasInspectionId = sessionStorage.getItem('currentInspectionId');
+    
+    // If not from inspection flow and no current inspection ID, start fresh
+    if (!isFromInspectionFlow && !hasInspectionId) {
+        // Starting a new inspection - clear all data
+        sessionStorage.removeItem('visualInspectionData');
+        sessionStorage.removeItem('visualInspectionImages');
+        sessionStorage.removeItem('bodyPanelAssessmentData');
+        sessionStorage.removeItem('bodyPanelAssessmentImages');
+        sessionStorage.removeItem('interiorAssessmentData');
+        
+        // Set a new inspection ID
+        const newInspectionId = 'inspection_' + Date.now();
+        sessionStorage.setItem('currentInspectionId', newInspectionId);
+    }
+    
     initializeImageGrid();
     setCurrentDateTime();
 });

@@ -45,13 +45,13 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label fw-bold">Test Distance:</label>
-                                    <input type="text" class="form-control" value="0-5 Km" readonly style="background-color: #f8f9fa;">
+                                    <input type="text" class="form-control" name="road_test_distance" placeholder="e.g., 0-5 Km">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label fw-bold">Speed achieved up to:</label>
-                                    <input type="text" class="form-control" value="100 km/h" readonly style="background-color: #f8f9fa;">
+                                    <input type="text" class="form-control" name="road_test_speed" placeholder="e.g., 100 km/h">
                                 </div>
                             </div>
                         </div>
@@ -926,6 +926,9 @@
                 <button type="button" class="btn btn-outline-secondary me-3" id="backBtn">
                     <i class="bi bi-arrow-left me-1"></i>Back to Tyres & Rims
                 </button>
+                <button type="button" class="btn btn-success me-3" id="simplePreviewBtn">
+                    <i class="bi bi-eye me-1"></i>Simple Preview
+                </button>
                 <button type="button" class="btn btn-secondary me-3" id="saveDraftBtn">Save Draft</button>
                 <button type="submit" class="btn btn-primary" id="nextBtn" form="mechanicalReportForm">
                     Continue to Engine Compartment <i class="bi bi-arrow-right ms-1"></i>
@@ -1358,7 +1361,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeMechanicalComponents();
     
     // Initialize braking system using InspectionCards  
+    // NOTE: This creates a second instance which may cause conflicts, but forms need to be generated
     initializeBrakingSystem();
+    
+    console.log('Mechanical Report: Re-enabled InspectionCards for form generation');
     
     // Add color coding for condition dropdowns in InspectionCards
     document.addEventListener('change', function(e) {
@@ -1396,6 +1402,123 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('saveDraftBtn').addEventListener('click', function() {
         saveCurrentProgress();
         alert('Mechanical report draft saved successfully!');
+    });
+
+    // Simple Preview button handler
+    document.getElementById('simplePreviewBtn').addEventListener('click', function() {
+        console.log('Mechanical Report Simple Preview clicked');
+        
+        // Wait a bit for any InspectionCards to fully load
+        setTimeout(() => {
+            // Collect ALL form data manually (most reliable approach)
+            const form = document.getElementById('mechanicalReportForm');
+            let mechanicalData = {};
+            let brakingData = {};
+            let allFormData = {};
+            
+            if (form) {
+                console.log('Form found, collecting all data...');
+                console.log('Form HTML:', form.innerHTML.substring(0, 500) + '...');
+                
+                // Get all form inputs
+                const inputs = form.querySelectorAll('input, select, textarea');
+                console.log(`Found ${inputs.length} total inputs in form`);
+                
+                inputs.forEach((input, index) => {
+                    console.log(`Input ${index}: name="${input.name}", value="${input.value}", type="${input.type}"`);
+                    
+                    if (input.value && input.name && input.name !== '_token') {
+                        allFormData[input.name] = input.value;
+                        console.log(`✓ Captured: ${input.name} = ${input.value}`);
+                        
+                        // Separate mechanical and braking data
+                        if (input.name.includes('brake_')) {
+                            brakingData[input.name] = input.value;
+                        } else {
+                            mechanicalData[input.name] = input.value;
+                        }
+                    } else if (!input.value) {
+                        console.log(`✗ Skipped (empty): ${input.name}`);
+                    }
+                });
+                
+                console.log('=== SUMMARY ===');
+                console.log('All form data collected:', allFormData);
+                console.log('Mechanical data:', mechanicalData);
+                console.log('Braking data:', brakingData);
+            } else {
+                console.error('Form not found!');
+                alert('Error: Could not find the mechanical report form!');
+                return;
+            }
+            
+            // Try to get images from InspectionCards if available
+            let allImages = {};
+            try {
+                if (window.InspectionCards && typeof InspectionCards.getImages === 'function') {
+                    allImages = InspectionCards.getImages() || {};
+                    console.log('Images from InspectionCards:', allImages);
+                    console.log('Number of image categories found:', Object.keys(allImages).length);
+                    
+                    // Log each image category
+                    Object.keys(allImages).forEach(category => {
+                        console.log(`Category "${category}": ${allImages[category].length} images`);
+                    });
+                }
+            } catch (e) {
+                console.warn('Could not get images from InspectionCards:', e);
+                // Try alternative image collection method
+                try {
+                    const imageInputs = form.querySelectorAll('input[type="file"]');
+                    console.log(`Found ${imageInputs.length} file inputs for manual image collection`);
+                } catch (e2) {
+                    console.error('Alternative image collection also failed:', e2);
+                }
+            }
+            
+            // Check if we have any data
+            const totalData = Object.keys(mechanicalData).length + Object.keys(brakingData).length;
+            if (totalData === 0) {
+                console.warn('No form data found!');
+                alert('No data to preview. Please fill out at least one assessment:\n\n1. Select conditions from dropdowns\n2. Add comments if needed\n3. Upload images if required\n\nTip: Make sure the forms have loaded completely before filling them out.');
+                return;
+            }
+            
+            console.log(`✅ Found ${totalData} total form fields with data`);
+            
+            // Prepare combined data for preview
+            const previewData = {
+                data: {
+                    mechanical: mechanicalData,
+                    braking: brakingData,
+                    all: allFormData
+                },
+                images: allImages
+            };
+            
+            console.log('Sending preview data:', previewData);
+            
+            // Submit to preview endpoint
+            fetch('/preview/mechanical-report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(previewData)
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Open preview in new window
+                const previewWindow = window.open('', '_blank');
+                previewWindow.document.write(html);
+                previewWindow.document.close();
+            })
+            .catch(error => {
+                console.error('Preview error:', error);
+                alert('Error generating preview: ' + error.message);
+            });
+        }, 1000); // Wait 1 second for forms to load
     });
 });
 

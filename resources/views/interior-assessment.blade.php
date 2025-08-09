@@ -227,6 +227,9 @@
                                 <i class="bi bi-arrow-left me-1"></i>Back to Body Panel Assessment
                             </button>
                             <div class="button-group-responsive">
+                                <button type="button" class="btn btn-success me-2 mb-2" id="simplePreviewBtn">
+                                    <i class="bi bi-eye me-1"></i>Simple Preview
+                                </button>
                                 <button type="button" class="btn btn-secondary me-2 mb-2" id="saveDraftBtn">Save Draft</button>
                                 <button type="submit" class="btn btn-primary mb-2" id="nextBtn">
                                     Continue to Service Booklet <i class="bi bi-arrow-right ms-1"></i>
@@ -396,6 +399,71 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('saveDraftBtn').addEventListener('click', function() {
         InspectionCards.saveData();
         alert('Draft saved successfully!');
+    });
+    
+    // Simple Preview button handler
+    document.getElementById('simplePreviewBtn').addEventListener('click', function() {
+        console.log('Interior Simple Preview clicked');
+        
+        // Get form data directly from InspectionCards
+        let formData = {};
+        let imageData = {};
+        
+        try {
+            if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+                formData = InspectionCards.getFormData();
+                imageData = InspectionCards.getImages();
+                console.log('Interior Preview - Form Data:', formData);
+                console.log('Interior Preview - Image Data:', imageData);
+            }
+        } catch (e) {
+            console.error('Error getting data:', e);
+        }
+        
+        // If no data from InspectionCards, try manual collection
+        if (Object.keys(formData).length === 0) {
+            const form = document.getElementById('interiorAssessmentForm');
+            if (form) {
+                const formDataObj = new FormData(form);
+                for (let [key, value] of formDataObj.entries()) {
+                    if (value && key !== '_token') {
+                        formData[key] = value;
+                    }
+                }
+            }
+        }
+        
+        if (Object.keys(formData).length === 0) {
+            alert('No data to preview. Please fill out at least one interior component assessment.');
+            return;
+        }
+        
+        // Prepare data for preview
+        const previewData = {
+            data: formData,
+            images: imageData
+        };
+        
+        // Submit to preview endpoint
+        fetch('/preview/interior', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(previewData)
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Open preview in new window
+            const previewWindow = window.open('', '_blank');
+            previewWindow.document.write(html);
+            previewWindow.document.close();
+        })
+        .catch(error => {
+            console.error('Preview error:', error);
+            alert('Error generating preview: ' + error.message);
+        });
     });
     
     document.getElementById('nextBtn').addEventListener('click', function() {
