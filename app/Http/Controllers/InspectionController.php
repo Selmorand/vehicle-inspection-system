@@ -644,36 +644,53 @@ class InspectionController extends Controller
     public function completeInspection(Request $request)
     {
         try {
-            // Collect all inspection data from session storage (passed from frontend)
+            // Get data from request (same method as testVisualReport)
             $rawInspectionData = $request->input('inspectionData', []);
+            $rawImageData = $request->input('images', []);
             
-            // Transform the data to match the web report format
-            $inspectionData = $this->transformInspectionDataForReport($rawInspectionData);
+            // If inspectionData is a string, decode it (same as testVisualReport)
+            if (is_string($rawInspectionData)) {
+                $rawInspectionData = json_decode($rawInspectionData, true) ?? [];
+            }
+            
+            // Log the raw data for debugging
+            logger('Complete inspection data received:', ['data' => $rawInspectionData, 'images' => $rawImageData]);
+            
+            // Use the data directly (same approach as testVisualReport)
+            $inspectionData = $rawInspectionData;
+            
+            // Include images in the inspection data (same structure as testVisualReport)
+            if (!empty($rawImageData)) {
+                $inspectionData['images'] = $rawImageData;
+            }
             
             // Generate unique report number
             $reportNumber = 'TEST-' . date('YmdHis') . '-' . rand(100, 999);
             
-            // Create a test inspection report with all required fields
+            // Extract visual data (same way testVisualReport works)
+            $visualData = $inspectionData['visual'] ?? [];
+            
+            // Create inspection report using actual form data
             $report = \App\Models\InspectionReport::create([
-                // Required fields
-                'client_name' => $inspectionData['visual']['client_name'] ?? 'Test Client',
-                'vehicle_make' => $inspectionData['visual']['manufacturer'] ?? 'Test Make',
-                'vehicle_model' => $inspectionData['visual']['model'] ?? 'Test Model',
+                // Required fields from actual form data (client_name removed - not collected in visual inspection)
+                'client_name' => 'Not specified', // Visual inspection doesn't collect client name
+                'vehicle_make' => $visualData['manufacturer'] ?? 'Unknown Make',
+                'vehicle_model' => $visualData['model'] ?? 'Unknown Model',
                 'inspection_date' => now()->toDateString(),
                 'report_number' => $reportNumber,
-                'pdf_filename' => $reportNumber . '.pdf', // Mock filename
-                'pdf_path' => 'reports/' . $reportNumber . '.pdf', // Mock path
+                'pdf_filename' => $reportNumber . '.pdf',
+                'pdf_path' => 'reports/' . $reportNumber . '.pdf',
                 
-                // Optional fields
-                'client_email' => $inspectionData['visual']['client_email'] ?? null,
-                'client_phone' => $inspectionData['visual']['client_phone'] ?? null,
-                'vehicle_year' => $inspectionData['visual']['year'] ?? date('Y'),
-                'vin_number' => $inspectionData['visual']['vin'] ?? 'TEST-VIN-' . date('YmdHis'),
-                'license_plate' => $inspectionData['visual']['registration_number'] ?? 'TEST-REG-' . rand(100, 999),
-                'mileage' => $inspectionData['visual']['mileage'] ?? null,
-                'inspector_name' => $inspectionData['visual']['inspector_name'] ?? 'Tablet Tester',
+                // Optional fields from actual form data (Fixed field names to match form)
+                'client_email' => $visualData['client_email'] ?? null,
+                'client_phone' => $visualData['client_phone'] ?? null,
+                'vehicle_year' => $visualData['year_model'] ?? date('Y'),
+                'vin_number' => $visualData['vin'] ?? null,
+                'license_plate' => $visualData['registration_number'] ?? null,
+                'mileage' => $visualData['km_reading'] ?? null,
+                'inspector_name' => $visualData['inspector_name'] ?? 'Unknown Inspector',
                 'status' => 'completed',
-                'inspection_data' => $inspectionData,
+                'inspection_data' => $inspectionData, // Store all data as received
             ]);
 
             // Clear session storage (will be done by frontend)
@@ -700,121 +717,209 @@ class InspectionController extends Controller
     {
         $transformed = [];
         
-        // Visual inspection data (client, vehicle info)
+        // Visual inspection data (client, vehicle info) - parse if it's JSON string
         if (isset($rawData['visual'])) {
-            $transformed['visual'] = $rawData['visual'];
+            $visualData = is_string($rawData['visual']) ? json_decode($rawData['visual'], true) : $rawData['visual'];
+            $transformed['visual'] = $visualData;
         }
         
         // Body panels assessment
         if (isset($rawData['bodyPanels'])) {
+            $bodyPanelData = is_string($rawData['bodyPanels']) ? json_decode($rawData['bodyPanels'], true) : $rawData['bodyPanels'];
             $transformed['bodyPanels']['assessments'] = [];
-            foreach ($rawData['bodyPanels'] as $key => $value) {
-                if (str_contains($key, '-condition')) {
-                    $panelName = str_replace('-condition', '', $key);
-                    $transformed['bodyPanels']['assessments'][$panelName]['condition'] = $value;
-                }
-                if (str_contains($key, '-comments')) {
-                    $panelName = str_replace('-comments', '', $key);
-                    $transformed['bodyPanels']['assessments'][$panelName]['comments'] = $value;
+            
+            foreach ($bodyPanelData as $key => $value) {
+                // Handle keys like "body_panel_front-bumper-condition"
+                if (strpos($key, 'body_panel_') === 0) {
+                    $withoutPrefix = str_replace('body_panel_', '', $key);
+                    $parts = explode('-', $withoutPrefix);
+                    
+                    if (count($parts) >= 2) {
+                        $fieldType = array_pop($parts); // Get last part (condition, comments, etc.)
+                        $panelName = implode('_', $parts); // Rejoin the rest as panel name
+                        
+                        if (!isset($transformed['bodyPanels']['assessments'][$panelName])) {
+                            $transformed['bodyPanels']['assessments'][$panelName] = [];
+                        }
+                        $transformed['bodyPanels']['assessments'][$panelName][$fieldType] = $value;
+                    }
+                } 
+                // Also handle simplified format
+                elseif (str_contains($key, '-condition') || str_contains($key, '-comments')) {
+                    if (str_contains($key, '-condition')) {
+                        $panelName = str_replace('-condition', '', $key);
+                        $transformed['bodyPanels']['assessments'][$panelName]['condition'] = $value;
+                    }
+                    if (str_contains($key, '-comments')) {
+                        $panelName = str_replace('-comments', '', $key);
+                        $transformed['bodyPanels']['assessments'][$panelName]['comments'] = $value;
+                    }
                 }
             }
         }
         
         // Interior assessment
         if (isset($rawData['interior'])) {
+            $interiorData = is_string($rawData['interior']) ? json_decode($rawData['interior'], true) : $rawData['interior'];
             $transformed['interior']['assessments'] = [];
-            foreach ($rawData['interior'] as $key => $value) {
-                if (str_contains($key, '-condition')) {
-                    $componentName = str_replace('-condition', '', $key);
-                    $transformed['interior']['assessments'][$componentName]['condition'] = $value;
+            
+            foreach ($interiorData as $key => $value) {
+                // Handle keys like "interior_78-condition"
+                if (strpos($key, 'interior_') === 0) {
+                    $parts = explode('-', $key);
+                    if (count($parts) >= 2) {
+                        $componentId = $parts[0]; // e.g., "interior_78"
+                        $fieldType = $parts[1]; // e.g., "condition"
+                        
+                        if (!isset($transformed['interior']['assessments'][$componentId])) {
+                            $transformed['interior']['assessments'][$componentId] = [];
+                        }
+                        $transformed['interior']['assessments'][$componentId][$fieldType] = $value;
+                    }
                 }
-                if (str_contains($key, '-colour')) {
-                    $componentName = str_replace('-colour', '', $key);
-                    $transformed['interior']['assessments'][$componentName]['colour'] = $value;
-                }
-                if (str_contains($key, '-comments')) {
-                    $componentName = str_replace('-comments', '', $key);
-                    $transformed['interior']['assessments'][$componentName]['comments'] = $value;
-                }
-            }
-        }
-        
-        // Mechanical assessment
-        if (isset($rawData['mechanical'])) {
-            $transformed['mechanical']['assessments'] = [];
-            foreach ($rawData['mechanical'] as $key => $value) {
-                if (str_contains($key, '-condition')) {
-                    $componentName = str_replace('-condition', '', $key);
-                    $transformed['mechanical']['assessments'][$componentName]['condition'] = $value;
-                }
-                if (str_contains($key, '-comments')) {
-                    $componentName = str_replace('-comments', '', $key);
-                    $transformed['mechanical']['assessments'][$componentName]['comments'] = $value;
-                }
-            }
-        }
-        
-        // Engine compartment assessment
-        if (isset($rawData['engineCompartment'])) {
-            $transformed['engineCompartment']['assessments'] = [];
-            foreach ($rawData['engineCompartment'] as $key => $value) {
-                if (str_contains($key, '-condition')) {
-                    $componentName = str_replace('-condition', '', $key);
-                    $transformed['engineCompartment']['assessments'][$componentName]['condition'] = $value;
-                }
-                if (str_contains($key, '-comments')) {
-                    $componentName = str_replace('-comments', '', $key);
-                    $transformed['engineCompartment']['assessments'][$componentName]['comments'] = $value;
-                }
-            }
-        }
-        
-        // Physical hoist assessment
-        if (isset($rawData['physicalHoist'])) {
-            $transformed['physicalHoist']['assessments'] = [];
-            foreach ($rawData['physicalHoist'] as $key => $value) {
-                if (str_contains($key, '-primary_condition')) {
-                    $componentName = str_replace('-primary_condition', '', $key);
-                    $transformed['physicalHoist']['assessments'][$componentName]['primary_condition'] = $value;
-                }
-                if (str_contains($key, '-secondary_condition')) {
-                    $componentName = str_replace('-secondary_condition', '', $key);
-                    $transformed['physicalHoist']['assessments'][$componentName]['secondary_condition'] = $value;
-                }
-                if (str_contains($key, '-comments')) {
-                    $componentName = str_replace('-comments', '', $key);
-                    $transformed['physicalHoist']['assessments'][$componentName]['comments'] = $value;
-                }
-            }
-        }
-        
-        // Tyres assessment
-        if (isset($rawData['tyres'])) {
-            $transformed['tyres']['assessments'] = [];
-            foreach ($rawData['tyres'] as $key => $value) {
-                if (str_contains($key, '-condition')) {
-                    $tyreName = str_replace('-condition', '', $key);
-                    $transformed['tyres']['assessments'][$tyreName]['condition'] = $value;
-                }
-                if (str_contains($key, '-size')) {
-                    $tyreName = str_replace('-size', '', $key);
-                    $transformed['tyres']['assessments'][$tyreName]['size'] = $value;
-                }
-                if (str_contains($key, '-manufacture')) {
-                    $tyreName = str_replace('-manufacture', '', $key);
-                    $transformed['tyres']['assessments'][$tyreName]['manufacture'] = $value;
-                }
-                if (str_contains($key, '-model')) {
-                    $tyreName = str_replace('-model', '', $key);
-                    $transformed['tyres']['assessments'][$tyreName]['model'] = $value;
+                // Also handle simplified format
+                elseif (str_contains($key, '-condition') || str_contains($key, '-colour') || str_contains($key, '-comments')) {
+                    if (str_contains($key, '-condition')) {
+                        $componentName = str_replace('-condition', '', $key);
+                        $transformed['interior']['assessments'][$componentName]['condition'] = $value;
+                    }
+                    if (str_contains($key, '-colour')) {
+                        $componentName = str_replace('-colour', '', $key);
+                        $transformed['interior']['assessments'][$componentName]['colour'] = $value;
+                    }
+                    if (str_contains($key, '-comments')) {
+                        $componentName = str_replace('-comments', '', $key);
+                        $transformed['interior']['assessments'][$componentName]['comments'] = $value;
+                    }
                 }
             }
         }
         
         // Service booklet
         if (isset($rawData['serviceBooklet'])) {
-            $transformed['serviceBooklet'] = $rawData['serviceBooklet'];
+            $serviceData = is_string($rawData['serviceBooklet']) ? json_decode($rawData['serviceBooklet'], true) : $rawData['serviceBooklet'];
+            $transformed['serviceBooklet'] = $serviceData;
         }
+        
+        // Tyres assessment
+        if (isset($rawData['tyres'])) {
+            $tyresData = is_string($rawData['tyres']) ? json_decode($rawData['tyres'], true) : $rawData['tyres'];
+            $transformed['tyres']['assessments'] = [];
+            
+            foreach ($tyresData as $key => $value) {
+                // Parse keys like "front_left-size" or "rear_right-condition"
+                $parts = explode('-', $key);
+                if (count($parts) >= 2) {
+                    $tyrePosition = $parts[0]; // e.g., "front_left"
+                    $fieldType = $parts[1]; // e.g., "size", "condition", etc.
+                    
+                    if (!isset($transformed['tyres']['assessments'][$tyrePosition])) {
+                        $transformed['tyres']['assessments'][$tyrePosition] = [];
+                    }
+                    $transformed['tyres']['assessments'][$tyrePosition][$fieldType] = $value;
+                }
+            }
+        }
+        
+        // Mechanical assessment
+        if (isset($rawData['mechanical'])) {
+            $mechanicalData = is_string($rawData['mechanical']) ? json_decode($rawData['mechanical'], true) : $rawData['mechanical'];
+            $transformed['mechanical'] = [
+                'assessments' => [],
+                'road_test' => [],
+                'braking' => []
+            ];
+            
+            foreach ($mechanicalData as $key => $value) {
+                // Handle brake-related fields
+                if (strpos($key, 'brake_') === 0) {
+                    $withoutBrake = str_replace('brake_', '', $key);
+                    $parts = explode('-', $withoutBrake);
+                    if (count($parts) >= 2) {
+                        $position = $parts[0]; // e.g., "front_left"
+                        $fieldType = $parts[1]; // e.g., "pad_life"
+                        
+                        if (!isset($transformed['mechanical']['braking'][$position])) {
+                            $transformed['mechanical']['braking'][$position] = [];
+                        }
+                        $transformed['mechanical']['braking'][$position][$fieldType] = $value;
+                    }
+                }
+                // Handle road test fields
+                elseif ($key === 'road_test_distance' || $key === 'distance') {
+                    $transformed['mechanical']['road_test']['distance'] = $value;
+                }
+                elseif ($key === 'road_test_speed' || $key === 'speed') {
+                    $transformed['mechanical']['road_test']['speed'] = $value;
+                }
+                // Handle other mechanical components
+                else {
+                    $parts = explode('-', $key);
+                    if (count($parts) >= 2) {
+                        $fieldType = array_pop($parts); // Get last part
+                        $componentName = implode('_', $parts); // Rejoin the rest
+                        
+                        if (!isset($transformed['mechanical']['assessments'][$componentName])) {
+                            $transformed['mechanical']['assessments'][$componentName] = [];
+                        }
+                        $transformed['mechanical']['assessments'][$componentName][$fieldType] = $value;
+                    }
+                }
+            }
+        }
+        
+        // Engine compartment assessment
+        if (isset($rawData['engineCompartment'])) {
+            $engineData = is_string($rawData['engineCompartment']) ? json_decode($rawData['engineCompartment'], true) : $rawData['engineCompartment'];
+            $transformed['engineCompartment'] = [
+                'findings' => [],
+                'assessments' => []
+            ];
+            
+            foreach ($engineData as $key => $value) {
+                // Handle findings (checkboxes)
+                if (strpos($key, 'findings[') === 0) {
+                    $findingKey = str_replace(['findings[', ']'], '', $key);
+                    $transformed['engineCompartment']['findings'][$findingKey] = $value;
+                }
+                // Handle component assessments
+                else {
+                    $parts = explode('-', $key);
+                    if (count($parts) >= 2) {
+                        $fieldType = array_pop($parts);
+                        $componentName = implode('_', $parts);
+                        
+                        if (!isset($transformed['engineCompartment']['assessments'][$componentName])) {
+                            $transformed['engineCompartment']['assessments'][$componentName] = [];
+                        }
+                        $transformed['engineCompartment']['assessments'][$componentName][$fieldType] = $value;
+                    }
+                }
+            }
+        }
+        
+        // Physical hoist assessment (only for technical inspections)
+        if (isset($rawData['physicalHoist'])) {
+            $hoistData = is_string($rawData['physicalHoist']) ? json_decode($rawData['physicalHoist'], true) : $rawData['physicalHoist'];
+            $transformed['physicalHoist']['assessments'] = [];
+            
+            foreach ($hoistData as $key => $value) {
+                $parts = explode('-', $key);
+                if (count($parts) >= 2) {
+                    $fieldType = array_pop($parts);
+                    $componentName = implode('_', $parts);
+                    
+                    if (!isset($transformed['physicalHoist']['assessments'][$componentName])) {
+                        $transformed['physicalHoist']['assessments'][$componentName] = [];
+                    }
+                    $transformed['physicalHoist']['assessments'][$componentName][$fieldType] = $value;
+                }
+            }
+        }
+        
+        // Add inspection metadata
+        $transformed['inspection_type'] = $rawData['inspectionType'] ?? 'condition';
+        $transformed['completion_date'] = now()->toDateTimeString();
         
         return $transformed;
     }

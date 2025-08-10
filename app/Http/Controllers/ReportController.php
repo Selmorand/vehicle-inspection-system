@@ -45,24 +45,110 @@ class ReportController extends Controller
     {
         $data = $report->inspection_data;
         
+        // Transform the data structure to match what the view expects
+        $transformedData = [];
+        
+        // Client information (Visual inspection doesn't collect client info)
+        $transformedData['client'] = [
+            'name' => 'Not collected', // Visual inspection form doesn't have client fields
+            'contact' => null,
+            'email' => null
+        ];
+        
+        // Vehicle information (Fixed field mappings to match form names)
+        $transformedData['vehicle'] = [
+            'make' => $data['visual']['manufacturer'] ?? $report->vehicle_make ?? 'Not specified',
+            'model' => $data['visual']['model'] ?? $report->vehicle_model ?? 'Not specified',
+            'year' => $data['visual']['year_model'] ?? $report->vehicle_year ?? 'Not specified',
+            'vin' => $data['visual']['vin'] ?? $report->vin_number ?? 'Not specified',
+            'license_plate' => $data['visual']['registration_number'] ?? $report->license_plate ?? 'Not specified',
+            'mileage' => $data['visual']['km_reading'] ?? $report->mileage ?? 'Not specified',
+            'colour' => $data['visual']['colour'] ?? 'Not specified',
+            'fuel_type' => $data['visual']['fuel_type'] ?? 'Not specified',
+            'transmission' => $data['visual']['transmission'] ?? 'Not specified',
+            'doors' => $data['visual']['doors'] ?? 'Not specified',
+            'vehicle_type' => $data['visual']['vehicle_type'] ?? 'Not specified',
+            'engine_number' => $data['visual']['engine_number'] ?? 'Not specified'
+        ];
+        
+        // Inspection information
+        $transformedData['inspection'] = [
+            'inspector' => $data['visual']['inspector_name'] ?? $report->inspector_name ?? 'Not specified',
+            'date' => $data['visual']['inspection_datetime'] ?? $report->inspection_date ?? now()->format('Y-m-d H:i'),
+            'diagnostic_report' => $data['visual']['diagnostic_report'] ?? null,
+            'diagnostic_file' => [
+                'name' => $data['visual']['diagnostic_file_name'] ?? null,
+                'data' => $data['visual']['diagnostic_file_data'] ?? null,
+                'size' => $data['visual']['diagnostic_file_size'] ?? null
+            ]
+        ];
+        
+        // Body Panel Assessment
+        if (isset($data['bodyPanels']['assessments'])) {
+            $transformedData['body_panels']['assessments'] = $data['bodyPanels']['assessments'];
+        }
+        
+        // Interior Assessment
+        if (isset($data['interior']['assessments'])) {
+            $transformedData['interior']['assessments'] = $data['interior']['assessments'];
+        }
+        
+        // Service Booklet
+        if (isset($data['serviceBooklet'])) {
+            $transformedData['service_booklet'] = $data['serviceBooklet'];
+        }
+        
+        // Tyres Assessment
+        if (isset($data['tyres']['assessments'])) {
+            $transformedData['tyres'] = $data['tyres']['assessments'];
+        }
+        
+        // Mechanical Report
+        if (isset($data['mechanical'])) {
+            $transformedData['mechanical'] = array_merge(
+                $data['mechanical']['road_test'] ?? [],
+                $data['mechanical']['assessments'] ?? []
+            );
+            if (isset($data['mechanical']['braking'])) {
+                $transformedData['mechanical']['braking'] = $data['mechanical']['braking'];
+            }
+        }
+        
+        // Engine Compartment
+        if (isset($data['engineCompartment'])) {
+            $transformedData['engine_compartment'] = [
+                'findings' => $data['engineCompartment']['findings'] ?? [],
+                'assessments' => $data['engineCompartment']['assessments'] ?? []
+            ];
+        }
+        
+        // Physical Hoist (if exists - only for technical inspections)
+        if (isset($data['physicalHoist'])) {
+            $transformedData['physical_hoist'] = $data['physicalHoist'];
+        }
+        
         // Process images if they exist
         if (isset($data['images'])) {
+            $transformedData['images'] = [];
             foreach ($data['images'] as $section => $images) {
                 if (is_array($images)) {
+                    $transformedData['images'][$section] = [];
                     foreach ($images as $index => $image) {
                         // Ensure images have proper data URL format for web display
                         if (isset($image['base64']) && !str_starts_with($image['base64'], 'data:')) {
                             $mimeType = $image['mime_type'] ?? 'image/jpeg';
-                            $data['images'][$section][$index]['data_url'] = 'data:' . $mimeType . ';base64,' . $image['base64'];
+                            $transformedData['images'][$section][$index]['data_url'] = 'data:' . $mimeType . ';base64,' . $image['base64'];
                         } else {
-                            $data['images'][$section][$index]['data_url'] = $image['base64'] ?? '';
+                            $transformedData['images'][$section][$index]['data_url'] = $image['base64'] ?? $image['data'] ?? $image['src'] ?? $image ?? '';
                         }
+                        $transformedData['images'][$section][$index]['area_name'] = $image['area_name'] ?? 'Image ' . ($index + 1);
+                        $transformedData['images'][$section][$index]['timestamp'] = $image['timestamp'] ?? now()->format('Y-m-d H:i:s');
                     }
                 }
             }
         }
         
-        return $data;
+        return $transformedData;
     }
 
     /**

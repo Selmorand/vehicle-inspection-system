@@ -400,11 +400,34 @@ function continueToNext() {
     const formData = new FormData(document.getElementById('visual-inspection-form'));
     const inspectionData = {};
     
+    // Handle PDF file separately (same as testVisualReport)
+    let hasPdfFile = false;
     for (let [key, value] of formData.entries()) {
-        if (key !== '_token' && value) {
+        if (key === 'diagnostic_file' && value instanceof File && value.size > 0) {
+            hasPdfFile = true;
+            // Convert PDF file to base64 (same as testVisualReport)
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                inspectionData.diagnostic_file_data = e.target.result;
+                inspectionData.diagnostic_file_name = value.name;
+                inspectionData.diagnostic_file_size = value.size;
+                console.log('PDF file captured for sessionStorage:', value.name);
+                // Continue with the rest of the processing
+                processContinueToNext();
+            };
+            reader.readAsDataURL(value);
+            return; // Wait for PDF file to be processed
+        } else if (key !== '_token' && key !== 'diagnostic_file' && value) {
             inspectionData[key] = value;
         }
     }
+    
+    // If no PDF file, continue immediately
+    if (!hasPdfFile) {
+        processContinueToNext();
+    }
+    
+    function processContinueToNext() {
     
     // Store images data for PDF generation
     const imageDataForPDF = uploadedImages.map((img, index) => {
@@ -439,6 +462,8 @@ function continueToNext() {
         sessionStorage.setItem('visualInspectionData', JSON.stringify(inspectionData));
         window.location.href = '/inspection/body-panel';
     });
+    
+    } // End of processContinueToNext function
 }
 
 // Test Visual Report with current form data

@@ -353,25 +353,7 @@
                 </h2>
                 
                 <div class="info-grid">
-                    <!-- Client fields removed since Visual Inspection form doesn't collect client info -->
-                    @if(!empty($inspectionData['client']['name']) && $inspectionData['client']['name'] !== 'Test Client')
-                    <div class="info-card">
-                        <div class="info-label">Client Name</div>
-                        <div class="info-value">{{ $inspectionData['client']['name'] }}</div>
-                    </div>
-                    @endif
-                    @if(!empty($inspectionData['client']['contact']))
-                    <div class="info-card">
-                        <div class="info-label">Contact Number</div>
-                        <div class="info-value">{{ $inspectionData['client']['contact'] }}</div>
-                    </div>
-                    @endif
-                    @if(!empty($inspectionData['client']['email']))
-                    <div class="info-card">
-                        <div class="info-label">Email</div>
-                        <div class="info-value">{{ $inspectionData['client']['email'] }}</div>
-                    </div>
-                    @endif
+                    <!-- Client fields completely removed - Visual Inspection form doesn't collect client info -->
                     <div class="info-card">
                         <div class="info-label">Inspection Date</div>
                         <div class="info-value">{{ $inspectionData['inspection']['date'] ?? 'Not specified' }}</div>
@@ -399,6 +381,31 @@
                     <div class="info-card">
                         <div class="info-label">License Plate</div>
                         <div class="info-value">{{ $inspectionData['vehicle']['license_plate'] ?? 'Not specified' }}</div>
+                    </div>
+                    <!-- Additional Vehicle Fields -->
+                    <div class="info-card">
+                        <div class="info-label">Vehicle Type</div>
+                        <div class="info-value">{{ $inspectionData['vehicle']['vehicle_type'] ?? 'Not specified' }}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Colour</div>
+                        <div class="info-value">{{ $inspectionData['vehicle']['colour'] ?? 'Not specified' }}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Fuel Type</div>
+                        <div class="info-value">{{ $inspectionData['vehicle']['fuel_type'] ?? 'Not specified' }}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Transmission</div>
+                        <div class="info-value">{{ $inspectionData['vehicle']['transmission'] ?? 'Not specified' }}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Doors</div>
+                        <div class="info-value">{{ $inspectionData['vehicle']['doors'] ?? 'Not specified' }}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Engine Number</div>
+                        <div class="info-value">{{ $inspectionData['vehicle']['engine_number'] ?? 'Not specified' }}</div>
                     </div>
                     <div class="info-card">
                         <div class="info-label">Inspector</div>
