@@ -72,8 +72,8 @@ class InspectionController extends Controller
             'transmission' => 'nullable|string|max:50',
             'engine_number' => 'nullable|string|max:100',
             'registration_number' => 'nullable|string|max:50',
-            'year' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
-            'mileage' => 'nullable|integer|min:0',
+            'year_model' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'km_reading' => 'nullable|integer|min:0',
             'diagnostic_report' => 'nullable|string',
             'images' => 'nullable|array',
             'images.*' => 'image|max:10240' // 10MB max per image
@@ -111,8 +111,8 @@ class InspectionController extends Controller
                     'transmission' => $validated['transmission'],
                     'engine_number' => $validated['engine_number'],
                     'registration_number' => $validated['registration_number'],
-                    'year' => $validated['year'],
-                    'mileage' => $validated['mileage']
+                    'year' => $validated['year_model'],
+                    'mileage' => $validated['km_reading']
                 ]
             );
 

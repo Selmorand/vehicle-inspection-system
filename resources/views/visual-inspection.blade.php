@@ -499,9 +499,14 @@ function continueToNext() {
         try {
             console.log('Saving visual inspection to database...');
             
-            // Prepare form data for API
+            // Prepare form data for API - add missing fields
             const apiData = {
                 ...inspectionData,
+                inspector_phone: inspectionData.inspector_phone || '',
+                inspector_email: inspectionData.inspector_email || '',
+                client_name: inspectionData.client_name || '',
+                client_phone: inspectionData.client_phone || '',
+                client_email: inspectionData.client_email || '',
                 images: processedImages
             };
             
@@ -556,6 +561,11 @@ function continueToNext() {
             },
             body: JSON.stringify({
                 ...inspectionData,
+                inspector_phone: inspectionData.inspector_phone || '',
+                inspector_email: inspectionData.inspector_email || '',
+                client_name: inspectionData.client_name || '',
+                client_phone: inspectionData.client_phone || '',
+                client_email: inspectionData.client_email || '',
                 images: []
             })
         })
