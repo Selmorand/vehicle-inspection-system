@@ -330,6 +330,8 @@ function addImageToGrid(imageSrc, blob) {
             src: imageSrc
         });
         
+        console.log('✅ IMAGE CAPTURED! Total images now:', uploadedImages.length);
+        
         // Always add a new placeholder after adding an image (if under max limit)
         if (grid.children.length < maxImages) {
             createImageSlot(grid);
@@ -441,30 +443,41 @@ function continueToNext() {
     const formData = new FormData(document.getElementById('visual-inspection-form'));
     const inspectionData = {};
     
+    // Process all form fields first
+    for (let [key, value] of formData.entries()) {
+        if (key !== '_token' && key !== 'diagnostic_file') {
+            // Convert numeric fields to proper types
+            if (key === 'km_reading' || key === 'year_model') {
+                inspectionData[key] = value ? parseInt(value) || null : null;
+            } else {
+                inspectionData[key] = value || '';
+            }
+        }
+    }
+
     // Handle PDF file separately (same as testVisualReport)
     let hasPdfFile = false;
-    for (let [key, value] of formData.entries()) {
-        if (key === 'diagnostic_file' && value instanceof File && value.size > 0) {
-            hasPdfFile = true;
-            // Convert PDF file to base64 (same as testVisualReport)
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                inspectionData.diagnostic_file_data = e.target.result;
-                inspectionData.diagnostic_file_name = value.name;
-                inspectionData.diagnostic_file_size = value.size;
-                console.log('PDF file captured for sessionStorage:', value.name);
-                // Continue with the rest of the processing
-                processContinueToNext();
-            };
-            reader.readAsDataURL(value);
-            return; // Wait for PDF file to be processed
-        } else if (key !== '_token' && key !== 'diagnostic_file') {
-            inspectionData[key] = value || '';
-        }
+    const diagnosticFileInput = formData.get('diagnostic_file');
+    if (diagnosticFileInput instanceof File && diagnosticFileInput.size > 0) {
+        hasPdfFile = true;
+        console.log('📄 Processing PDF file:', diagnosticFileInput.name);
+        // Convert PDF file to base64 (same as testVisualReport)
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            inspectionData.diagnostic_file_data = e.target.result;
+            inspectionData.diagnostic_file_name = diagnosticFileInput.name;
+            inspectionData.diagnostic_file_size = diagnosticFileInput.size;
+            console.log('✅ PDF FILE CAPTURED:', diagnosticFileInput.name, '(' + diagnosticFileInput.size + ' bytes)');
+            // Continue with the rest of the processing
+            processContinueToNext();
+        };
+        reader.readAsDataURL(diagnosticFileInput);
+        return; // Wait for PDF file to be processed
     }
     
     // If no PDF file, continue immediately
     if (!hasPdfFile) {
+        console.log('📋 No PDF file detected, continuing with form data only');
         processContinueToNext();
     }
     
@@ -505,7 +518,16 @@ function continueToNext() {
                 images: processedImages
             };
             
-            const response = await fetch('/api/inspection/visual', {
+            console.log('API Data being sent:', apiData);
+            console.log('Images in API data:', apiData.images ? apiData.images.length : 'NO IMAGES ARRAY');
+            console.log('uploadedImages array:', uploadedImages.length);
+            console.log('PDF data in API:', {
+                hasPdfData: !!apiData.diagnostic_file_data,
+                pdfName: apiData.diagnostic_file_name,
+                pdfSize: apiData.diagnostic_file_size
+            });
+            
+            const response = await fetch('{{ url('/api/inspection/visual') }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -515,10 +537,31 @@ function continueToNext() {
                 body: JSON.stringify(apiData)
             });
             
-            const result = await response.json();
+            console.log('=== API RESPONSE DEBUG ===');
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            console.log('Response headers:', Array.from(response.headers.entries()));
             
-            if (result.success) {
-                console.log('Visual inspection saved successfully. Inspection ID:', result.inspection_id);
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error Response:', errorText);
+                console.error('Failed request data:', {
+                    url: '{{ url('/api/inspection/visual') }}',
+                    method: 'POST',
+                    dataKeys: Object.keys(apiData),
+                    hasImages: !!apiData.images,
+                    hasPDF: !!apiData.diagnostic_file_data
+                });
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            const result = await response.json();
+            console.log('Raw API Response:', result);
+            console.log('Success value:', result.success, '(type:', typeof result.success, ')');
+            
+            if (result.success === true || result.success === 1 || result.success === '1') {
+                console.log('✅ SUCCESS CONDITION MET - Visual inspection saved successfully!');
+                console.log('Inspection ID:', result.inspection_id);
                 // Store inspection ID for later use
                 sessionStorage.setItem('currentInspectionId', result.inspection_id);
                 
@@ -530,11 +573,14 @@ function continueToNext() {
                     window.location.href = '/inspection/body-panel';
                 }, 1500);
             } else {
-                throw new Error(result.message || 'Failed to save inspection');
+                console.error('Unexpected success value:', result.success, typeof result.success);
+                throw new Error(result.message || 'Failed to save inspection - unexpected response format');
             }
         } catch (error) {
             console.error('Database save failed:', error);
-            showNotification('Warning: Data saved locally only. Database save failed.', 'warning');
+            console.error('Error details:', error.message);
+            console.error('API response:', error);
+            showNotification('Warning: Data saved locally only. Database save failed. Check console for details.', 'warning');
             
             // Navigate anyway after delay
             setTimeout(() => {
@@ -547,7 +593,7 @@ function continueToNext() {
         sessionStorage.setItem('visualInspectionData', JSON.stringify(inspectionData));
         
         // Try to save without images
-        fetch('/api/inspection/visual', {
+        fetch('{{ url('/api/inspection/visual') }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

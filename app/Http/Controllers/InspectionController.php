@@ -75,7 +75,11 @@ class InspectionController extends Controller
             'km_reading' => 'nullable|integer|min:0',
             'diagnostic_report' => 'nullable|string',
             'images' => 'nullable|array',
-            'images.*' => 'image|max:10240' // 10MB max per image
+            // Add diagnostic file fields
+            'diagnostic_file_data' => 'nullable|string', 
+            'diagnostic_file_name' => 'nullable|string',
+            'diagnostic_file_size' => 'nullable|integer'
+            // Note: images and PDFs are base64 data, not files, so no file validation
         ]);
 
         DB::beginTransaction();
@@ -95,21 +99,21 @@ class InspectionController extends Controller
             }
 
             // Create or update vehicle (handle null values for testing)
-            $vin = $validated['vin'] ?: 'TEST-VIN-' . uniqid();
+            $vin = !empty($validated['vin']) ? $validated['vin'] : 'TEST-VIN-' . uniqid();
             $vehicle = Vehicle::updateOrCreate(
                 ['vin' => $vin],
                 [
-                    'manufacturer' => $validated['manufacturer'] ?: 'Test Manufacturer',
-                    'model' => $validated['model'] ?: 'Test Model',
-                    'vehicle_type' => $validated['vehicle_type'] ?: 'passenger vehicle',
-                    'colour' => $validated['colour'],
-                    'doors' => $validated['doors'],
-                    'fuel_type' => $validated['fuel_type'],
-                    'transmission' => $validated['transmission'],
-                    'engine_number' => $validated['engine_number'],
-                    'registration_number' => $validated['registration_number'],
-                    'year' => $validated['year_model'],
-                    'mileage' => $validated['km_reading']
+                    'manufacturer' => $validated['manufacturer'] ?? 'Test Manufacturer',
+                    'model' => $validated['model'] ?? 'Test Model',
+                    'vehicle_type' => $validated['vehicle_type'] ?? 'passenger vehicle',
+                    'colour' => $validated['colour'] ?? null,
+                    'doors' => $validated['doors'] ?? null,
+                    'fuel_type' => $validated['fuel_type'] ?? null,
+                    'transmission' => $validated['transmission'] ?? null,
+                    'engine_number' => $validated['engine_number'] ?? null,
+                    'registration_number' => $validated['registration_number'] ?? null,
+                    'year' => $validated['year_model'] ?? null,
+                    'mileage' => $validated['km_reading'] ?? null
                 ]
             );
 
@@ -117,24 +121,133 @@ class InspectionController extends Controller
             $inspection = Inspection::create([
                 'client_id' => $client->id,
                 'vehicle_id' => $vehicle->id,
-                'inspector_name' => $validated['inspector_name'] ?: 'Test Inspector',
+                'inspector_name' => $validated['inspector_name'] ?? 'Test Inspector',
                 'inspection_date' => now(),
-                'diagnostic_report' => $validated['diagnostic_report'],
+                'diagnostic_report' => $validated['diagnostic_report'] ?? null,
                 'status' => 'draft'
             ]);
 
-            // Handle image uploads
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
-                    $path = $image->store('inspections/' . $inspection->id . '/general', 'public');
+            // Handle image data (base64 from JavaScript) 
+            // Fix: The frontend sends different structure than expected
+            if (!empty($validated['images']) && is_array($validated['images'])) {
+                foreach ($validated['images'] as $index => $imageData) {
+                    // Handle both structures from frontend:
+                    // 1. {base64: "data:image/jpeg;base64,/9j/...", mime_type: "image/jpeg", area_name: "visual_1"}
+                    // 2. {data: "data:image/jpeg;base64,/9j/...", name: "visual_image_1.jpg"}
                     
-                    InspectionImage::create([
+                    $base64Data = $imageData['base64'] ?? $imageData['data'] ?? null;
+                    $imageName = $imageData['original_name'] ?? $imageData['name'] ?? ('visual_image_' . ($index + 1) . '.jpg');
+                    $areaName = $imageData['area_name'] ?? ('visual_' . ($index + 1));
+                    
+                    if (!empty($base64Data)) {
+                        // Extract base64 content (remove data URL prefix if present)
+                        if (strpos($base64Data, 'data:') === 0) {
+                            $base64Content = preg_replace('#^data:image/\w+;base64,#i', '', $base64Data);
+                        } else {
+                            $base64Content = $base64Data;
+                        }
+                        
+                        // Decode base64 image data
+                        $imageContent = base64_decode($base64Content);
+                        
+                        if ($imageContent !== false) {
+                            // Create filename
+                            $filename = 'inspection_' . $inspection->id . '_' . $index . '_' . time() . '.jpg';
+                            $relativePath = 'inspections/' . $inspection->id . '/general/' . $filename;
+                            
+                            // Ensure directory exists and store image
+                            Storage::disk('public')->makeDirectory('inspections/' . $inspection->id . '/general');
+                            Storage::disk('public')->put($relativePath, $imageContent);
+                            
+                            // Create database record
+                            InspectionImage::create([
+                                'inspection_id' => $inspection->id,
+                                'image_type' => 'general',
+                                'area_name' => $areaName,
+                                'file_path' => $relativePath,
+                                'original_name' => $imageName
+                            ]);
+                            
+                            \Log::info("Image saved successfully", [
+                                'inspection_id' => $inspection->id,
+                                'file_path' => $relativePath,
+                                'area_name' => $areaName,
+                                'size' => strlen($imageContent)
+                            ]);
+                        } else {
+                            \Log::error("Failed to decode base64 image", [
+                                'inspection_id' => $inspection->id,
+                                'index' => $index
+                            ]);
+                        }
+                    }
+                }
+            }
+            
+            // Handle diagnostic file (PDF)
+            if (!empty($validated['diagnostic_file_data']) && !empty($validated['diagnostic_file_name'])) {
+                \Log::info("Processing diagnostic PDF", [
+                    'inspection_id' => $inspection->id,
+                    'filename' => $validated['diagnostic_file_name'],
+                    'size' => $validated['diagnostic_file_size'] ?? 'unknown'
+                ]);
+                
+                // Extract PDF content (remove data URL prefix if present)
+                $pdfData = $validated['diagnostic_file_data'];
+                if (strpos($pdfData, 'data:') === 0) {
+                    // Remove data URL prefix like "data:application/pdf;base64,"
+                    $pdfContent = preg_replace('#^data:[^;]+;base64,#i', '', $pdfData);
+                } else {
+                    $pdfContent = $pdfData;
+                }
+                
+                $pdfBinary = base64_decode($pdfContent);
+                
+                if ($pdfBinary !== false && strlen($pdfBinary) > 0) {
+                    // Create filename for PDF
+                    $pdfFilename = 'diagnostic_' . $inspection->id . '_' . time() . '.pdf';
+                    $pdfPath = 'inspections/' . $inspection->id . '/diagnostic/' . $pdfFilename;
+                    
+                    // Ensure directory exists and store PDF
+                    Storage::disk('public')->makeDirectory('inspections/' . $inspection->id . '/diagnostic');
+                    $stored = Storage::disk('public')->put($pdfPath, $pdfBinary);
+                    
+                    if ($stored) {
+                        // Create database record for PDF
+                        InspectionImage::create([
+                            'inspection_id' => $inspection->id,
+                            'image_type' => 'diagnostic_pdf',
+                            'area_name' => 'diagnostic_report',
+                            'file_path' => $pdfPath,
+                            'original_name' => $validated['diagnostic_file_name']
+                        ]);
+                        
+                        \Log::info("Diagnostic PDF saved successfully", [
+                            'inspection_id' => $inspection->id,
+                            'file_path' => $pdfPath,
+                            'filename' => $validated['diagnostic_file_name'],
+                            'size' => strlen($pdfBinary),
+                            'stored' => true
+                        ]);
+                    } else {
+                        \Log::error("Failed to store diagnostic PDF file", [
+                            'inspection_id' => $inspection->id,
+                            'file_path' => $pdfPath
+                        ]);
+                    }
+                } else {
+                    \Log::error("Failed to decode diagnostic PDF base64 data", [
                         'inspection_id' => $inspection->id,
-                        'image_type' => 'general',
-                        'file_path' => $path,
-                        'original_name' => $image->getClientOriginalName()
+                        'base64_length' => strlen($pdfContent),
+                        'original_data_length' => strlen($pdfData)
                     ]);
                 }
+            } else {
+                \Log::info("No diagnostic PDF data provided", [
+                    'inspection_id' => $inspection->id,
+                    'has_file_data' => !empty($validated['diagnostic_file_data']),
+                    'has_file_name' => !empty($validated['diagnostic_file_name'])
+                ]);
             }
 
             DB::commit();
