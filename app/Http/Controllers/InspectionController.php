@@ -59,6 +59,7 @@ class InspectionController extends Controller
         // TESTING: All fields made optional for testing navigation
         // TODO: Restore required validations before production
         $validated = $request->validate([
+            'inspection_datetime' => 'nullable|date',
             'inspector_name' => 'nullable|string|max:255',
             'client_name' => 'nullable|string|max:255',
             'vin' => 'nullable|string|max:50',
@@ -122,7 +123,7 @@ class InspectionController extends Controller
                 'client_id' => $client->id,
                 'vehicle_id' => $vehicle->id,
                 'inspector_name' => $validated['inspector_name'] ?? 'Test Inspector',
-                'inspection_date' => now(),
+                'inspection_date' => $validated['inspection_datetime'] ? \Carbon\Carbon::parse($validated['inspection_datetime']) : now(),
                 'diagnostic_report' => $validated['diagnostic_report'] ?? null,
                 'status' => 'draft'
             ]);

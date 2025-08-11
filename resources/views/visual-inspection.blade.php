@@ -360,9 +360,21 @@ function removeImage(button) {
 }
 
 function setCurrentDateTime() {
+    // Get current time in South African timezone
     const now = new Date();
-    const isoString = now.toISOString().slice(0, 16); // Format for datetime-local
-    document.getElementById('inspection_datetime').value = isoString;
+    const saTime = new Date(now.toLocaleString("en-US", {timeZone: "Africa/Johannesburg"}));
+    
+    // Format for datetime-local input (YYYY-MM-DDTHH:MM)
+    const year = saTime.getFullYear();
+    const month = String(saTime.getMonth() + 1).padStart(2, '0');
+    const day = String(saTime.getDate()).padStart(2, '0');
+    const hours = String(saTime.getHours()).padStart(2, '0');
+    const minutes = String(saTime.getMinutes()).padStart(2, '0');
+    
+    const saTimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
+    
+    document.getElementById('inspection_datetime').value = saTimeString;
+    console.log('✅ Current South African time set:', saTimeString);
 }
 
 function saveDraft() {
