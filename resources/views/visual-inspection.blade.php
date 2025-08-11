@@ -368,6 +368,47 @@ function saveDraft() {
     alert('Draft saved successfully!');
 }
 
+// Show notification function
+function showNotification(message, type = 'info') {
+    // Create or update notification element
+    let notification = document.getElementById('notification');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 9999;
+            display: none;
+            max-width: 300px;
+            color: white;
+            font-weight: 500;
+        `;
+        document.body.appendChild(notification);
+    }
+
+    // Set color based on type
+    const colors = {
+        success: '#28a745',
+        warning: '#ffc107',
+        error: '#dc3545',
+        info: '#4f959b'
+    };
+    
+    notification.style.backgroundColor = colors[type] || colors.info;
+    notification.textContent = message;
+    notification.style.display = 'block';
+
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+}
+
 function continueToNext() {
     // TESTING: Validation disabled for testing purposes
     // TODO: Re-enable validation before production
@@ -447,20 +488,95 @@ function continueToNext() {
     });
     
     // Wait for all images to be processed
-    Promise.all(imageDataForPDF).then(processedImages => {
-        // Store image data for PDF
+    Promise.all(imageDataForPDF).then(async (processedImages) => {
+        // Store image data for PDF (keep for compatibility)
         sessionStorage.setItem('visualInspectionImages', JSON.stringify(processedImages));
         
-        // Store basic inspection data
+        // Store basic inspection data (keep for compatibility)
         sessionStorage.setItem('visualInspectionData', JSON.stringify(inspectionData));
         
-        // Navigate to body panel assessment
-        window.location.href = '/inspection/body-panel';
+        // Save to database
+        try {
+            console.log('Saving visual inspection to database...');
+            
+            // Prepare form data for API
+            const apiData = {
+                ...inspectionData,
+                images: processedImages
+            };
+            
+            const response = await fetch('/api/inspection/visual', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(apiData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                console.log('Visual inspection saved successfully. Inspection ID:', result.inspection_id);
+                // Store inspection ID for later use
+                sessionStorage.setItem('currentInspectionId', result.inspection_id);
+                
+                // Show success message
+                showNotification('Visual inspection saved to database successfully!', 'success');
+                
+                // Navigate after short delay
+                setTimeout(() => {
+                    window.location.href = '/inspection/body-panel';
+                }, 1500);
+            } else {
+                throw new Error(result.message || 'Failed to save inspection');
+            }
+        } catch (error) {
+            console.error('Database save failed:', error);
+            showNotification('Warning: Data saved locally only. Database save failed.', 'warning');
+            
+            // Navigate anyway after delay
+            setTimeout(() => {
+                window.location.href = '/inspection/body-panel';
+            }, 2500);
+        }
     }).catch(error => {
         console.error('Error processing images:', error);
         // Store basic data without images and continue
         sessionStorage.setItem('visualInspectionData', JSON.stringify(inspectionData));
-        window.location.href = '/inspection/body-panel';
+        
+        // Try to save without images
+        fetch('/api/inspection/visual', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                ...inspectionData,
+                images: []
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                console.log('Visual inspection saved without images');
+                sessionStorage.setItem('currentInspectionId', result.inspection_id);
+                showNotification('Visual inspection saved (without images)', 'success');
+            }
+        })
+        .catch(err => {
+            console.error('Failed to save to database:', err);
+            showNotification('Warning: Data saved locally only', 'warning');
+        })
+        .finally(() => {
+            // Navigate regardless
+            setTimeout(() => {
+                window.location.href = '/inspection/body-panel';
+            }, 2000);
+        });
     });
     
     } // End of processContinueToNext function

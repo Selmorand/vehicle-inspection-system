@@ -24,10 +24,71 @@ class ReportController extends Controller
     public function showWeb($id)
     {
         try {
-            $report = InspectionReport::findOrFail($id);
+            // First try to find an InspectionReport
+            $inspectionReport = InspectionReport::find($id);
             
-            // Process inspection data for web display
-            $inspectionData = $this->processInspectionDataForWeb($report);
+            if ($inspectionReport) {
+                // Use existing InspectionReport logic
+                $inspectionData = $this->processInspectionDataForWeb($inspectionReport);
+                return view('reports.web-report', ['report' => $inspectionReport, 'inspectionData' => $inspectionData]);
+            }
+            
+            // If no InspectionReport, try to find an Inspection and generate report view
+            $inspection = \App\Models\Inspection::with(['client', 'vehicle'])->findOrFail($id);
+            
+            // Create a report-like object for the view
+            $report = (object)[
+                'id' => $inspection->id,
+                'report_number' => 'INS-' . str_pad($inspection->id, 6, '0', STR_PAD_LEFT),
+                'client_name' => $inspection->client->name ?? 'Not specified',
+                'client_email' => $inspection->client->email ?? null,
+                'client_phone' => $inspection->client->phone ?? null,
+                'vehicle_make' => $inspection->vehicle->manufacturer ?? 'Unknown Make',
+                'vehicle_model' => $inspection->vehicle->model ?? 'Unknown Model',
+                'vehicle_year' => $inspection->vehicle->year ?? date('Y'),
+                'vin_number' => $inspection->vehicle->vin ?? null,
+                'license_plate' => $inspection->vehicle->registration_number ?? null,
+                'mileage' => $inspection->vehicle->mileage ?? null,
+                'inspection_date' => $inspection->inspection_date ?? $inspection->created_at->toDateString(),
+                'inspector_name' => $inspection->inspector_name ?? 'Unknown Inspector',
+                'status' => $inspection->status ?? 'draft',
+                'created_at' => $inspection->created_at,
+                'updated_at' => $inspection->updated_at
+            ];
+            
+            // Create inspection data using the same format as testVisualReport
+            $inspectionData = [
+                'client' => [
+                    'name' => $inspection->client->name ?? 'Not specified',
+                    'contact' => $inspection->client->phone ?? null,
+                    'email' => $inspection->client->email ?? null
+                ],
+                'vehicle' => [
+                    'make' => $inspection->vehicle->manufacturer ?? 'Not specified',
+                    'model' => $inspection->vehicle->model ?? 'Not specified',
+                    'year' => $inspection->vehicle->year ?? 'Not specified',
+                    'vin' => $inspection->vehicle->vin ?? 'Not specified',
+                    'license_plate' => $inspection->vehicle->registration_number ?? 'Not specified',
+                    'mileage' => $inspection->vehicle->mileage ?? 'Not specified',
+                    'colour' => $inspection->vehicle->colour ?? 'Not specified',
+                    'fuel_type' => $inspection->vehicle->fuel_type ?? 'Not specified',
+                    'transmission' => $inspection->vehicle->transmission ?? 'Not specified',
+                    'doors' => $inspection->vehicle->doors ?? 'Not specified'
+                ],
+                'inspection' => [
+                    'inspector' => $inspection->inspector_name ?? 'Not specified',
+                    'date' => $inspection->inspection_date ?? $inspection->created_at->format('Y-m-d H:i'),
+                    'diagnostic_report' => $inspection->diagnostic_report ?? 'No diagnostic report provided',
+                    'diagnostic_file' => [
+                        'name' => null,
+                        'data' => null,
+                        'size' => null
+                    ]
+                ],
+                'images' => [
+                    'visual' => [] // TODO: Get images from inspection_images table
+                ]
+            ];
             
             return view('reports.web-report', compact('report', 'inspectionData'));
             
@@ -157,17 +218,23 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = InspectionReport::query();
+            // Get saved inspections from the inspections table, not just inspection_reports
+            $query = \App\Models\Inspection::with(['client', 'vehicle']);
             
             // Search functionality
             if ($request->has('search')) {
                 $search = $request->search;
                 $query->where(function($q) use ($search) {
-                    $q->where('client_name', 'like', "%{$search}%")
-                      ->orWhere('vehicle_make', 'like', "%{$search}%")
-                      ->orWhere('vehicle_model', 'like', "%{$search}%")
-                      ->orWhere('vin_number', 'like', "%{$search}%")
-                      ->orWhere('report_number', 'like', "%{$search}%");
+                    $q->where('inspector_name', 'like', "%{$search}%")
+                      ->orWhereHas('client', function($clientQuery) use ($search) {
+                          $clientQuery->where('name', 'like', "%{$search}%")
+                                    ->orWhere('email', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('vehicle', function($vehicleQuery) use ($search) {
+                          $vehicleQuery->where('manufacturer', 'like', "%{$search}%")
+                                     ->orWhere('model', 'like', "%{$search}%")
+                                     ->orWhere('vin', 'like', "%{$search}%");
+                      });
                 });
             }
             
@@ -179,14 +246,36 @@ class ReportController extends Controller
                 $query->whereDate('inspection_date', '<=', $request->to_date);
             }
             
-            $reports = $query->orderBy('created_at', 'desc')->paginate(15);
+            $inspections = $query->orderBy('created_at', 'desc')->paginate(15);
+            
+            // Transform inspections to reports format for the view
+            $reports = $inspections->through(function ($inspection) {
+                // Create a report-like object from inspection data
+                $report = new \stdClass();
+                $report->id = $inspection->id;
+                $report->report_number = 'INS-' . str_pad($inspection->id, 6, '0', STR_PAD_LEFT);
+                $report->client_name = $inspection->client->name ?? 'N/A';
+                $report->client_email = $inspection->client->email ?? null;
+                $report->vehicle_make = $inspection->vehicle->manufacturer ?? 'Unknown';
+                $report->vehicle_model = $inspection->vehicle->model ?? 'Unknown';
+                $report->vehicle_year = $inspection->vehicle->year ?? '';
+                $report->inspection_date = $inspection->inspection_date ?? $inspection->created_at->format('Y-m-d');
+                $report->status = $inspection->status ?? 'draft';
+                $report->inspector_name = $inspection->inspector_name ?? 'N/A';
+                $report->vin_number = $inspection->vehicle->vin ?? 'N/A';
+                $report->created_at = $inspection->created_at;
+                $report->updated_at = $inspection->updated_at;
+                $report->formatted_file_size = 'N/A'; // Inspections don't have file size
+                return $report;
+            });
             
             // If no reports exist, add sample data
             if ($reports->isEmpty()) {
-                $sampleReport = new InspectionReport();
+                $sampleReport = new \stdClass();
                 $sampleReport->id = 1;
                 $sampleReport->report_number = 'SAMPLE-001';
                 $sampleReport->client_name = 'Sample Client';
+                $sampleReport->client_email = null;
                 $sampleReport->vehicle_make = 'Toyota';
                 $sampleReport->vehicle_model = 'Camry';
                 $sampleReport->vehicle_year = '2020';
@@ -196,6 +285,7 @@ class ReportController extends Controller
                 $sampleReport->vin_number = 'SAMPLE123456789';
                 $sampleReport->created_at = now();
                 $sampleReport->updated_at = now();
+                $sampleReport->formatted_file_size = 'N/A';
                 
                 // Create a paginated collection with the sample data
                 $reports = new \Illuminate\Pagination\LengthAwarePaginator(
