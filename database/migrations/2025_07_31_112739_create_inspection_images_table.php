@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('inspection_images', function (Blueprint $table) {
             $table->id();
             $table->foreignId('inspection_id')->constrained()->onDelete('cascade');
-            $table->enum('image_type', ['general', 'specific_area']);
+            $table->enum('image_type', ['general', 'specific_area', 'diagnostic_pdf']);
             $table->string('area_name')->nullable();
             $table->string('file_path');
             $table->string('original_name')->nullable();
