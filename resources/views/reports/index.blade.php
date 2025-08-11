@@ -82,20 +82,20 @@
                                 <td>
                                     <span class="badge bg-primary">{{ $report->report_number }}</span>
                                 </td>
-                                <td>{{ $report->inspection_date->format('Y-m-d') }}</td>
+                                <td>{{ is_string($report->inspection_date) ? $report->inspection_date : $report->inspection_date->format('Y-m-d') }}</td>
                                 <td>
                                     {{ $report->client_name }}
                                     @if($report->client_email)
                                         <br><small class="text-muted">{{ $report->client_email }}</small>
                                     @endif
                                 </td>
-                                <td>{{ $report->vehicle_description }}</td>
+                                <td>{{ ($report->vehicle_make ?? '') . ' ' . ($report->vehicle_model ?? '') . ' ' . ($report->vehicle_year ?? '') }}</td>
                                 <td>
                                     <small>{{ $report->vin_number ?: 'N/A' }}</small>
                                 </td>
                                 <td>{{ $report->inspector_name ?: 'N/A' }}</td>
                                 <td>
-                                    <small class="text-muted">{{ $report->formatted_file_size }}</small>
+                                    <small class="text-muted">{{ $report->formatted_file_size ?? 'N/A' }}</small>
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
@@ -125,9 +125,11 @@
                 </div>
 
                 <!-- Pagination -->
+                @if(method_exists($reports, 'withQueryString'))
                 <div class="d-flex justify-content-center mt-4">
                     {{ $reports->withQueryString()->links() }}
                 </div>
+                @endif
             @else
                 <div class="text-center py-5">
                     <i class="bi bi-file-earmark-pdf" style="font-size: 3rem; color: #ccc;"></i>

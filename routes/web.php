@@ -14,6 +14,11 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 });
 
+// Test page for visual report
+Route::get('/test-visual-report', function () {
+    return view('visual-inspection-test');
+});
+
 // Inspection routes
 Route::controller(InspectionController::class)->group(function () {
     // View routes

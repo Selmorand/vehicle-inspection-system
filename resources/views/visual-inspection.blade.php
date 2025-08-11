@@ -468,9 +468,13 @@ function continueToNext() {
 
 // Test Visual Report with current form data
 function testVisualReport() {
+    console.log('testVisualReport function called');
+    
     // Get current form data
     const formData = new FormData(document.getElementById('visual-inspection-form'));
     const visualData = {};
+    
+    console.log('Form data collected, processing...');
     
     // Convert FormData to object
     for (let [key, value] of formData.entries()) {
@@ -537,6 +541,8 @@ function testVisualReport() {
     } // End of continueProcesing
     
     function submitTestForm() {
+        console.log('Creating form for submission...');
+        
         // Create a form to POST to the test endpoint
         const form = document.createElement('form');
         form.method = 'POST';
@@ -544,11 +550,20 @@ function testVisualReport() {
         form.style.display = 'none';
         
         // Add CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (!csrfToken) {
+            console.error('CSRF token meta tag not found!');
+            alert('Error: CSRF token not found. Please refresh the page.');
+            return;
+        }
+        
         const csrfInput = document.createElement('input');
         csrfInput.type = 'hidden';
         csrfInput.name = '_token';
-        csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        csrfInput.value = csrfToken.getAttribute('content');
         form.appendChild(csrfInput);
+        
+        console.log('CSRF token added:', csrfInput.value);
         
         // Add visual data
         const dataInput = document.createElement('input');
@@ -559,7 +574,18 @@ function testVisualReport() {
         
         // Submit to open in same window
         document.body.appendChild(form);
-        form.submit();
+        console.log('Form appended to body, submitting...');
+        console.log('Form action:', form.action);
+        console.log('Form method:', form.method);
+        console.log('Number of form inputs:', form.elements.length);
+        
+        try {
+            form.submit();
+            console.log('Form submitted successfully!');
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            alert('Error submitting form: ' + error.message);
+        }
     }
 }
 </script>
