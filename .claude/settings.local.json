@@ -11,7 +11,8 @@
       "Bash(mv:*)",
       "Bash(cp:*)",
       "Bash(true)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(php tools/field_map_check.php:*)"
     ]
   }
 }

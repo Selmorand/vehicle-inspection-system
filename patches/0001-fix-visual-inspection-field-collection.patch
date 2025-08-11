@@ -1,0 +1,31 @@
+From: Claude Max <claude@anthropic.com>
+Date: Sun, 11 Aug 2025 08:15:00 +0000
+Subject: [PATCH 1/3] fix: ensure all form fields sent to API (even empty ones)
+
+Fixes "Undefined array key" errors by removing the `&& value` condition
+that prevented empty fields from being sent to the API. This is critical
+for backend validation to work properly.
+
+Impact: Resolves database save failures in visual inspection form
+Risk: LOW - only changes data collection, not display or interaction
+---
+ resources/views/visual-inspection.blade.php | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/resources/views/visual-inspection.blade.php b/resources/views/visual-inspection.blade.php
+index abc123..def456 100644
+--- a/resources/views/visual-inspection.blade.php
++++ b/resources/views/visual-inspection.blade.php
+@@ -458,8 +458,8 @@
+             console.log('PDF file captured for sessionStorage:', value.name);
+             // Continue with the rest of the processing
+             processContinueToNext();
+-        } else if (key !== '_token' && key !== 'diagnostic_file' && value) {
+-            inspectionData[key] = value;
++        } else if (key !== '_token' && key !== 'diagnostic_file') {
++            inspectionData[key] = value || '';
+         }
+     }
+     
+-- 
+2.39.0

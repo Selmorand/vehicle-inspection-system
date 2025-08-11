@@ -1,0 +1,61 @@
+From: Claude Max <claude@anthropic.com>
+Date: Sun, 11 Aug 2025 08:25:00 +0000
+Subject: [PATCH 3/3] feat: add Bootstrap validation to visual inspection form
+
+Adds client-side validation using Bootstrap's built-in validation
+classes and JavaScript handlers. This provides immediate feedback
+to users before form submission.
+
+Impact: Better UX with immediate validation feedback
+Risk: LOW - non-intrusive addition to existing form logic
+---
+ resources/views/visual-inspection.blade.php | 25 +++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/resources/views/visual-inspection.blade.php b/resources/views/visual-inspection.blade.php
+index ghi789..jkl012 100644
+--- a/resources/views/visual-inspection.blade.php
++++ b/resources/views/visual-inspection.blade.php
+@@ -410,6 +410,31 @@
+     }, 3000);
+ }
+ 
++// Bootstrap form validation
++function initializeFormValidation() {
++    const form = document.getElementById('visual-inspection-form');
++    if (!form) return;
++    
++    // Add validation on submit attempt
++    form.addEventListener('submit', function(event) {
++        event.preventDefault();
++        event.stopPropagation();
++        
++        if (form.checkValidity()) {
++            // Form is valid, proceed with continue logic
++            continueToNext();
++        } else {
++            // Form is invalid, show validation messages
++            form.classList.add('was-validated');
++            
++            // Focus on first invalid field
++            const firstInvalid = form.querySelector('.form-control:invalid, .form-select:invalid');
++            if (firstInvalid) {
++                firstInvalid.focus();
++            }
++        }
++    });
++}
++
+ function continueToNext() {
+     // TESTING: Validation disabled for testing purposes
+     // TODO: Re-enable validation before production
+@@ -640,6 +665,7 @@
+ // Initialize the page
+ document.addEventListener('DOMContentLoaded', function() {
+     // Clear data only if not coming from within the inspection flow
++    initializeFormValidation();
+     const referrer = document.referrer;
+     const isFromInspectionFlow = referrer.includes('/inspection/');
+     const hasInspectionId = sessionStorage.getItem('currentInspectionId');
+-- 
+2.39.0

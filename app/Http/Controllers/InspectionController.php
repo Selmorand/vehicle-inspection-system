@@ -60,15 +60,14 @@ class InspectionController extends Controller
         // TODO: Restore required validations before production
         $validated = $request->validate([
             'inspector_name' => 'nullable|string|max:255',
-            'inspector_phone' => 'nullable|string|max:50',
-            'inspector_email' => 'nullable|email|max:255',
             'client_name' => 'nullable|string|max:255',
-            'client_phone' => 'nullable|string|max:50',
-            'client_email' => 'nullable|email|max:255',
             'vin' => 'nullable|string|max:50',
             'manufacturer' => 'nullable|string|max:100',
             'model' => 'nullable|string|max:100',
             'vehicle_type' => 'nullable|string|max:50',
+            'colour' => 'nullable|string|max:50',
+            'doors' => 'nullable|string|max:20',
+            'fuel_type' => 'nullable|string|max:50',
             'transmission' => 'nullable|string|max:50',
             'engine_number' => 'nullable|string|max:100',
             'registration_number' => 'nullable|string|max:50',
@@ -86,17 +85,12 @@ class InspectionController extends Controller
             $client = null;
             if (!empty($validated['client_name'])) {
                 $client = Client::firstOrCreate(
-                    ['name' => $validated['client_name']],
-                    [
-                        'phone' => $validated['client_phone'],
-                        'email' => $validated['client_email']
-                    ]
+                    ['name' => $validated['client_name']]
                 );
             } else {
                 // Create a dummy client for testing
                 $client = Client::firstOrCreate(
-                    ['name' => 'Test Client'],
-                    ['phone' => null, 'email' => null]
+                    ['name' => 'Test Client']
                 );
             }
 
@@ -108,6 +102,9 @@ class InspectionController extends Controller
                     'manufacturer' => $validated['manufacturer'] ?: 'Test Manufacturer',
                     'model' => $validated['model'] ?: 'Test Model',
                     'vehicle_type' => $validated['vehicle_type'] ?: 'passenger vehicle',
+                    'colour' => $validated['colour'],
+                    'doors' => $validated['doors'],
+                    'fuel_type' => $validated['fuel_type'],
                     'transmission' => $validated['transmission'],
                     'engine_number' => $validated['engine_number'],
                     'registration_number' => $validated['registration_number'],
@@ -121,8 +118,6 @@ class InspectionController extends Controller
                 'client_id' => $client->id,
                 'vehicle_id' => $vehicle->id,
                 'inspector_name' => $validated['inspector_name'] ?: 'Test Inspector',
-                'inspector_phone' => $validated['inspector_phone'],
-                'inspector_email' => $validated['inspector_email'],
                 'inspection_date' => now(),
                 'diagnostic_report' => $validated['diagnostic_report'],
                 'status' => 'draft'
@@ -944,11 +939,7 @@ class InspectionController extends Controller
         if (empty($visualData)) {
             $visualData = [
                 'inspector_name' => 'Test Inspector',
-                'inspector_phone' => '123-456-7890',
-                'inspector_email' => 'inspector@test.com',
                 'client_name' => 'John Test Client',
-                'client_phone' => '987-654-3210',
-                'client_email' => 'client@test.com',
                 'vin' => 'TEST123456789',
                 'manufacturer' => 'Toyota',
                 'model' => 'Camry',

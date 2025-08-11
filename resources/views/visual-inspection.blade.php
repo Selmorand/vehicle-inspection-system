@@ -458,8 +458,8 @@ function continueToNext() {
             };
             reader.readAsDataURL(value);
             return; // Wait for PDF file to be processed
-        } else if (key !== '_token' && key !== 'diagnostic_file' && value) {
-            inspectionData[key] = value;
+        } else if (key !== '_token' && key !== 'diagnostic_file') {
+            inspectionData[key] = value || '';
         }
     }
     
@@ -502,11 +502,6 @@ function continueToNext() {
             // Prepare form data for API - add missing fields
             const apiData = {
                 ...inspectionData,
-                inspector_phone: inspectionData.inspector_phone || '',
-                inspector_email: inspectionData.inspector_email || '',
-                client_name: inspectionData.client_name || '',
-                client_phone: inspectionData.client_phone || '',
-                client_email: inspectionData.client_email || '',
                 images: processedImages
             };
             
@@ -561,11 +556,6 @@ function continueToNext() {
             },
             body: JSON.stringify({
                 ...inspectionData,
-                inspector_phone: inspectionData.inspector_phone || '',
-                inspector_email: inspectionData.inspector_email || '',
-                client_name: inspectionData.client_name || '',
-                client_phone: inspectionData.client_phone || '',
-                client_email: inspectionData.client_email || '',
                 images: []
             })
         })

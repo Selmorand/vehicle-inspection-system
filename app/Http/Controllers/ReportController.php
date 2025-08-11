@@ -34,7 +34,7 @@ class ReportController extends Controller
             }
             
             // If no InspectionReport, try to find an Inspection and generate report view
-            $inspection = \App\Models\Inspection::with(['client', 'vehicle'])->findOrFail($id);
+            $inspection = \App\Models\Inspection::with(['client', 'vehicle', 'images'])->findOrFail($id);
             
             // Create a report-like object for the view
             $report = (object)[
@@ -70,23 +70,21 @@ class ReportController extends Controller
                     'vin' => $inspection->vehicle->vin ?? 'Not specified',
                     'license_plate' => $inspection->vehicle->registration_number ?? 'Not specified',
                     'mileage' => $inspection->vehicle->mileage ?? 'Not specified',
+                    'vehicle_type' => $inspection->vehicle->vehicle_type ?? 'Not specified',
                     'colour' => $inspection->vehicle->colour ?? 'Not specified',
                     'fuel_type' => $inspection->vehicle->fuel_type ?? 'Not specified',
                     'transmission' => $inspection->vehicle->transmission ?? 'Not specified',
-                    'doors' => $inspection->vehicle->doors ?? 'Not specified'
+                    'doors' => $inspection->vehicle->doors ?? 'Not specified',
+                    'engine_number' => $inspection->vehicle->engine_number ?? 'Not specified'
                 ],
                 'inspection' => [
                     'inspector' => $inspection->inspector_name ?? 'Not specified',
                     'date' => $inspection->inspection_date ?? $inspection->created_at->format('Y-m-d H:i'),
                     'diagnostic_report' => $inspection->diagnostic_report ?? 'No diagnostic report provided',
-                    'diagnostic_file' => [
-                        'name' => null,
-                        'data' => null,
-                        'size' => null
-                    ]
+                    'diagnostic_file' => $this->getDiagnosticFileData($inspection)
                 ],
                 'images' => [
-                    'visual' => [] // TODO: Get images from inspection_images table
+                    'visual' => $this->formatImagesForReport($inspection->images)
                 ]
             ];
             
@@ -333,11 +331,151 @@ class ReportController extends Controller
      */
     public function destroy($id)
     {
-        $report = InspectionReport::findOrFail($id);
+        try {
+            // First try to find an InspectionReport
+            $inspectionReport = InspectionReport::find($id);
+            
+            if ($inspectionReport) {
+                $inspectionReport->delete();
+                return redirect()->route('reports.index')->with('success', 'Report deleted successfully.');
+            }
+            
+            // If no InspectionReport, try to find and delete an Inspection
+            $inspection = \App\Models\Inspection::findOrFail($id);
+            
+            // Delete associated images first
+            if ($inspection->images) {
+                foreach ($inspection->images as $image) {
+                    // Delete physical file if it exists
+                    $fullPath = storage_path('app/public/' . $image->file_path);
+                    if (file_exists($fullPath)) {
+                        unlink($fullPath);
+                    }
+                    // Delete database record
+                    $image->delete();
+                }
+            }
+            
+            // Delete the inspection record
+            $inspection->delete();
+            
+            return redirect()->route('reports.index')->with('success', 'Report deleted successfully.');
+            
+        } catch (\Exception $e) {
+            return redirect()->route('reports.index')->with('error', 'Error deleting report: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete all reports
+     */
+    public function destroyAll()
+    {
+        try {
+            // Delete all InspectionReports
+            $inspectionReports = InspectionReport::all();
+            foreach ($inspectionReports as $report) {
+                $report->delete();
+            }
+            
+            // Delete all Inspections and their associated data
+            $inspections = \App\Models\Inspection::all();
+            $deletedCount = 0;
+            
+            foreach ($inspections as $inspection) {
+                // Delete associated images first
+                if ($inspection->images) {
+                    foreach ($inspection->images as $image) {
+                        // Delete physical file if it exists
+                        $fullPath = storage_path('app/public/' . $image->file_path);
+                        if (file_exists($fullPath)) {
+                            unlink($fullPath);
+                        }
+                        // Delete database record
+                        $image->delete();
+                    }
+                }
+                
+                // Delete the inspection record
+                $inspection->delete();
+                $deletedCount++;
+            }
+            
+            $totalDeleted = $inspectionReports->count() + $deletedCount;
+            
+            if ($totalDeleted > 0) {
+                return redirect()->route('reports.index')->with('success', "Successfully deleted {$totalDeleted} reports and all associated data.");
+            } else {
+                return redirect()->route('reports.index')->with('info', 'No reports found to delete.');
+            }
+            
+        } catch (\Exception $e) {
+            return redirect()->route('reports.index')->with('error', 'Error clearing all reports: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Format images from database for report display
+     */
+    private function formatImagesForReport($images)
+    {
+        $formattedImages = [];
         
-        // Delete from database
-        $report->delete();
+        if ($images) {
+            foreach ($images as $image) {
+                // Skip diagnostic PDFs here - they're handled separately
+                if ($image->image_type === 'diagnostic_pdf') {
+                    continue;
+                }
+                
+                // Check if image file exists
+                $fullPath = storage_path('app/public/' . $image->file_path);
+                if (file_exists($fullPath)) {
+                    // Use the public URL for the image
+                    $formattedImages[] = [
+                        'area_name' => $image->area_name ?? $image->original_name ?? 'Image',
+                        'data_url' => asset('storage/' . $image->file_path),
+                        'timestamp' => $image->created_at ? $image->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s'),
+                        'type' => $image->image_type ?? 'general'
+                    ];
+                } else {
+                    // If file doesn't exist, log warning but continue
+                    \Log::warning('Image file not found: ' . $fullPath, [
+                        'image_id' => $image->id,
+                        'file_path' => $image->file_path
+                    ]);
+                }
+            }
+        }
         
-        return redirect()->route('reports.index')->with('success', 'Report deleted successfully.');
+        return $formattedImages;
+    }
+    
+    /**
+     * Get diagnostic file data for an inspection
+     */
+    private function getDiagnosticFileData($inspection)
+    {
+        // Look for diagnostic PDF in the images table
+        $diagnosticFile = $inspection->images()->where('image_type', 'diagnostic_pdf')->first();
+        
+        if ($diagnosticFile) {
+            $fullPath = storage_path('app/public/' . $diagnosticFile->file_path);
+            if (file_exists($fullPath)) {
+                return [
+                    'name' => $diagnosticFile->original_name,
+                    'data' => asset('storage/' . $diagnosticFile->file_path),
+                    'size' => filesize($fullPath)
+                ];
+            } else {
+                \Log::warning('Diagnostic PDF file not found: ' . $fullPath);
+            }
+        }
+        
+        return [
+            'name' => null,
+            'data' => null,
+            'size' => null
+        ];
     }
 }

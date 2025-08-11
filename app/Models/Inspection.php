@@ -12,8 +12,6 @@ class Inspection extends Model
         'client_id',
         'vehicle_id',
         'inspector_name',
-        'inspector_phone',
-        'inspector_email',
         'inspection_date',
         'diagnostic_report',
         'status'

@@ -1,0 +1,99 @@
+From: Claude Max <claude@anthropic.com>
+Date: Sun, 11 Aug 2025 08:20:00 +0000
+Subject: [PATCH 2/3] refactor: standardize Bootstrap 5 classes in visual inspection form
+
+- Add `needs-validation` and `novalidate` to form element
+- Replace `form-control` with `form-select` for select elements
+- Replace `form-row` with `mb-3` for consistent spacing
+- Add `required` attributes and `invalid-feedback` divs
+- Remove unnecessary `fw-bold` from labels
+
+Impact: Consistent form styling and validation framework
+Risk: LOW - only changes CSS classes and adds validation structure
+---
+ resources/views/visual-inspection.blade.php | 45 ++++++++++++++------
+ 1 file changed, 32 insertions(+), 13 deletions(-)
+
+diff --git a/resources/views/visual-inspection.blade.php b/resources/views/visual-inspection.blade.php
+index def456..ghi789 100644
+--- a/resources/views/visual-inspection.blade.php
++++ b/resources/views/visual-inspection.blade.php
+@@ -11,7 +11,7 @@
+         <div class="card-body">
+             <h2 class="mb-4">Visual Inspection</h2>
+             
+-    <form id="visual-inspection-form" enctype="multipart/form-data">
++    <form class="needs-validation" id="visual-inspection-form" enctype="multipart/form-data" novalidate>
+         <!-- Inspector Details -->
+         <div class="form-section">
+             <h3>Inspection Details</h3>
+@@ -19,15 +19,17 @@
+             <div class="row">
+                 <div class="col-md-6">
+-                    <div class="form-row">
+-                        <label for="inspection_datetime" class="form-label fw-bold">Inspection Time & Date:</label>
+-                        <input type="datetime-local" class="form-control" id="inspection_datetime" name="inspection_datetime">
++                    <div class="mb-3">
++                        <label for="inspection_datetime" class="form-label">Inspection Time & Date:</label>
++                        <input type="datetime-local" class="form-control" id="inspection_datetime" name="inspection_datetime" required>
++                        <div class="invalid-feedback">Please provide inspection date and time.</div>
+                     </div>
+                 </div>
+                 <div class="col-md-6">
+-                    <div class="form-row">
+-                        <label for="inspector_name" class="form-label fw-bold">Inspector:</label>
+-                        <input type="text" class="form-control" id="inspector_name" name="inspector_name" placeholder="Inspector name">
++                    <div class="mb-3">
++                        <label for="inspector_name" class="form-label">Inspector:</label>
++                        <input type="text" class="form-control" id="inspector_name" name="inspector_name" placeholder="Inspector name" required>
++                        <div class="invalid-feedback">Please enter inspector name.</div>
+                     </div>
+                 </div>
+             </div>
+@@ -52,9 +54,10 @@
+             <h3>Vehicle Details</h3>
+             <div class="row">
+                 <div class="col-md-4">
+-                    <div class="form-row">
+-                        <label for="vehicle_type" class="form-label fw-bold">Vehicle Type:</label>
+-                        <select class="form-control" id="vehicle_type" name="vehicle_type">
++                    <div class="mb-3">
++                        <label for="vehicle_type" class="form-label">Vehicle Type:</label>
++                        <select class="form-select" id="vehicle_type" name="vehicle_type" required>
+                             <option value="">Select vehicle type</option>
+                             <option value="passenger vehicle">Passenger Vehicle</option>
+                             <option value="commercial vehicle">Commercial Vehicle</option>
+@@ -62,6 +65,7 @@
+                             <option value="truck">Truck</option>
+                             <option value="bus">Bus</option>
+                         </select>
++                        <div class="invalid-feedback">Please select a vehicle type.</div>
+                     </div>
+                 </div>
+                 <div class="col-md-4">
+@@ -135,9 +139,10 @@
+                 </div>
+                 <div class="col-md-4">
+-                    <div class="form-row">
+-                        <label for="transmission" class="form-label fw-bold">Transmission:</label>
+-                        <select class="form-control" id="transmission" name="transmission">
++                    <div class="mb-3">
++                        <label for="transmission" class="form-label">Transmission:</label>
++                        <select class="form-select" id="transmission" name="transmission">
+                             <option value="">Select transmission type</option>
+                             <option value="Manual">Manual</option>
+                             <option value="Automatic">Automatic</option>
+@@ -148,9 +153,10 @@
+                 </div>
+                 <div class="col-md-4">
+-                    <div class="form-row">
+-                        <label for="doors" class="form-label fw-bold">Doors:</label>
+-                        <select class="form-control" id="doors" name="doors">
++                    <div class="mb-3">
++                        <label for="doors" class="form-label">Doors:</label>
++                        <select class="form-select" id="doors" name="doors">
+                             <option value="">Select number of doors</option>
+                             <option value="2">2 Doors</option>
+                             <option value="3">3 Doors</option>
+-- 
+2.39.0

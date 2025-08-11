@@ -15,10 +15,26 @@
         </div>
     </div>
 
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i>
+        <strong>Success:</strong> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
     @if(session('error'))
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="bi bi-exclamation-triangle"></i>
-        <strong>Notice:</strong> {{ session('error') }}
+        <strong>Error:</strong> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    @if(session('info'))
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="bi bi-info-circle"></i>
+        <strong>Info:</strong> {{ session('info') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
@@ -57,8 +73,20 @@
 
     <!-- Reports Table -->
     <div class="card">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">All Reports</h5>
+            @if($reports->count() > 0)
+            <form action="{{ route('reports.destroy-all') }}" 
+                  method="POST" 
+                  class="d-inline"
+                  onsubmit="return confirm('⚠️ WARNING: This will permanently delete ALL reports and associated images. This action cannot be undone. Are you absolutely sure you want to proceed?');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash3"></i> Clear All Reports
+                </button>
+            </form>
+            @endif
         </div>
         <div class="card-body">
             @if($reports->count() > 0)
@@ -174,13 +202,15 @@
 
 @section('additional-js')
 <script>
-// Add success/error message handling
-@if(session('success'))
-    alert('{{ session('success') }}');
-@endif
-
-@if(session('error'))
-    alert('{{ session('error') }}');
-@endif
+// Auto-hide alerts after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert-dismissible');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
+});
 </script>
 @endsection

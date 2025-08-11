@@ -114,3 +114,4 @@ Route::get('/interior-test', function () {
 Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
 Route::get('/reports/{id}', [App\Http\Controllers\ReportController::class, 'showWeb'])->name('reports.show');
 Route::delete('/reports/{id}', [App\Http\Controllers\ReportController::class, 'destroy'])->name('reports.destroy');
+Route::delete('/reports', [App\Http\Controllers\ReportController::class, 'destroyAll'])->name('reports.destroy-all');
