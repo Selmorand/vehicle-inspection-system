@@ -623,20 +623,23 @@
                         opacity: 0.9;
                     }
                     
-                    /* Condition colors using optimized CSS filters - ONLY applied to panels with condition classes */
+                    /* Condition colors - using background color + mix-blend-mode to preserve image shape */
                     .panel-overlay.condition-good {
                         opacity: 0.8 !important;
-                        filter: brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1352%) hue-rotate(87deg) brightness(98%) contrast(103%) !important; /* Green */
+                        background-color: #28a745 !important; /* Green */
+                        mix-blend-mode: multiply !important;
                     }
                     
                     .panel-overlay.condition-average {
                         opacity: 0.8 !important;
-                        filter: brightness(0) saturate(100%) invert(88%) sepia(55%) saturate(1919%) hue-rotate(3deg) brightness(103%) contrast(101%) !important; /* Yellow/Amber */
+                        background-color: #ffc107 !important; /* Yellow/Amber */
+                        mix-blend-mode: multiply !important;
                     }
                     
                     .panel-overlay.condition-bad {
                         opacity: 0.8 !important;
-                        filter: brightness(0) saturate(100%) invert(16%) sepia(90%) saturate(3122%) hue-rotate(348deg) brightness(93%) contrast(87%) !important; /* Red */
+                        background-color: #dc3545 !important; /* Red */
+                        mix-blend-mode: multiply !important;
                     }
                     
                     /* Legend Styles */
