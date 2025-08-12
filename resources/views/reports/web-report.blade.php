@@ -617,17 +617,20 @@
                     .panel-lf-rim { top: 64.01%; left: 18.11%; width: 10.45%; height: 7.32%; border-radius: 50%; }
                     .panel-lr-rim { top: 64.01%; left: 69.75%; width: 10.45%; height: 7.32%; border-radius: 50%; }
                     
-                    /* Condition colors using CSS filters for images - matching legend colors */
+                    /* Condition colors using optimized CSS filters */
                     .panel-overlay.condition-good {
-                        filter: brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1352%) hue-rotate(87deg) brightness(98%) contrast(103%); /* Green #28a745 */
+                        opacity: 0.8 !important;
+                        filter: brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1352%) hue-rotate(87deg) brightness(98%) contrast(103%) !important; /* Green */
                     }
                     
                     .panel-overlay.condition-average {
-                        filter: brightness(0) saturate(100%) invert(88%) sepia(55%) saturate(1919%) hue-rotate(3deg) brightness(103%) contrast(101%); /* Yellow/Amber #ffc107 */
+                        opacity: 0.8 !important;
+                        filter: brightness(0) saturate(100%) invert(88%) sepia(55%) saturate(1919%) hue-rotate(3deg) brightness(103%) contrast(101%) !important; /* Yellow/Amber */
                     }
                     
                     .panel-overlay.condition-bad {
-                        filter: brightness(0) saturate(100%) invert(25%) sepia(91%) saturate(7463%) hue-rotate(358deg) brightness(95%) contrast(115%); /* Red #dc3545 */
+                        opacity: 0.8 !important;
+                        filter: brightness(0) saturate(100%) invert(16%) sepia(90%) saturate(3122%) hue-rotate(348deg) brightness(93%) contrast(87%) !important; /* Red - using your optimized values */
                     }
                     
                     /* Legend Styles */
