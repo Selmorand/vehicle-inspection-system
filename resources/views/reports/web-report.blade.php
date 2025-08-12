@@ -498,28 +498,67 @@
                         <div class="vehicle-base-wrapper">
                             <img src="{{ asset('images/panels/FullVehicle.png') }}" alt="Vehicle Base" class="layer-base" id="vehicleBase">
                             
-                            <!-- Panel overlay images with condition styling -->
-                            @foreach($inspectionData['body_panels'] as $panel)
-                                @if($panel['condition'])
+                            <!-- All panel overlay images with positioning like input page -->
+                            @php
+                                // Define all panels with their CSV coordinates (same as input page)
+                                $allPanels = [
+                                    ['id' => 'fr-fender', 'name' => 'Right Front Fender', 'style' => 'left: 61.89%; top: 6.21%; width: 31.84%; height: 16.26%; z-index: 1;'],
+                                    ['id' => 'fr-door', 'name' => 'Right Front Door', 'style' => 'left: 44.08%; top: 2.22%; width: 22.89%; height: 15.67%; z-index: 1;'],
+                                    ['id' => 'rf-rim', 'name' => 'Right Front Rim', 'style' => 'left: 70.95%; top: 13.38%; width: 10.45%; height: 7.32%; z-index: 2;'],
+                                    ['id' => 'rr-door', 'name' => 'Right Rear Door', 'style' => 'left: 26.47%; top: 2.07%; width: 20.80%; height: 16.56%; z-index: 1;'],
+                                    ['id' => 'rr-rim', 'name' => 'Right Rear Rim', 'style' => 'left: 19.30%; top: 13.38%; width: 10.45%; height: 7.32%; z-index: 2;'],
+                                    ['id' => 'rr-quarter-panel', 'name' => 'Right Rear Quarter Panel', 'style' => 'left: 5.57%; top: 7.54%; width: 26.97%; height: 10.42%; z-index: 1;'],
+                                    ['id' => 'bonnet', 'name' => 'Bonnet', 'style' => 'left: 68.06%; top: 24.32%; width: 26.97%; height: 24.83%; z-index: 1;'],
+                                    ['id' => 'windscreen', 'name' => 'Windscreen', 'style' => 'left: 57.31%; top: 25.87%; width: 14.63%; height: 20.62%; z-index: 1;'],
+                                    ['id' => 'roof', 'name' => 'Roof', 'style' => 'left: 29.75%; top: 28.09%; width: 28.16%; height: 16.34%; z-index: 1;'],
+                                    ['id' => 'rear-window', 'name' => 'Rear Window', 'style' => 'left: 15.82%; top: 27.20%; width: 15.62%; height: 18.48%; z-index: 1;'],
+                                    ['id' => 'boot', 'name' => 'Boot', 'style' => 'left: 7.26%; top: 26.83%; width: 14.03%; height: 19.73%; z-index: 1;'],
+                                    ['id' => 'lf-fender', 'name' => 'Left Front Fender', 'style' => 'left: 5.87%; top: 56.91%; width: 31.84%; height: 16.26%; z-index: 1;'],
+                                    ['id' => 'lf-door', 'name' => 'Left Front Door', 'style' => 'left: 32.64%; top: 52.85%; width: 22.99%; height: 15.67%; z-index: 1;'],
+                                    ['id' => 'lf-rim', 'name' => 'Left Front Rim', 'style' => 'left: 18.11%; top: 64.01%; width: 10.45%; height: 7.32%; z-index: 2;'],
+                                    ['id' => 'lr-door', 'name' => 'Left Rear Door', 'style' => 'left: 52.34%; top: 52.62%; width: 20.60%; height: 16.56%; z-index: 1;'],
+                                    ['id' => 'lr-rim', 'name' => 'Left Rear Rim', 'style' => 'left: 69.75%; top: 64.01%; width: 10.45%; height: 7.32%; z-index: 2;'],
+                                    ['id' => 'lr-quarter-panel', 'name' => 'Left Rear Quarter Panel', 'style' => 'left: 67.06%; top: 58.24%; width: 26.97%; height: 10.35%; z-index: 1;'],
+                                    ['id' => 'front-bumper', 'name' => 'Front Bumper', 'style' => 'left: 4.18%; top: 87.21%; width: 37.21%; height: 6.28%; z-index: 1;'],
+                                    ['id' => 'lf-headlight', 'name' => 'Left Front Headlight', 'style' => 'left: 29.35%; top: 85.37%; width: 9.15%; height: 2.51%; z-index: 1;'],
+                                    ['id' => 'fr-headlight', 'name' => 'Right Front Headlight', 'style' => 'left: 6.97%; top: 85.37%; width: 9.05%; height: 2.51%; z-index: 1;'],
+                                    ['id' => 'fr-mirror', 'name' => 'Right Front Mirror', 'style' => 'left: 3.98%; top: 80.93%; width: 4.78%; height: 2.36%; z-index: 1;'],
+                                    ['id' => 'lf-mirror', 'name' => 'Left Front Mirror', 'style' => 'left: 36.62%; top: 80.93%; width: 4.78%; height: 2.36%; z-index: 1;'],
+                                    ['id' => 'lr-taillight', 'name' => 'Left Rear Taillight', 'style' => 'left: 61.89%; top: 82.89%; width: 9.15%; height: 3.84%; z-index: 1;'],
+                                    ['id' => 'rr-taillight', 'name' => 'Right Rear Taillight', 'style' => 'left: 81.59%; top: 82.89%; width: 9.15%; height: 3.84%; z-index: 1;'],
+                                    ['id' => 'rear-bumper', 'name' => 'Rear Bumper', 'style' => 'left: 59.20%; top: 87.36%; width: 33.83%; height: 5.03%; z-index: 1;']
+                                ];
+                                
+                                // Create a lookup array for panels with conditions
+                                $panelConditions = [];
+                                foreach($inspectionData['body_panels'] as $panel) {
+                                    $panelConditions[str_replace('_', '-', $panel['panel_id'])] = $panel['condition'];
+                                }
+                            @endphp
+                            
+                            @foreach($allPanels as $panel)
                                 @php
-                                    $panelId = str_replace('_', '-', $panel['panel_id']);
-                                    $imageName = $panelId . '.png';
-                                    // Handle special cases and CSV typos
-                                    if ($panelId === 'rear-bumber') $imageName = 'rear-bumper.png';
-                                    if ($panelId === 'lr-quarter-panel') $imageName = 'lr-quarter-panel.png';
-                                    if ($panelId === 'rr-quarter-panel') $imageName = 'rr-quarter-panel.png';
-                                    if (str_contains($panelId, 'rim') && !str_ends_with($imageName, '.png')) {
-                                        $imageName = $panelId . '.png';
-                                    }
+                                    $imageName = $panel['id'] . '.png';
+                                    // Handle special cases
+                                    if ($panel['id'] === 'rear-bumber') $imageName = 'rear-bumper.png';
+                                    
+                                    // Check if this panel has a condition
+                                    $hasCondition = isset($panelConditions[$panel['id']]);
+                                    $condition = $hasCondition ? $panelConditions[$panel['id']] : null;
+                                    $conditionClass = $hasCondition ? ' condition-' . strtolower($condition) : '';
                                 @endphp
                                 <img src="/images/panels/{{ $imageName }}" 
-                                     class="panel-overlay panel-{{ $panelId }} condition-{{ strtolower($panel['condition']) }}" 
-                                     data-panel="{{ $panel['panel_id'] }}"
-                                     data-condition="{{ $panel['condition'] }}"
-                                     onclick="scrollToPanelCard('{{ $panel['panel_id'] }}')"
-                                     title="{{ $panel['panel_name'] }} - {{ ucfirst($panel['condition']) }}"
-                                     alt="{{ $panel['panel_name'] }}">
-                                @endif
+                                     class="panel-overlay{{ $conditionClass }}" 
+                                     data-panel="{{ str_replace('-', '_', $panel['id']) }}"
+                                     @if($hasCondition)
+                                     data-condition="{{ $condition }}"
+                                     onclick="scrollToPanelCard('{{ str_replace('-', '_', $panel['id']) }}')"
+                                     title="{{ $panel['name'] }} - {{ ucfirst($condition) }}"
+                                     @else
+                                     title="{{ $panel['name'] }}"
+                                     @endif
+                                     alt="{{ $panel['name'] }}"
+                                     style="position: absolute; {{ $panel['style'] }}">
                             @endforeach
                         </div>
                         
@@ -577,45 +616,12 @@
                     .panel-overlay {
                         cursor: pointer;
                         transition: all 0.3s ease;
-                        opacity: 0.8;
-                        position: absolute !important;
-                        border-radius: 3px;
-                        z-index: 2;
+                        opacity: 1; /* Default opacity for panels without conditions */
                     }
                     
                     .panel-overlay:hover {
                         opacity: 0.9;
                     }
-                    
-                    /* Panel positions using exact coordinates from panelimages2.csv (converted to percentages) */
-                    /* Base image dimensions: 1005px width × 1353px height */
-                    
-                    .panel-bonnet { top: 24.32%; left: 68.06%; width: 26.97%; height: 24.83%; }
-                    .panel-boot { top: 26.83%; left: 7.26%; width: 14.03%; height: 19.73%; }
-                    .panel-fr-door { top: 2.22%; left: 44.08%; width: 22.89%; height: 15.67%; }
-                    .panel-fr-fender { top: 6.21%; left: 61.89%; width: 31.84%; height: 16.26%; }
-                    .panel-fr-headlight { top: 85.37%; left: 6.97%; width: 9.05%; height: 2.51%; }
-                    .panel-fr-mirror { top: 80.93%; left: 3.98%; width: 4.78%; height: 2.36%; }
-                    .panel-front-bumper { top: 87.21%; left: 4.18%; width: 37.21%; height: 6.28%; }
-                    .panel-lf-door { top: 52.85%; left: 32.64%; width: 22.99%; height: 15.67%; }
-                    .panel-lf-fender { top: 56.91%; left: 5.87%; width: 31.84%; height: 16.26%; }
-                    .panel-lf-headlight { top: 85.37%; left: 29.35%; width: 9.15%; height: 2.51%; }
-                    .panel-lf-mirror { top: 80.93%; left: 36.62%; width: 4.78%; height: 2.36%; }
-                    .panel-lr-door { top: 52.62%; left: 52.34%; width: 20.60%; height: 16.56%; }
-                    .panel-lr-quarter-panel { top: 58.24%; left: 67.06%; width: 26.97%; height: 10.35%; }
-                    .panel-lr-taillight { top: 82.89%; left: 61.89%; width: 9.15%; height: 3.84%; }
-                    .panel-rear-bumper { top: 87.36%; left: 59.20%; width: 33.83%; height: 5.03%; }
-                    .panel-rear-bumber { top: 87.36%; left: 59.20%; width: 33.83%; height: 5.03%; } /* Handle CSV typo */
-                    .panel-rear-window { top: 27.20%; left: 15.82%; width: 15.62%; height: 18.48%; }
-                    .panel-roof { top: 28.09%; left: 29.75%; width: 28.16%; height: 16.34%; }
-                    .panel-rr-door { top: 2.07%; left: 26.47%; width: 20.80%; height: 16.56%; }
-                    .panel-rr-quarter-panel { top: 7.54%; left: 5.57%; width: 26.97%; height: 10.42%; }
-                    .panel-rr-taillight { top: 82.89%; left: 81.59%; width: 9.15%; height: 3.84%; }
-                    .panel-windscreen { top: 25.87%; left: 57.31%; width: 14.63%; height: 20.62%; }
-                    .panel-rr-rim { top: 13.38%; left: 19.30%; width: 10.45%; height: 7.32%; border-radius: 50%; }
-                    .panel-rf-rim { top: 13.38%; left: 70.95%; width: 10.45%; height: 7.32%; border-radius: 50%; }
-                    .panel-lf-rim { top: 64.01%; left: 18.11%; width: 10.45%; height: 7.32%; border-radius: 50%; }
-                    .panel-lr-rim { top: 64.01%; left: 69.75%; width: 10.45%; height: 7.32%; border-radius: 50%; }
                     
                     /* Condition colors using optimized CSS filters */
                     .panel-overlay.condition-good {
