@@ -623,23 +623,20 @@
                         opacity: 0.9;
                     }
                     
-                    /* Condition colors - using background color + mix-blend-mode to preserve image shape */
+                    /* Condition colors - preserve PNG line art while coloring */
                     .panel-overlay.condition-good {
                         opacity: 0.8 !important;
-                        background-color: #28a745 !important; /* Green */
-                        mix-blend-mode: multiply !important;
+                        filter: invert(1) hue-rotate(87deg) saturate(2) brightness(0.6) !important; /* Green - invert first to handle black lines */
                     }
                     
                     .panel-overlay.condition-average {
                         opacity: 0.8 !important;
-                        background-color: #ffc107 !important; /* Yellow/Amber */
-                        mix-blend-mode: multiply !important;
+                        filter: invert(1) hue-rotate(45deg) saturate(3) brightness(0.8) !important; /* Yellow/Amber */  
                     }
                     
                     .panel-overlay.condition-bad {
                         opacity: 0.8 !important;
-                        background-color: #dc3545 !important; /* Red */
-                        mix-blend-mode: multiply !important;
+                        filter: invert(1) hue-rotate(0deg) saturate(2) brightness(0.5) !important; /* Red */
                     }
                     
                     /* Legend Styles */
