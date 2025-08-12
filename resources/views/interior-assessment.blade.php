@@ -466,9 +466,125 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    document.getElementById('nextBtn').addEventListener('click', function() {
-        InspectionCards.saveData();
-        window.location.href = '/inspection/service-booklet';
+    document.getElementById('nextBtn').addEventListener('click', async function(e) {
+        e.preventDefault(); // Prevent form submission
+        
+        console.log('Interior Assessment: Starting save and navigation...');
+        
+        // Get form data and images from InspectionCards
+        let formData = {};
+        let imageData = {};
+        
+        try {
+            if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+                formData = InspectionCards.getFormData();
+                imageData = InspectionCards.getImages();
+                console.log('Interior Form Data:', formData);
+                console.log('Interior Images:', imageData);
+            }
+        } catch (e) {
+            console.error('Error getting InspectionCards data:', e);
+        }
+        
+        // Get current inspection ID from session storage
+        const inspectionId = sessionStorage.getItem('currentInspectionId');
+        console.log('Current Inspection ID:', inspectionId);
+        
+        // Prepare API data
+        const apiData = {
+            inspection_id: inspectionId,
+            components: [],
+            images: imageData
+        };
+        
+        // Extract component data from form data
+        const componentMap = {};
+        for (const [key, value] of Object.entries(formData)) {
+            const match = key.match(/^([^-]+)-(.+)$/);
+            if (match) {
+                const componentId = match[1];
+                const fieldName = match[2];
+                
+                if (!componentMap[componentId]) {
+                    componentMap[componentId] = { component_name: componentId };
+                }
+                
+                // Map field names to expected backend format
+                if (fieldName === 'condition') {
+                    componentMap[componentId].condition = value;
+                } else if (fieldName === 'colour') {
+                    componentMap[componentId].colour = value;
+                } else if (fieldName === 'comments') {
+                    componentMap[componentId].comment = value;
+                } else {
+                    componentMap[componentId][fieldName] = value;
+                }
+            }
+        }
+        
+        // Convert component map to array
+        apiData.components = Object.values(componentMap).filter(component => 
+            component.condition || component.colour || component.comment
+        );
+        
+        console.log('Interior API Data being sent:', apiData);
+        
+        try {
+            // Save to database via API
+            const response = await fetch('/api/inspection/interior', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(apiData)
+            });
+            
+            console.log('Interior API Response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Interior API Error Response:', errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            const result = await response.json();
+            console.log('Interior API Response:', result);
+            
+            if (result.success) {
+                console.log('✅ Interior assessment saved successfully!');
+                
+                // Also save to sessionStorage for compatibility
+                InspectionCards.saveData();
+                
+                // Show success message
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+                    background-color: #28a745; color: white; border-radius: 5px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 9999;
+                `;
+                notification.textContent = 'Interior assessment saved to database successfully!';
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                    window.location.href = '/inspection/service-booklet';
+                }, 1500);
+            } else {
+                throw new Error(result.message || 'Failed to save interior assessment');
+            }
+        } catch (error) {
+            console.error('Database save failed:', error);
+            alert('Warning: Data saved locally only. Database save failed: ' + error.message);
+            
+            // Save to sessionStorage anyway and continue
+            InspectionCards.saveData();
+            setTimeout(() => {
+                window.location.href = '/inspection/service-booklet';
+            }, 2000);
+        }
     });
 });
 </script>
