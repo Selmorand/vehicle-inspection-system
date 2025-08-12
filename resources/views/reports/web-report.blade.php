@@ -498,15 +498,27 @@
                         <div class="vehicle-base-wrapper">
                             <img src="{{ asset('images/panels/FullVehicle.png') }}" alt="Vehicle Base" class="layer-base" id="vehicleBase">
                             
-                            <!-- Colored panel overlays using div blocks instead of images -->
+                            <!-- Panel overlay images with condition styling -->
                             @foreach($inspectionData['body_panels'] as $panel)
                                 @if($panel['condition'])
-                                <div class="panel-overlay panel-{{ str_replace('_', '-', $panel['panel_id']) }} condition-{{ strtolower($panel['condition']) }}" 
+                                @php
+                                    $panelId = str_replace('_', '-', $panel['panel_id']);
+                                    $imageName = $panelId . '.png';
+                                    // Handle special cases and CSV typos
+                                    if ($panelId === 'rear-bumber') $imageName = 'rear-bumper.png';
+                                    if ($panelId === 'lr-quarter-panel') $imageName = 'lr-quarter-panel.png';
+                                    if ($panelId === 'rr-quarter-panel') $imageName = 'rr-quarter-panel.png';
+                                    if (str_contains($panelId, 'rim') && !str_ends_with($imageName, '.png')) {
+                                        $imageName = $panelId . '.png';
+                                    }
+                                @endphp
+                                <img src="/images/panels/{{ $imageName }}" 
+                                     class="panel-overlay panel-{{ $panelId }} condition-{{ strtolower($panel['condition']) }}" 
                                      data-panel="{{ $panel['panel_id'] }}"
                                      data-condition="{{ $panel['condition'] }}"
                                      onclick="scrollToPanelCard('{{ $panel['panel_id'] }}')"
-                                     title="{{ $panel['panel_name'] }} - {{ ucfirst($panel['condition']) }}">
-                                </div>
+                                     title="{{ $panel['panel_name'] }} - {{ ucfirst($panel['condition']) }}"
+                                     alt="{{ $panel['panel_name'] }}">
                                 @endif
                             @endforeach
                         </div>
@@ -605,17 +617,17 @@
                     .panel-lf-rim { top: 64.01%; left: 18.11%; width: 10.45%; height: 7.32%; border-radius: 50%; }
                     .panel-lr-rim { top: 64.01%; left: 69.75%; width: 10.45%; height: 7.32%; border-radius: 50%; }
                     
-                    /* Condition colors */
+                    /* Condition colors using CSS filters for images */
                     .panel-overlay.condition-good {
-                        background-color: rgba(40, 167, 69, 0.7); /* Green */
+                        filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(1352%) hue-rotate(87deg) brightness(119%) contrast(119%); /* Green filter */
                     }
                     
                     .panel-overlay.condition-average {
-                        background-color: rgba(255, 193, 7, 0.7); /* Amber */
+                        filter: brightness(0) saturate(100%) invert(82%) sepia(78%) saturate(1919%) hue-rotate(3deg) brightness(103%) contrast(101%); /* Amber/Orange filter */
                     }
                     
                     .panel-overlay.condition-bad {
-                        background-color: rgba(220, 53, 69, 0.7); /* Red */
+                        filter: brightness(0) saturate(100%) invert(21%) sepia(100%) saturate(7463%) hue-rotate(358deg) brightness(105%) contrast(115%); /* Red filter */
                     }
                     
                     /* Legend Styles */
