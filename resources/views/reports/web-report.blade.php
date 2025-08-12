@@ -616,14 +616,14 @@
                     .panel-overlay {
                         cursor: pointer;
                         transition: all 0.3s ease;
-                        opacity: 1; /* Default opacity for panels without conditions */
+                        opacity: 0; /* Default: invisible unless they have condition classes */
                     }
                     
                     .panel-overlay:hover {
                         opacity: 0.9;
                     }
                     
-                    /* Condition colors using optimized CSS filters */
+                    /* Condition colors using optimized CSS filters - ONLY applied to panels with condition classes */
                     .panel-overlay.condition-good {
                         opacity: 0.8 !important;
                         filter: brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1352%) hue-rotate(87deg) brightness(98%) contrast(103%) !important; /* Green */
@@ -636,7 +636,7 @@
                     
                     .panel-overlay.condition-bad {
                         opacity: 0.8 !important;
-                        filter: brightness(0) saturate(100%) invert(16%) sepia(90%) saturate(3122%) hue-rotate(348deg) brightness(93%) contrast(87%) !important; /* Red - using your optimized values */
+                        filter: brightness(0) saturate(100%) invert(16%) sepia(90%) saturate(3122%) hue-rotate(348deg) brightness(93%) contrast(87%) !important; /* Red */
                     }
                     
                     /* Legend Styles */
