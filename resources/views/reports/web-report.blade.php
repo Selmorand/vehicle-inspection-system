@@ -577,7 +577,7 @@
                     .panel-overlay {
                         cursor: pointer;
                         transition: all 0.3s ease;
-                        opacity: 0.7;
+                        opacity: 0.8;
                         position: absolute !important;
                         border-radius: 3px;
                         z-index: 2;
@@ -617,17 +617,17 @@
                     .panel-lf-rim { top: 64.01%; left: 18.11%; width: 10.45%; height: 7.32%; border-radius: 50%; }
                     .panel-lr-rim { top: 64.01%; left: 69.75%; width: 10.45%; height: 7.32%; border-radius: 50%; }
                     
-                    /* Condition colors using CSS filters for images */
+                    /* Condition colors using CSS filters for images - matching legend colors */
                     .panel-overlay.condition-good {
-                        filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(1352%) hue-rotate(87deg) brightness(119%) contrast(119%); /* Green filter */
+                        filter: brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1352%) hue-rotate(87deg) brightness(98%) contrast(103%); /* Green #28a745 */
                     }
                     
                     .panel-overlay.condition-average {
-                        filter: brightness(0) saturate(100%) invert(82%) sepia(78%) saturate(1919%) hue-rotate(3deg) brightness(103%) contrast(101%); /* Amber/Orange filter */
+                        filter: brightness(0) saturate(100%) invert(88%) sepia(55%) saturate(1919%) hue-rotate(3deg) brightness(103%) contrast(101%); /* Yellow/Amber #ffc107 */
                     }
                     
                     .panel-overlay.condition-bad {
-                        filter: brightness(0) saturate(100%) invert(21%) sepia(100%) saturate(7463%) hue-rotate(358deg) brightness(105%) contrast(115%); /* Red filter */
+                        filter: brightness(0) saturate(100%) invert(25%) sepia(91%) saturate(7463%) hue-rotate(358deg) brightness(95%) contrast(115%); /* Red #dc3545 */
                     }
                     
                     /* Legend Styles */
