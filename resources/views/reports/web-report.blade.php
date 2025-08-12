@@ -545,20 +545,24 @@
                                     // Check if this panel has a condition
                                     $hasCondition = isset($panelConditions[$panel['id']]);
                                     $condition = $hasCondition ? $panelConditions[$panel['id']] : null;
-                                    $conditionClass = $hasCondition ? ' condition-' . strtolower($condition) : '';
                                 @endphp
-                                <img src="/images/panels/{{ $imageName }}" 
-                                     class="panel-overlay{{ $conditionClass }}" 
+                                @if($hasCondition)
+                                <div class="panel-overlay panel-{{ $panel['id'] }}" 
                                      data-panel="{{ str_replace('-', '_', $panel['id']) }}"
-                                     @if($hasCondition)
-                                     data-condition="{{ $condition }}"
+                                     data-condition="{{ strtolower($condition) }}"
                                      onclick="scrollToPanelCard('{{ str_replace('-', '_', $panel['id']) }}')"
                                      title="{{ $panel['name'] }} - {{ ucfirst($condition) }}"
-                                     @else
-                                     title="{{ $panel['name'] }}"
-                                     @endif
-                                     alt="{{ $panel['name'] }}"
-                                     style="position: absolute; {{ $panel['style'] }}">
+                                     style="position: absolute; {{ $panel['style'] }} 
+                                            -webkit-mask-image: url('/images/panels/{{ $imageName }}'); 
+                                            mask-image: url('/images/panels/{{ $imageName }}'); 
+                                            -webkit-mask-repeat: no-repeat; 
+                                            mask-repeat: no-repeat; 
+                                            -webkit-mask-position: center; 
+                                            mask-position: center; 
+                                            -webkit-mask-size: contain; 
+                                            mask-size: contain;">
+                                </div>
+                                @endif
                             @endforeach
                         </div>
                         
@@ -612,31 +616,36 @@
                         max-width: 1005px;
                     }
                     
-                    /* Panel overlay positioning - matches body-panel-assessment.blade.php */
+                    /* CSS Variables for condition colors */
+                    :root {
+                        --good: #2f7d32;
+                        --average: #f2a007;
+                        --poor: #c62828;
+                    }
+                    
+                    /* Panel overlay using CSS mask to tint only non-transparent PNG pixels */
                     .panel-overlay {
                         cursor: pointer;
                         transition: all 0.3s ease;
-                        opacity: 0; /* Default: invisible unless they have condition classes */
+                        opacity: 0.8;
+                        background-color: var(--panel-color, var(--good));
                     }
                     
                     .panel-overlay:hover {
                         opacity: 0.9;
                     }
                     
-                    /* Condition colors - tint the actual PNG image shape, not background rectangles */
-                    .panel-overlay.condition-good {
-                        opacity: 0.8 !important;
-                        filter: brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1352%) hue-rotate(87deg) brightness(98%) contrast(103%) !important; /* Green - colors the PNG shape */
+                    /* Condition-based colors - PNG mask applied via inline styles */
+                    .panel-overlay[data-condition="good"] {
+                        --panel-color: var(--good);
                     }
                     
-                    .panel-overlay.condition-average {
-                        opacity: 0.8 !important;
-                        filter: brightness(0) saturate(100%) invert(88%) sepia(55%) saturate(1919%) hue-rotate(3deg) brightness(103%) contrast(101%) !important; /* Yellow/Amber - colors the PNG shape */
+                    .panel-overlay[data-condition="average"] {
+                        --panel-color: var(--average);
                     }
                     
-                    .panel-overlay.condition-bad {
-                        opacity: 0.8 !important;
-                        filter: brightness(0) saturate(100%) invert(16%) sepia(90%) saturate(3122%) hue-rotate(348deg) brightness(93%) contrast(87%) !important; /* Red - colors the PNG shape */
+                    .panel-overlay[data-condition="bad"] {
+                        --panel-color: var(--poor);
                     }
                     
                     /* Legend Styles */
