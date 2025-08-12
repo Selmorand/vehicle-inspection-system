@@ -623,23 +623,20 @@
                         opacity: 0.9;
                     }
                     
-                    /* Condition colors - using background color + mix-blend-mode to preserve image shape */
+                    /* Condition colors - solid colored overlays like 14.png */
                     .panel-overlay.condition-good {
                         opacity: 0.8 !important;
-                        background-color: #28a745 !important; /* Green */
-                        mix-blend-mode: screen !important;
+                        background-color: #28a745 !important; /* Green solid overlay */
                     }
                     
                     .panel-overlay.condition-average {
                         opacity: 0.8 !important;
-                        background-color: #ffc107 !important; /* Yellow/Amber */
-                        mix-blend-mode: screen !important;
+                        background-color: #ffc107 !important; /* Yellow/Amber solid overlay */
                     }
                     
                     .panel-overlay.condition-bad {
                         opacity: 0.8 !important;
-                        background-color: #dc3545 !important; /* Red */
-                        mix-blend-mode: screen !important;
+                        background-color: #dc3545 !important; /* Red solid overlay */
                     }
                     
                     /* Legend Styles */
