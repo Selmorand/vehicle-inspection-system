@@ -534,81 +534,76 @@
                     /* Vehicle Diagram Styles */
                     .vehicle-diagram-container {
                         position: relative;
-                        max-width: 800px;
+                        max-width: 1005px;
                         width: 100%;
                         margin: 0 auto;
                         background: #f8f9fa;
                         border-radius: 8px;
                         padding: 2rem;
                         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                        overflow: visible;
                     }
                     
                     .vehicle-base-wrapper {
                         position: relative;
+                        max-width: 1005px;
                         width: 100%;
-                        display: block;
                         margin: 0 auto;
+                        background-color: #f8f9fa;
+                        padding: 0;
+                        overflow: visible;
                     }
                     
                     .layer-base {
                         width: 100%;
                         height: auto;
                         display: block;
-                        z-index: 1;
+                        max-width: 1005px;
                     }
                     
-                    /* Panel overlay positioning - based on FullVehicle.png coordinates */
+                    /* Panel overlay positioning - matches body-panel-assessment.blade.php */
                     .panel-overlay {
-                        position: absolute;
-                        opacity: 0.7;
-                        z-index: 2;
                         cursor: pointer;
-                        transition: opacity 0.3s ease;
+                        transition: all 0.3s ease;
+                        opacity: 0.7;
+                        position: absolute !important;
                         border-radius: 3px;
+                        z-index: 2;
                     }
                     
                     .panel-overlay:hover {
                         opacity: 0.9;
                     }
                     
-                    /* Panel positions - coordinates based on FullVehicle.png layout */
-                    /* Main vehicle side view (top portion of image) */
-                    .panel-rr-door { top: 20%; left: 15%; width: 12%; height: 15%; }
-                    .panel-lr-door { top: 20%; left: 30%; width: 12%; height: 15%; }  
-                    .panel-rr-quarter-panel { top: 18%; left: 8%; width: 10%; height: 18%; }
-                    .panel-lr-quarter-panel { top: 18%; left: 42%; width: 10%; height: 18%; }
-                    .panel-rear-bumper { top: 25%; left: 2%; width: 8%; height: 10%; }
-                    .panel-rear-bumber { top: 25%; left: 2%; width: 8%; height: 10%; } /* Handle typo */
-                    .panel-front-bumper { top: 25%; left: 52%; width: 8%; height: 10%; }
-                    .panel-bonnet { top: 15%; left: 48%; width: 12%; height: 12%; }
-                    .panel-windscreen { top: 12%; left: 42%; width: 8%; height: 6%; }
-                    .panel-roof { top: 8%; left: 35%; width: 16%; height: 6%; }
-                    .panel-rear-window { top: 12%; left: 28%; width: 6%; height: 6%; }
-                    .panel-boot { top: 18%; left: 20%; width: 12%; height: 12%; }
+                    /* Panel positions using exact coordinates from panelimages2.csv (converted to percentages) */
+                    /* Base image dimensions: 1005px width × 1353px height */
                     
-                    /* Door panels on side view */
-                    .panel-fr-door { top: 20%; left: 45%; width: 10%; height: 15%; }
-                    .panel-lf-door { top: 20%; left: 38%; width: 10%; height: 15%; }
-                    
-                    /* Mirrors */
-                    .panel-fr-mirror { top: 15%; left: 50%; width: 3%; height: 3%; }
-                    .panel-lf-mirror { top: 15%; left: 42%; width: 3%; height: 3%; }
-                    
-                    /* Headlights and taillights */ 
-                    .panel-fr-headlight { top: 25%; left: 55%; width: 5%; height: 5%; }
-                    .panel-lf-headlight { top: 25%; left: 58%; width: 5%; height: 5%; }
-                    .panel-rr-taillight { top: 25%; left: 5%; width: 5%; height: 5%; }
-                    .panel-lr-taillight { top: 25%; left: 25%; width: 5%; height: 5%; }
-                    
-                    /* Fenders - lower view sections */
-                    .panel-fr-fender { top: 75%; left: 45%; width: 8%; height: 8%; }
-                    .panel-lf-fender { top: 75%; left: 30%; width: 8%; height: 8%; }
-                    
-                    /* Rims - on wheels in side view */
-                    .panel-rr-rim { top: 28%; left: 18%; width: 6%; height: 6%; border-radius: 50%; }
-                    .panel-rf-rim { top: 28%; left: 48%; width: 6%; height: 6%; border-radius: 50%; }
-                    .panel-lr-rim { top: 28%; left: 33%; width: 6%; height: 6%; border-radius: 50%; }
-                    .panel-lf-rim { top: 28%; left: 45%; width: 6%; height: 6%; border-radius: 50%; }
+                    .panel-bonnet { top: 24.32%; left: 68.06%; width: 26.97%; height: 24.83%; }
+                    .panel-boot { top: 26.83%; left: 7.26%; width: 14.03%; height: 19.73%; }
+                    .panel-fr-door { top: 2.22%; left: 44.08%; width: 22.89%; height: 15.67%; }
+                    .panel-fr-fender { top: 6.21%; left: 61.89%; width: 31.84%; height: 16.26%; }
+                    .panel-fr-headlight { top: 85.37%; left: 6.97%; width: 9.05%; height: 2.51%; }
+                    .panel-fr-mirror { top: 80.93%; left: 3.98%; width: 4.78%; height: 2.36%; }
+                    .panel-front-bumper { top: 87.21%; left: 4.18%; width: 37.21%; height: 6.28%; }
+                    .panel-lf-door { top: 52.85%; left: 32.64%; width: 22.99%; height: 15.67%; }
+                    .panel-lf-fender { top: 56.91%; left: 5.87%; width: 31.84%; height: 16.26%; }
+                    .panel-lf-headlight { top: 85.37%; left: 29.35%; width: 9.15%; height: 2.51%; }
+                    .panel-lf-mirror { top: 80.93%; left: 36.62%; width: 4.78%; height: 2.36%; }
+                    .panel-lr-door { top: 52.62%; left: 52.34%; width: 20.60%; height: 16.56%; }
+                    .panel-lr-quarter-panel { top: 58.24%; left: 67.06%; width: 26.97%; height: 10.35%; }
+                    .panel-lr-taillight { top: 82.89%; left: 61.89%; width: 9.15%; height: 3.84%; }
+                    .panel-rear-bumper { top: 87.36%; left: 59.20%; width: 33.83%; height: 5.03%; }
+                    .panel-rear-bumber { top: 87.36%; left: 59.20%; width: 33.83%; height: 5.03%; } /* Handle CSV typo */
+                    .panel-rear-window { top: 27.20%; left: 15.82%; width: 15.62%; height: 18.48%; }
+                    .panel-roof { top: 28.09%; left: 29.75%; width: 28.16%; height: 16.34%; }
+                    .panel-rr-door { top: 2.07%; left: 26.47%; width: 20.80%; height: 16.56%; }
+                    .panel-rr-quarter-panel { top: 7.54%; left: 5.57%; width: 26.97%; height: 10.42%; }
+                    .panel-rr-taillight { top: 82.89%; left: 81.59%; width: 9.15%; height: 3.84%; }
+                    .panel-windscreen { top: 25.87%; left: 57.31%; width: 14.63%; height: 20.62%; }
+                    .panel-rr-rim { top: 13.38%; left: 19.30%; width: 10.45%; height: 7.32%; border-radius: 50%; }
+                    .panel-rf-rim { top: 13.38%; left: 70.95%; width: 10.45%; height: 7.32%; border-radius: 50%; }
+                    .panel-lf-rim { top: 64.01%; left: 18.11%; width: 10.45%; height: 7.32%; border-radius: 50%; }
+                    .panel-lr-rim { top: 64.01%; left: 69.75%; width: 10.45%; height: 7.32%; border-radius: 50%; }
                     
                     /* Condition colors */
                     .panel-overlay.condition-good {
