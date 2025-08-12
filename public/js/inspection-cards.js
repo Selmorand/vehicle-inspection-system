@@ -488,8 +488,14 @@ window.InspectionCards = (function() {
         const data = {};
         
         for (let [key, value] of formData.entries()) {
-            if (value && key !== '_token') {
-                data[key] = value;
+            if (key !== '_token') {
+                // Convert numeric fields to proper types
+                if (key === 'km_reading' || key === 'year_model' || key === 'year' || 
+                    key === 'mileage' || key.includes('tread_depth') || key.includes('percentage')) {
+                    data[key] = value ? parseInt(value) || null : null;
+                } else {
+                    data[key] = value || '';
+                }
             }
         }
         

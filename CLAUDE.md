@@ -36,11 +36,6 @@ Web-based vehicle inspection system for tablet use. Features:
 When responding:
 1. Give full working code with file paths.
 2. Explain WHY, not just how.
-3. State where to paste code + how to test.
-4. Suggest simpler alternatives if possible.
-5. For DB changes: full migration + rollback steps.
-6. Check and flag unused code before deployment.
-
 ---
 
 ## Data Integrity & Retention

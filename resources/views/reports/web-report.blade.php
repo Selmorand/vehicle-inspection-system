@@ -490,8 +490,202 @@
                     <i class="bi bi-car-front"></i>
                     Body Panel Assessment
                 </h2>
+
+                <!-- Vehicle Body Panels Visual Section -->
+                <section id="vehicle-diagram" aria-label="Vehicle Body Panels" style="margin-bottom: 2rem;">
+                    <div class="vehicle-diagram-container">
+                        <!-- Base vehicle image -->
+                        <div class="vehicle-base-wrapper">
+                            <img src="{{ asset('images/panels/FullVehicle.png') }}" alt="Vehicle Base" class="layer-base" id="vehicleBase">
+                            
+                            <!-- Colored panel overlays using div blocks instead of images -->
+                            @foreach($inspectionData['body_panels'] as $panel)
+                                @if($panel['condition'])
+                                <div class="panel-overlay panel-{{ str_replace('_', '-', $panel['panel_id']) }} condition-{{ strtolower($panel['condition']) }}" 
+                                     data-panel="{{ $panel['panel_id'] }}"
+                                     data-condition="{{ $panel['condition'] }}"
+                                     onclick="scrollToPanelCard('{{ $panel['panel_id'] }}')"
+                                     title="{{ $panel['panel_name'] }} - {{ ucfirst($panel['condition']) }}">
+                                </div>
+                                @endif
+                            @endforeach
+                        </div>
+                        
+                        <!-- Legend -->
+                        <div class="condition-legend">
+                            <div class="legend-title">Condition Status</div>
+                            <div class="legend-item">
+                                <span class="legend-color good"></span>
+                                <span class="legend-label">Good</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color average"></span>
+                                <span class="legend-label">Average</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color bad"></span>
+                                <span class="legend-label">Poor</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
                 
                 <style>
+                    /* Vehicle Diagram Styles */
+                    .vehicle-diagram-container {
+                        position: relative;
+                        max-width: 800px;
+                        width: 100%;
+                        margin: 0 auto;
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        padding: 2rem;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    }
+                    
+                    .vehicle-base-wrapper {
+                        position: relative;
+                        width: 100%;
+                        display: block;
+                        margin: 0 auto;
+                    }
+                    
+                    .layer-base {
+                        width: 100%;
+                        height: auto;
+                        display: block;
+                        z-index: 1;
+                    }
+                    
+                    /* Panel overlay positioning - based on FullVehicle.png coordinates */
+                    .panel-overlay {
+                        position: absolute;
+                        opacity: 0.7;
+                        z-index: 2;
+                        cursor: pointer;
+                        transition: opacity 0.3s ease;
+                        border-radius: 3px;
+                    }
+                    
+                    .panel-overlay:hover {
+                        opacity: 0.9;
+                    }
+                    
+                    /* Panel positions - coordinates based on FullVehicle.png layout */
+                    /* Main vehicle side view (top portion of image) */
+                    .panel-rr-door { top: 20%; left: 15%; width: 12%; height: 15%; }
+                    .panel-lr-door { top: 20%; left: 30%; width: 12%; height: 15%; }  
+                    .panel-rr-quarter-panel { top: 18%; left: 8%; width: 10%; height: 18%; }
+                    .panel-lr-quarter-panel { top: 18%; left: 42%; width: 10%; height: 18%; }
+                    .panel-rear-bumper { top: 25%; left: 2%; width: 8%; height: 10%; }
+                    .panel-rear-bumber { top: 25%; left: 2%; width: 8%; height: 10%; } /* Handle typo */
+                    .panel-front-bumper { top: 25%; left: 52%; width: 8%; height: 10%; }
+                    .panel-bonnet { top: 15%; left: 48%; width: 12%; height: 12%; }
+                    .panel-windscreen { top: 12%; left: 42%; width: 8%; height: 6%; }
+                    .panel-roof { top: 8%; left: 35%; width: 16%; height: 6%; }
+                    .panel-rear-window { top: 12%; left: 28%; width: 6%; height: 6%; }
+                    .panel-boot { top: 18%; left: 20%; width: 12%; height: 12%; }
+                    
+                    /* Door panels on side view */
+                    .panel-fr-door { top: 20%; left: 45%; width: 10%; height: 15%; }
+                    .panel-lf-door { top: 20%; left: 38%; width: 10%; height: 15%; }
+                    
+                    /* Mirrors */
+                    .panel-fr-mirror { top: 15%; left: 50%; width: 3%; height: 3%; }
+                    .panel-lf-mirror { top: 15%; left: 42%; width: 3%; height: 3%; }
+                    
+                    /* Headlights and taillights */ 
+                    .panel-fr-headlight { top: 25%; left: 55%; width: 5%; height: 5%; }
+                    .panel-lf-headlight { top: 25%; left: 58%; width: 5%; height: 5%; }
+                    .panel-rr-taillight { top: 25%; left: 5%; width: 5%; height: 5%; }
+                    .panel-lr-taillight { top: 25%; left: 25%; width: 5%; height: 5%; }
+                    
+                    /* Fenders - lower view sections */
+                    .panel-fr-fender { top: 75%; left: 45%; width: 8%; height: 8%; }
+                    .panel-lf-fender { top: 75%; left: 30%; width: 8%; height: 8%; }
+                    
+                    /* Rims - on wheels in side view */
+                    .panel-rr-rim { top: 28%; left: 18%; width: 6%; height: 6%; border-radius: 50%; }
+                    .panel-rf-rim { top: 28%; left: 48%; width: 6%; height: 6%; border-radius: 50%; }
+                    .panel-lr-rim { top: 28%; left: 33%; width: 6%; height: 6%; border-radius: 50%; }
+                    .panel-lf-rim { top: 28%; left: 45%; width: 6%; height: 6%; border-radius: 50%; }
+                    
+                    /* Condition colors */
+                    .panel-overlay.condition-good {
+                        background-color: rgba(40, 167, 69, 0.7); /* Green */
+                    }
+                    
+                    .panel-overlay.condition-average {
+                        background-color: rgba(255, 193, 7, 0.7); /* Amber */
+                    }
+                    
+                    .panel-overlay.condition-bad {
+                        background-color: rgba(220, 53, 69, 0.7); /* Red */
+                    }
+                    
+                    /* Legend Styles */
+                    .condition-legend {
+                        position: absolute;
+                        bottom: 1rem;
+                        right: 1rem;
+                        background: rgba(255, 255, 255, 0.95);
+                        padding: 1rem;
+                        border-radius: 6px;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                        min-width: 120px;
+                    }
+                    
+                    .legend-title {
+                        font-weight: bold;
+                        font-size: 0.9rem;
+                        margin-bottom: 0.5rem;
+                        color: #495057;
+                    }
+                    
+                    .legend-item {
+                        display: flex;
+                        align-items: center;
+                        margin-bottom: 0.25rem;
+                        font-size: 0.85rem;
+                    }
+                    
+                    .legend-color {
+                        width: 16px;
+                        height: 16px;
+                        border-radius: 3px;
+                        margin-right: 0.5rem;
+                        border: 1px solid rgba(0,0,0,0.1);
+                    }
+                    
+                    .legend-color.good {
+                        background-color: #28a745;
+                    }
+                    
+                    .legend-color.average {
+                        background-color: #ffc107;
+                    }
+                    
+                    .legend-color.bad {
+                        background-color: #dc3545;
+                    }
+                    
+                    .legend-label {
+                        color: #495057;
+                    }
+                    
+                    /* Responsive adjustments */
+                    @media (max-width: 768px) {
+                        .vehicle-diagram-container {
+                            padding: 1rem;
+                        }
+                        
+                        .condition-legend {
+                            position: static;
+                            margin-top: 1rem;
+                            width: fit-content;
+                        }
+                    }
+
                     .panel-card {
                         border: 1px solid #dee2e6;
                         border-radius: 8px;
@@ -1245,5 +1439,45 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Function to scroll to panel card when clicking overlay
+function scrollToPanelCard(panelId) {
+    // Clean panel ID to match card data attributes
+    const cleanPanelId = panelId.replace('body_panel_', '').replace('_', '-');
+    
+    // Find the matching panel card
+    const panelCard = document.querySelector(`[data-panel-card="${cleanPanelId}"]`) || 
+                     document.querySelector(`[data-panel-card="${panelId}"]`) ||
+                     document.querySelector(`[data-panel-card="body_panel_${cleanPanelId}"]`);
+    
+    if (panelCard) {
+        // Highlight the panel card temporarily
+        panelCard.style.transition = 'all 0.3s ease';
+        panelCard.style.backgroundColor = '#fff3cd';
+        panelCard.style.border = '2px solid #ffc107';
+        
+        // Scroll to the panel card
+        panelCard.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+        
+        // Remove highlight after 2 seconds
+        setTimeout(() => {
+            panelCard.style.backgroundColor = '';
+            panelCard.style.border = '';
+        }, 2000);
+    } else {
+        console.log('Panel card not found for ID:', panelId, 'Cleaned ID:', cleanPanelId);
+        // Fallback: scroll to the body panel section
+        const bodyPanelSection = document.querySelector('#vehicle-diagram').closest('.section');
+        if (bodyPanelSection) {
+            bodyPanelSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }
+}
 </script>
 @endsection
