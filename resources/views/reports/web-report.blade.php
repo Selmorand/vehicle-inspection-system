@@ -648,6 +648,54 @@
                         --panel-color: var(--poor);
                     }
                     
+                    /* Interior Diagram Styles - same CSS mask approach as body panels */
+                    .interior-diagram-container {
+                        position: relative;
+                        max-width: 1005px;
+                        width: 100%;
+                        margin: 0 auto;
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        padding: 2rem;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                        overflow: visible;
+                    }
+                    
+                    .interior-base-wrapper {
+                        position: relative;
+                        max-width: 1005px;
+                        width: 100%;
+                        margin: 0 auto;
+                        background-color: #f8f9fa;
+                        padding: 0;
+                        overflow: visible;
+                    }
+                    
+                    /* Interior overlay using CSS mask to tint only non-transparent PNG pixels */
+                    .interior-overlay {
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        opacity: 0.8;
+                        background-color: var(--panel-color, var(--good));
+                    }
+                    
+                    .interior-overlay:hover {
+                        opacity: 0.9;
+                    }
+                    
+                    /* Interior condition-based colors - PNG mask applied via inline styles */
+                    .interior-overlay[data-condition="good"] {
+                        --panel-color: var(--good);
+                    }
+                    
+                    .interior-overlay[data-condition="average"] {
+                        --panel-color: var(--average);
+                    }
+                    
+                    .interior-overlay[data-condition="bad"] {
+                        --panel-color: var(--poor);
+                    }
+                    
                     /* Legend Styles */
                     .condition-legend {
                         position: absolute;
@@ -944,6 +992,91 @@
                         </tbody>
                     </table>
                 </div>
+                
+                <!-- Interior Visual Section -->
+                <section id="interior-diagram" aria-label="Vehicle Interior Components" style="margin-bottom: 2rem;">
+                    <div class="interior-diagram-container">
+                        <!-- Base interior image -->
+                        <div class="interior-base-wrapper">
+                            <img src="{{ asset('images/interior/interiorMain.png') }}" alt="Interior Base" class="layer-base" id="interiorBase">
+                            
+                            <!-- Interior panel overlays with CSS mask technique -->
+                            @php
+                                // Define all interior components with their exact positioning from interior-assessment.blade.php
+                                $allInteriorComponents = [
+                                    ['id' => 'dash', 'name' => 'Dashboard', 'style' => 'left: 6.07%; top: 4.25%; width: 88.36%; height: 17.68%; z-index: 2;'],
+                                    ['id' => 'steering-wheel', 'name' => 'Steering Wheel', 'style' => 'left: 59.20%; top: 17.68%; width: 23.88%; height: 8.56%; z-index: 3;'],
+                                    ['id' => 'buttons', 'name' => 'Buttons', 'style' => 'left: 47.36%; top: 18.86%; width: 6.47%; height: 4.59%; z-index: 2;'], // Using centre buttons as main
+                                    ['id' => 'gear-lever', 'name' => 'Gear Lever', 'style' => 'left: 47.66%; top: 41.88%; width: 6.17%; height: 5.64%; z-index: 2;'],
+                                    ['id' => 'handbrake', 'name' => 'Handbrake', 'style' => 'left: 54.93%; top: 48.33%; width: 4.18%; height: 4.04%; z-index: 2;'],
+                                    ['id' => 'seats', 'name' => 'Seats', 'style' => 'left: 8.96%; top: 73.45%; width: 82.09%; height: 23.88%; z-index: 1;'],
+                                    ['id' => 'carpets', 'name' => 'Carpets', 'style' => 'left: 5.67%; top: 48.33%; width: 88.66%; height: 25.21%; z-index: 1;'],
+                                    ['id' => 'door-handles', 'name' => 'Door Handles', 'style' => 'left: 20.75%; top: 56.89%; width: 3.28%; height: 3.35%; z-index: 3;'],
+                                    ['id' => 'door-panels', 'name' => 'Door Panels', 'style' => 'left: 3.28%; top: 25.42%; width: 18.66%; height: 28.49%; z-index: 2;'],
+                                    ['id' => 'windows', 'name' => 'Windows', 'style' => 'left: 10.35%; top: 0.00%; width: 79.70%; height: 4.25%; z-index: 1;']
+                                ];
+                                
+                                // Create a lookup array for components with conditions
+                                $interiorConditions = [];
+                                if(!empty($inspectionData['interior']['assessments'])) {
+                                    foreach($inspectionData['interior']['assessments'] as $component => $assessment) {
+                                        $interiorConditions[$component] = $assessment['condition'] ?? null;
+                                    }
+                                }
+                            @endphp
+                            
+                            @foreach($allInteriorComponents as $component)
+                                @php
+                                    $imageName = ucfirst($component['id']) . '.png';
+                                    // Handle special cases for interior images
+                                    if ($component['id'] === 'steering-wheel') $imageName = 'steering-wheel.png';
+                                    if ($component['id'] === 'gear-lever') $imageName = 'gear-lever.png';
+                                    if ($component['id'] === 'door-handles') $imageName = 'door-handle-L.png'; // Use main door handle
+                                    if ($component['id'] === 'door-panels') $imageName = 'door-panel-L.png'; // Use main door panel
+                                    if ($component['id'] === 'buttons') $imageName = 'buttons-centre.png'; // Use centre buttons
+                                    
+                                    // Check if this component has a condition
+                                    $hasCondition = isset($interiorConditions[$component['id']]);
+                                    $condition = $hasCondition ? $interiorConditions[$component['id']] : null;
+                                @endphp
+                                @if($hasCondition)
+                                <div class="interior-overlay interior-{{ $component['id'] }}" 
+                                     data-panel="{{ $component['id'] }}"
+                                     data-condition="{{ strtolower($condition) }}"
+                                     onclick="scrollToInteriorComponent('{{ $component['id'] }}')"
+                                     title="{{ $component['name'] }} - {{ ucfirst($condition) }}"
+                                     style="position: absolute; {{ $component['style'] }} 
+                                            -webkit-mask-image: url('/images/interior/{{ $imageName }}'); 
+                                            mask-image: url('/images/interior/{{ $imageName }}'); 
+                                            -webkit-mask-repeat: no-repeat; 
+                                            mask-repeat: no-repeat; 
+                                            -webkit-mask-position: center; 
+                                            mask-position: center; 
+                                            -webkit-mask-size: contain; 
+                                            mask-size: contain;">
+                                </div>
+                                @endif
+                            @endforeach
+                        </div>
+                        
+                        <!-- Legend -->
+                        <div class="condition-legend">
+                            <div class="legend-title">Condition Status</div>
+                            <div class="legend-item">
+                                <span class="legend-color good"></span>
+                                <span class="legend-label">Good</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color average"></span>
+                                <span class="legend-label">Average</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color bad"></span>
+                                <span class="legend-label">Poor</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
             @endif
 
@@ -1502,6 +1635,38 @@ function scrollToPanelCard(panelId) {
                 block: 'start'
             });
         }
+    }
+}
+
+// Function to scroll to interior component when clicking overlay
+function scrollToInteriorComponent(componentId) {
+    // Look for interior component in the table rows
+    const allRows = document.querySelectorAll('table tbody tr');
+    for (let row of allRows) {
+        const componentName = row.querySelector('td:first-child strong');
+        if (componentName) {
+            const componentText = componentName.textContent.toLowerCase();
+            const searchText = componentId.replace('-', ' ').toLowerCase();
+            
+            if (componentText.includes(searchText) || searchText.includes(componentText)) {
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                row.style.backgroundColor = '#fff3cd';
+                row.style.transition = 'background-color 0.3s ease';
+                setTimeout(() => {
+                    row.style.backgroundColor = '';
+                }, 2000);
+                return;
+            }
+        }
+    }
+    
+    // Fallback: scroll to the interior section
+    const interiorSection = document.querySelector('#interior-diagram');
+    if (interiorSection) {
+        interiorSection.closest('.section').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+        });
     }
 }
 </script>
