@@ -627,19 +627,19 @@
                     .panel-overlay.condition-good {
                         opacity: 0.8 !important;
                         background-color: #28a745 !important; /* Green */
-                        mix-blend-mode: overlay !important;
+                        mix-blend-mode: screen !important;
                     }
                     
                     .panel-overlay.condition-average {
                         opacity: 0.8 !important;
                         background-color: #ffc107 !important; /* Yellow/Amber */
-                        mix-blend-mode: overlay !important;
+                        mix-blend-mode: screen !important;
                     }
                     
                     .panel-overlay.condition-bad {
                         opacity: 0.8 !important;
                         background-color: #dc3545 !important; /* Red */
-                        mix-blend-mode: overlay !important;
+                        mix-blend-mode: screen !important;
                     }
                     
                     /* Legend Styles */
