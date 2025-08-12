@@ -417,6 +417,21 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
     
     document.getElementById('saveDraftBtn').addEventListener('click', function() {
+        // Get current data for debugging
+        let formData = {};
+        let imageData = {};
+        
+        try {
+            if (window.InspectionCards) {
+                formData = InspectionCards.getFormData();
+                imageData = InspectionCards.getImages();
+                console.log('Draft - Form Data:', formData);
+                console.log('Draft - Images:', imageData);
+            }
+        } catch (e) {
+            console.error('Error getting draft data:', e);
+        }
+        
         InspectionCards.saveData();
         alert('Draft saved successfully!');
     });
@@ -486,10 +501,123 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     });
     
-    document.getElementById('nextBtn').addEventListener('click', function(e) {
+    document.getElementById('nextBtn').addEventListener('click', async function(e) {
         e.preventDefault(); // Prevent form submission
-        InspectionCards.saveData();
-        window.location.href = '/inspection/interior';
+        
+        console.log('Body Panel: Starting save and navigation...');
+        
+        // Get form data and images from InspectionCards
+        let formData = {};
+        let imageData = {};
+        
+        try {
+            if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+                formData = InspectionCards.getFormData();
+                imageData = InspectionCards.getImages();
+                console.log('Body Panel Form Data:', formData);
+                console.log('Body Panel Images:', imageData);
+            }
+        } catch (e) {
+            console.error('Error getting InspectionCards data:', e);
+        }
+        
+        // Get current inspection ID from session storage
+        const inspectionId = sessionStorage.getItem('currentInspectionId');
+        console.log('Current Inspection ID:', inspectionId);
+        
+        // Prepare API data
+        const apiData = {
+            inspection_id: inspectionId,
+            panels: [],
+            images: imageData
+        };
+        
+        // Extract panel data from form data
+        const panelMap = {};
+        for (const [key, value] of Object.entries(formData)) {
+            const match = key.match(/^([^-]+)-(.+)$/);
+            if (match) {
+                const panelId = match[1];
+                const fieldName = match[2];
+                
+                if (!panelMap[panelId]) {
+                    panelMap[panelId] = { panel_name: panelId };
+                }
+                
+                // Map field names to expected backend format
+                if (fieldName === 'condition') {
+                    panelMap[panelId].condition = value;
+                } else if (fieldName === 'comments') {
+                    panelMap[panelId].additional_comment = value;
+                } else {
+                    panelMap[panelId][fieldName] = value;
+                }
+            }
+        }
+        
+        // Convert panel map to array
+        apiData.panels = Object.values(panelMap).filter(panel => 
+            panel.condition || panel.additional_comment || panel.comment_type || panel.other_notes
+        );
+        
+        console.log('API Data being sent:', apiData);
+        
+        try {
+            // Save to database via API
+            const response = await fetch('/api/inspection/body-panel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(apiData)
+            });
+            
+            console.log('API Response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error Response:', errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            const result = await response.json();
+            console.log('API Response:', result);
+            
+            if (result.success) {
+                console.log('✅ Body panel assessment saved successfully!');
+                
+                // Also save to sessionStorage for compatibility
+                InspectionCards.saveData();
+                
+                // Show success message
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+                    background-color: #28a745; color: white; border-radius: 5px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 9999;
+                `;
+                notification.textContent = 'Body panel assessment saved to database successfully!';
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                    window.location.href = '/inspection/interior';
+                }, 1500);
+            } else {
+                throw new Error(result.message || 'Failed to save body panel assessment');
+            }
+        } catch (error) {
+            console.error('Database save failed:', error);
+            alert('Warning: Data saved locally only. Database save failed: ' + error.message);
+            
+            // Save to sessionStorage anyway and continue
+            InspectionCards.saveData();
+            setTimeout(() => {
+                window.location.href = '/inspection/interior';
+            }, 2000);
+        }
     });
 
     // Debug button to test data capture

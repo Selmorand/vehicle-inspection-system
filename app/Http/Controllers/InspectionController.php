@@ -276,10 +276,14 @@ class InspectionController extends Controller
             'inspection_id' => 'nullable|exists:inspections,id',
             'panels' => 'nullable|array',
             'panels.*.panel_name' => 'nullable|string',
-            'panels.*.condition' => 'nullable|in:good,average,bad',
+            'panels.*.condition' => 'nullable|in:good,average,bad,Good,Average,Bad',
             'panels.*.comment_type' => 'nullable|string',
             'panels.*.additional_comment' => 'nullable|string',
-            'panels.*.other_notes' => 'nullable|string'
+            'panels.*.other_notes' => 'nullable|string',
+            'images' => 'nullable|array',
+            'images.*.*.id' => 'nullable|string',
+            'images.*.*.data' => 'nullable|string',
+            'images.*.*.timestamp' => 'nullable|string'
         ]);
 
         DB::beginTransaction();
@@ -314,6 +318,82 @@ class InspectionController extends Controller
                         ]);
                     }
                 }
+            }
+
+            // Handle body panel images
+            if (!empty($validated['images'])) {
+                \Log::info("Processing body panel images", [
+                    'inspection_id' => $inspectionId,
+                    'image_data_structure' => array_keys($validated['images'])
+                ]);
+                
+                // Delete existing body panel images for this inspection
+                InspectionImage::where('inspection_id', $inspectionId)
+                               ->where('image_type', 'specific_area')
+                               ->where('area_name', 'LIKE', '%panel%')
+                               ->delete();
+                
+                foreach ($validated['images'] as $panelId => $imageList) {
+                    if (is_array($imageList)) {
+                        foreach ($imageList as $imageInfo) {
+                            if (!empty($imageInfo['data'])) {
+                                // Extract image content (remove data URL prefix if present)
+                                $imageData = $imageInfo['data'];
+                                if (strpos($imageData, 'data:') === 0) {
+                                    $imageContent = preg_replace('#^data:[^;]+;base64,#i', '', $imageData);
+                                } else {
+                                    $imageContent = $imageData;
+                                }
+                                
+                                $imageBinary = base64_decode($imageContent);
+                                
+                                if ($imageBinary !== false && strlen($imageBinary) > 0) {
+                                    // Create filename for image
+                                    $imageFilename = 'body_panel_' . $panelId . '_' . time() . '_' . rand(1000, 9999) . '.jpg';
+                                    $imagePath = 'inspections/' . $inspectionId . '/body_panel/' . $imageFilename;
+                                    
+                                    // Ensure directory exists and store image
+                                    Storage::disk('public')->makeDirectory('inspections/' . $inspectionId . '/body_panel');
+                                    $stored = Storage::disk('public')->put($imagePath, $imageBinary);
+                                    
+                                    if ($stored) {
+                                        // Create database record for image
+                                        InspectionImage::create([
+                                            'inspection_id' => $inspectionId,
+                                            'image_type' => 'specific_area',
+                                            'area_name' => 'body_panel_' . $panelId,
+                                            'file_path' => $imagePath,
+                                            'original_name' => $imageInfo['id'] ?? $imageFilename
+                                        ]);
+                                        
+                                        \Log::info("Body panel image saved successfully", [
+                                            'inspection_id' => $inspectionId,
+                                            'panel_id' => $panelId,
+                                            'file_path' => $imagePath,
+                                            'size' => strlen($imageBinary)
+                                        ]);
+                                    } else {
+                                        \Log::error("Failed to store body panel image file", [
+                                            'inspection_id' => $inspectionId,
+                                            'panel_id' => $panelId,
+                                            'file_path' => $imagePath
+                                        ]);
+                                    }
+                                } else {
+                                    \Log::error("Failed to decode body panel image base64 data", [
+                                        'inspection_id' => $inspectionId,
+                                        'panel_id' => $panelId,
+                                        'base64_length' => strlen($imageContent)
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                \Log::info("No body panel images provided", [
+                    'inspection_id' => $inspectionId
+                ]);
             }
 
             DB::commit();

@@ -3,6 +3,8 @@
 @section('title', 'Inspection Report - ' . ($report->report_number ?? 'Report'))
 
 @section('additional-css')
+<!-- jQuery (required for lightbox) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Use local fallback for lightbox CSS if CDN fails -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet" onerror="this.remove()">
 <style>
@@ -465,15 +467,15 @@
                         <br>
                         @if(!empty($inspectionData['inspection']['diagnostic_file']['data']))
                         <a href="{{ $inspectionData['inspection']['diagnostic_file']['data'] }}" 
-                           download="{{ $inspectionData['inspection']['diagnostic_file']['name'] }}" 
+                           target="_blank" 
                            class="btn btn-sm btn-outline-primary mt-2">
+                            <i class="bi bi-eye"></i> View PDF
+                        </a>
+                        <a href="{{ $inspectionData['inspection']['diagnostic_file']['data'] }}" 
+                           download="{{ $inspectionData['inspection']['diagnostic_file']['name'] }}" 
+                           class="btn btn-sm btn-outline-secondary mt-2 ms-2">
                             <i class="bi bi-download"></i> Download PDF
                         </a>
-                        <button type="button" 
-                                class="btn btn-sm btn-outline-secondary mt-2 ms-2"
-                                onclick="showPdfInModal('{{ $inspectionData['inspection']['diagnostic_file']['data'] }}', '{{ $inspectionData['inspection']['diagnostic_file']['name'] }}')">
-                            <i class="bi bi-eye"></i> View PDF
-                        </button>
                         @endif
                     </div>
                 </div>
@@ -482,39 +484,184 @@
             @endif
 
             <!-- Body Panel Assessment -->
-            @if(!empty($inspectionData['body_panels']['assessments']))
+            @if(!empty($inspectionData['body_panels']))
             <div class="section">
                 <h2 class="section-title">
                     <i class="bi bi-car-front"></i>
                     Body Panel Assessment
                 </h2>
                 
-                <div class="table-responsive">
-                    <table class="assessment-table">
-                        <thead>
-                            <tr>
-                                <th>Panel</th>
-                                <th>Condition</th>
-                                <th>Comments</th>
-                                <th>Additional Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($inspectionData['body_panels']['assessments'] as $panel => $assessment)
-                            <tr>
-                                <td><strong>{{ ucwords(str_replace('-', ' ', $panel)) }}</strong></td>
-                                <td>
-                                    <span class="condition-badge condition-{{ $assessment['condition'] ?? 'good' }}">
-                                        {{ ucfirst($assessment['condition'] ?? 'Good') }}
-                                    </span>
-                                </td>
-                                <td>{{ $assessment['comment'] ?? '-' }}</td>
-                                <td>{{ $assessment['additionalComment'] ?? '-' }}</td>
-                            </tr>
+                <style>
+                    .panel-card {
+                        border: 1px solid #dee2e6;
+                        border-radius: 8px;
+                        margin-bottom: 1.5rem;
+                        overflow: hidden;
+                    }
+                    .panel-header {
+                        background: #f8f9fa;
+                        padding: 1rem;
+                        border-bottom: 1px solid #dee2e6;
+                    }
+                    .panel-row {
+                        display: flex;
+                        align-items: center;
+                        gap: 2rem;
+                        flex-wrap: wrap;
+                    }
+                    .panel-name {
+                        font-weight: bold;
+                        font-size: 1.1rem;
+                        color: #495057;
+                        min-width: 200px;
+                    }
+                    .panel-condition {
+                        min-width: 120px;
+                    }
+                    .panel-condition select {
+                        padding: 0.25rem 0.5rem;
+                        border: 1px solid #ced4da;
+                        border-radius: 4px;
+                        background-color: white;
+                        font-size: 0.9rem;
+                    }
+                    .panel-comment {
+                        flex: 1;
+                        min-width: 200px;
+                    }
+                    .panel-comment-label {
+                        font-weight: 600;
+                        color: #6c757d;
+                        margin-right: 0.5rem;
+                    }
+                    .panel-images {
+                        padding: 1rem;
+                        background: white;
+                    }
+                    .images-row {
+                        display: flex;
+                        gap: 1rem;
+                        overflow-x: auto;
+                        padding: 0.5rem 0;
+                    }
+                    .image-thumbnail {
+                        position: relative;
+                        min-width: 120px;
+                        height: 120px;
+                        border: 1px solid #dee2e6;
+                        border-radius: 4px;
+                        overflow: hidden;
+                    }
+                    .image-thumbnail img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        cursor: pointer;
+                    }
+                    .image-delete {
+                        position: absolute;
+                        top: 5px;
+                        right: 5px;
+                        background: rgba(220, 53, 69, 0.9);
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        width: 24px;
+                        height: 24px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        font-size: 16px;
+                        line-height: 1;
+                    }
+                    .condition-Good, .condition-good {
+                        background-color: #d4edda;
+                        color: #155724;
+                        padding: 0.25rem 0.75rem;
+                        border-radius: 4px;
+                        display: inline-block;
+                    }
+                    .condition-Average, .condition-average {
+                        background-color: #fff3cd;
+                        color: #856404;
+                        padding: 0.25rem 0.75rem;
+                        border-radius: 4px;
+                        display: inline-block;
+                    }
+                    .condition-Bad, .condition-bad {
+                        background-color: #f8d7da;
+                        color: #721c24;
+                        padding: 0.25rem 0.75rem;
+                        border-radius: 4px;
+                        display: inline-block;
+                    }
+                </style>
+                
+                @foreach($inspectionData['body_panels'] as $panel)
+                <div class="panel-card" data-panel-card="{{ $panel['panel_id'] }}">
+                    <!-- First Row: Panel Heading, Condition, Comments -->
+                    <div class="panel-header">
+                        <div class="panel-row">
+                            <div class="panel-name">{{ $panel['panel_name'] }}</div>
+                            
+                            <div class="panel-condition">
+                                @if($panel['condition'])
+                                <span class="condition-{{ $panel['condition'] }}">
+                                    {{ ucfirst($panel['condition']) }}
+                                </span>
+                                @else
+                                <span class="text-muted">No condition set</span>
+                                @endif
+                            </div>
+                            
+                            @if($panel['comment_type'] || $panel['additional_comment'])
+                            <div class="panel-comment">
+                                @if($panel['comment_type'])
+                                <span class="panel-comment-label">COMMENTS:</span>
+                                <span>{{ $panel['comment_type'] }}</span>
+                                @endif
+                                
+                                @if($panel['additional_comment'])
+                                <br>
+                                <span class="panel-comment-label">ADDITIONAL COMMENTS:</span>
+                                <span>{{ $panel['additional_comment'] }}</span>
+                                @endif
+                                
+                                @if($panel['other_notes'])
+                                <br>
+                                <span class="panel-comment-label">OTHER NOTES:</span>
+                                <span>{{ $panel['other_notes'] }}</span>
+                                @endif
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    <!-- Second Row: Images -->
+                    @if(!empty($panel['images']))
+                    <div class="panel-images">
+                        <div class="images-row">
+                            @foreach($panel['images'] as $image)
+                            <div class="image-thumbnail">
+                                <a href="{{ $image['url'] }}" data-lightbox="panel-{{ $panel['panel_id'] }}" 
+                                   data-title="{{ $panel['panel_name'] }}">
+                                    <img src="{{ $image['thumbnail'] }}" alt="{{ $panel['panel_name'] }} image">
+                                </a>
+                                <span class="image-delete" title="Image from inspection">×</span>
+                            </div>
                             @endforeach
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
+                    @endif
                 </div>
+                @endforeach
+                
+                @if(empty($inspectionData['body_panels']))
+                <div class="alert alert-info">
+                    No body panel assessments recorded for this inspection.
+                </div>
+                @endif
             </div>
             @endif
 

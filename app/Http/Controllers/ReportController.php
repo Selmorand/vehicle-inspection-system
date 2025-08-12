@@ -34,7 +34,7 @@ class ReportController extends Controller
             }
             
             // If no InspectionReport, try to find an Inspection and generate report view
-            $inspection = \App\Models\Inspection::with(['client', 'vehicle', 'images'])->findOrFail($id);
+            $inspection = \App\Models\Inspection::with(['client', 'vehicle', 'images', 'bodyPanelAssessments'])->findOrFail($id);
             
             // Create a report-like object for the view
             $report = (object)[
@@ -85,7 +85,8 @@ class ReportController extends Controller
                 ],
                 'images' => [
                     'visual' => $this->formatImagesForReport($inspection->images)
-                ]
+                ],
+                'body_panels' => $this->formatBodyPanelsForReport($inspection)
             ];
             
             return view('reports.web-report', compact('report', 'inspectionData'));
@@ -428,6 +429,11 @@ class ReportController extends Controller
                     continue;
                 }
                 
+                // Skip body panel images - they're handled in formatBodyPanelsForReport
+                if ($image->image_type === 'specific_area' && str_starts_with($image->area_name, 'body_panel_')) {
+                    continue;
+                }
+                
                 // Check if image file exists
                 $fullPath = storage_path('app/public/' . $image->file_path);
                 if (file_exists($fullPath)) {
@@ -451,6 +457,99 @@ class ReportController extends Controller
         return $formattedImages;
     }
     
+    /**
+     * Format body panels data for report display
+     */
+    private function formatBodyPanelsForReport($inspection)
+    {
+        $bodyPanelData = [];
+        
+        // Get body panel assessments from database
+        if ($inspection->bodyPanelAssessments) {
+            foreach ($inspection->bodyPanelAssessments as $panel) {
+                // Clean up panel name - remove 'body_panel_' prefix if present
+                $panelId = str_replace('body_panel_', '', $panel->panel_name);
+                
+                // Get images for this panel
+                // Handle both underscore and hyphen variations
+                $panelImages = [];
+                $searchName1 = 'body_panel_' . $panelId; // As stored (with underscores)
+                $searchName2 = 'body_panel_' . str_replace('_', '-', $panelId); // Convert underscores to hyphens
+                
+                $bodyPanelImages = $inspection->images()
+                    ->where('image_type', 'specific_area')
+                    ->where(function($query) use ($searchName1, $searchName2) {
+                        $query->where('area_name', $searchName1)
+                              ->orWhere('area_name', $searchName2);
+                    })
+                    ->get();
+                
+                foreach ($bodyPanelImages as $image) {
+                    $fullPath = storage_path('app/public/' . $image->file_path);
+                    if (file_exists($fullPath)) {
+                        $panelImages[] = [
+                            'url' => asset('storage/' . $image->file_path),
+                            'thumbnail' => asset('storage/' . $image->file_path),
+                            'timestamp' => $image->created_at ? $image->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s')
+                        ];
+                    }
+                }
+                
+                $bodyPanelData[] = [
+                    'panel_id' => $panelId,
+                    'panel_name' => $this->formatPanelName($panelId),
+                    'condition' => $panel->condition,
+                    'comment_type' => $panel->comment_type,
+                    'additional_comment' => $panel->additional_comment,
+                    'other_notes' => $panel->other_notes,
+                    'images' => $panelImages
+                ];
+            }
+        }
+        
+        return $bodyPanelData;
+    }
+    
+    /**
+     * Format panel ID to readable name
+     */
+    private function formatPanelName($panelId)
+    {
+        // Normalize panel ID (convert underscores to hyphens for consistency)
+        $normalizedId = str_replace('_', '-', $panelId);
+        
+        $names = [
+            'rear-bumber' => 'Rear Bumper',
+            'rear-bumper' => 'Rear Bumper',
+            'lr-quarter-panel' => 'Left Rear Quarter Panel',
+            'rr-quarter-panel' => 'Right Rear Quarter Panel',
+            'rr-rim' => 'Right Rear Rim',
+            'rf-rim' => 'Right Front Rim',
+            'lf-rim' => 'Left Front Rim',
+            'lr-rim' => 'Left Rear Rim',
+            'fr-door' => 'Right Front Door',
+            'fr-fender' => 'Right Front Fender',
+            'fr-headlight' => 'Right Front Headlight',
+            'fr-mirror' => 'Right Front Mirror',
+            'lf-door' => 'Left Front Door',
+            'lf-fender' => 'Left Front Fender',
+            'lf-headlight' => 'Left Front Headlight',
+            'lf-mirror' => 'Left Front Mirror',
+            'lr-door' => 'Left Rear Door',
+            'lr-taillight' => 'Left Rear Taillight',
+            'rr-door' => 'Right Rear Door',
+            'rr-taillight' => 'Right Rear Taillight',
+            'bonnet' => 'Bonnet',
+            'windscreen' => 'Windscreen',
+            'roof' => 'Roof',
+            'rear-window' => 'Rear Window',
+            'boot' => 'Boot',
+            'front-bumper' => 'Front Bumper'
+        ];
+        
+        return $names[$normalizedId] ?? ucwords(str_replace(['-', '_'], ' ', $panelId));
+    }
+
     /**
      * Get diagnostic file data for an inspection
      */
