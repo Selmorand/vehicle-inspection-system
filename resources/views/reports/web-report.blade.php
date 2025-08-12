@@ -623,20 +623,20 @@
                         opacity: 0.9;
                     }
                     
-                    /* Condition colors - solid colored overlays like 14.png */
+                    /* Condition colors - tint the actual PNG image shape, not background rectangles */
                     .panel-overlay.condition-good {
                         opacity: 0.8 !important;
-                        background-color: #28a745 !important; /* Green solid overlay */
+                        filter: brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1352%) hue-rotate(87deg) brightness(98%) contrast(103%) !important; /* Green - colors the PNG shape */
                     }
                     
                     .panel-overlay.condition-average {
                         opacity: 0.8 !important;
-                        background-color: #ffc107 !important; /* Yellow/Amber solid overlay */
+                        filter: brightness(0) saturate(100%) invert(88%) sepia(55%) saturate(1919%) hue-rotate(3deg) brightness(103%) contrast(101%) !important; /* Yellow/Amber - colors the PNG shape */
                     }
                     
                     .panel-overlay.condition-bad {
                         opacity: 0.8 !important;
-                        background-color: #dc3545 !important; /* Red solid overlay */
+                        filter: brightness(0) saturate(100%) invert(16%) sepia(90%) saturate(3122%) hue-rotate(348deg) brightness(93%) contrast(87%) !important; /* Red - colors the PNG shape */
                     }
                     
                     /* Legend Styles */
