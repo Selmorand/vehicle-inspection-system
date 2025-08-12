@@ -548,6 +548,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                 if (fieldName === 'condition') {
                     panelMap[panelId].condition = value;
                 } else if (fieldName === 'comments') {
+                    // 'comments' dropdown maps to 'comment_type' in database
+                    panelMap[panelId].comment_type = value;
+                } else if (fieldName === 'additional_comments') {
+                    // 'additional_comments' text input maps to 'additional_comment' in database
                     panelMap[panelId].additional_comment = value;
                 } else {
                     panelMap[panelId][fieldName] = value;
@@ -621,8 +625,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 
     // Debug button to test data capture
-    document.getElementById('debugDataBtn').addEventListener('click', function() {
-        console.log('=== DEBUG: Comprehensive form inspection ===');
+    const debugBtn = document.getElementById('debugDataBtn');
+    if (debugBtn) {
+        debugBtn.addEventListener('click', function() {
+            console.log('=== DEBUG: Comprehensive form inspection ===');
         
         // 1. Check if form exists
         const form = document.getElementById('bodyPanelAssessmentForm');
@@ -695,14 +701,17 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         
         alert('Debug complete! Check the console for detailed information.');
-    });
+        });
+    }
     
     // Initialize TestReportHandler for body panel assessment
     TestReportHandler.init('bodyPanelAssessmentForm', 'bodyPanelAssessmentData', '/test-reports/body-panel', 'bodyPanel');
     
     // Add custom test report handler for body panel with panel diagram
-    document.getElementById('testReportBtn').addEventListener('click', function() {
-        console.log('=== Test Report Button Clicked ===');
+    const testReportBtn = document.getElementById('testReportBtn');
+    if (testReportBtn) {
+        testReportBtn.addEventListener('click', function() {
+            console.log('=== Test Report Button Clicked ===');
         
         // Get form data directly first (don't rely on sessionStorage)
         let directFormData = {};
@@ -755,7 +764,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Process the report with direct data
         processBodyPanelReportDirect(finalData, finalImages);
-    });
+        });
+    }
 });
 
 // Function to process body panel report data and submit to test endpoint

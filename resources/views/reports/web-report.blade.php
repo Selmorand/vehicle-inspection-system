@@ -565,22 +565,22 @@
                                 @endif
                             @endforeach
                         </div>
-                        
-                        <!-- Legend -->
-                        <div class="condition-legend">
-                            <div class="legend-title">Condition Status</div>
-                            <div class="legend-item">
-                                <span class="legend-color good"></span>
-                                <span class="legend-label">Good</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color average"></span>
-                                <span class="legend-label">Average</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color bad"></span>
-                                <span class="legend-label">Poor</span>
-                            </div>
+                    </div>
+                    
+                    <!-- Legend below vehicle image -->
+                    <div class="condition-legend" style="display: flex; justify-content: center; align-items: center; gap: 30px; margin: 20px auto; padding: 10px;">
+                        <div class="legend-title" style="font-weight: 600;">Condition Status:</div>
+                        <div class="legend-item" style="display: flex; align-items: center; gap: 8px;">
+                            <span class="legend-color good"></span>
+                            <span class="legend-label">Good</span>
+                        </div>
+                        <div class="legend-item" style="display: flex; align-items: center; gap: 8px;">
+                            <span class="legend-color average"></span>
+                            <span class="legend-label">Average</span>
+                        </div>
+                        <div class="legend-item" style="display: flex; align-items: center; gap: 8px;">
+                            <span class="legend-color bad"></span>
+                            <span class="legend-label">Poor</span>
                         </div>
                     </div>
                 </section>
@@ -698,14 +698,9 @@
                     
                     /* Legend Styles */
                     .condition-legend {
-                        position: absolute;
-                        bottom: 1rem;
-                        right: 1rem;
                         background: rgba(255, 255, 255, 0.95);
-                        padding: 1rem;
                         border-radius: 6px;
                         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                        min-width: 120px;
                     }
                     
                     .legend-title {
@@ -753,9 +748,8 @@
                         }
                         
                         .condition-legend {
-                            position: static;
-                            margin-top: 1rem;
-                            width: fit-content;
+                            flex-wrap: wrap;
+                            gap: 15px !important;
                         }
                     }
 
@@ -867,45 +861,45 @@
                 
                 @foreach($inspectionData['body_panels'] as $panel)
                 <div class="panel-card" data-panel-card="{{ $panel['panel_id'] }}">
-                    <!-- First Row: Panel Heading, Condition, Comments -->
+                    <!-- First Row: Panel Name only -->
                     <div class="panel-header">
-                        <div class="panel-row">
-                            <div class="panel-name">{{ $panel['panel_name'] }}</div>
-                            
-                            <div class="panel-condition">
-                                @if($panel['condition'])
-                                <span class="condition-{{ $panel['condition'] }}">
-                                    {{ ucfirst($panel['condition']) }}
-                                </span>
-                                @else
-                                <span class="text-muted">No condition set</span>
-                                @endif
-                            </div>
-                            
-                            @if($panel['comment_type'] || $panel['additional_comment'])
-                            <div class="panel-comment">
-                                @if($panel['comment_type'])
-                                <span class="panel-comment-label">COMMENTS:</span>
-                                <span>{{ $panel['comment_type'] }}</span>
-                                @endif
-                                
-                                @if($panel['additional_comment'])
-                                <br>
-                                <span class="panel-comment-label">ADDITIONAL COMMENTS:</span>
-                                <span>{{ $panel['additional_comment'] }}</span>
-                                @endif
-                                
-                                @if($panel['other_notes'])
-                                <br>
-                                <span class="panel-comment-label">OTHER NOTES:</span>
-                                <span>{{ $panel['other_notes'] }}</span>
-                                @endif
-                            </div>
-                            @endif
+                        <div class="panel-name" style="width: 100%; font-weight: 600; margin-bottom: 10px; font-size: 1.1rem;">
+                            {{ $panel['panel_name'] }}
                         </div>
                     </div>
                     
-                    <!-- Second Row: Images -->
+                    <!-- Second Row: Condition, Comments, Additional Comments all on same line -->
+                    <div class="panel-details" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 20px; flex-wrap: wrap;">
+                        <!-- Condition -->
+                        <div class="panel-condition" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Condition:</span>
+                            @if($panel['condition'])
+                            <span class="condition-{{ $panel['condition'] }}">
+                                {{ ucfirst($panel['condition']) }}
+                            </span>
+                            @else
+                            <span class="text-muted">Not set</span>
+                            @endif
+                        </div>
+                        
+                        <!-- Dropdown Comments -->
+                        @if($panel['comment_type'])
+                        <div class="panel-dropdown-comment" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Comments:</span>
+                            <span>{{ $panel['comment_type'] }}</span>
+                        </div>
+                        @endif
+                        
+                        <!-- Additional Comments -->
+                        @if($panel['additional_comment'])
+                        <div class="panel-additional-comment" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Additional Comments:</span>
+                            <span>{{ $panel['additional_comment'] }}</span>
+                        </div>
+                        @endif
+                    </div>
+                    
+                    <!-- Third Row: Images -->
                     @if(!empty($panel['images']))
                     <div class="panel-images">
                         <div class="images-row">
@@ -1058,22 +1052,22 @@
                                 @endif
                             @endforeach
                         </div>
-                        
-                        <!-- Legend -->
-                        <div class="condition-legend">
-                            <div class="legend-title">Condition Status</div>
-                            <div class="legend-item">
-                                <span class="legend-color good"></span>
-                                <span class="legend-label">Good</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color average"></span>
-                                <span class="legend-label">Average</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color bad"></span>
-                                <span class="legend-label">Poor</span>
-                            </div>
+                    </div>
+                    
+                    <!-- Legend below interior image -->
+                    <div class="condition-legend" style="display: flex; justify-content: center; align-items: center; gap: 30px; margin: 20px auto; padding: 10px;">
+                        <div class="legend-title" style="font-weight: 600;">Condition Status:</div>
+                        <div class="legend-item" style="display: flex; align-items: center; gap: 8px;">
+                            <span class="legend-color good"></span>
+                            <span class="legend-label">Good</span>
+                        </div>
+                        <div class="legend-item" style="display: flex; align-items: center; gap: 8px;">
+                            <span class="legend-color average"></span>
+                            <span class="legend-label">Average</span>
+                        </div>
+                        <div class="legend-item" style="display: flex; align-items: center; gap: 8px;">
+                            <span class="legend-color bad"></span>
+                            <span class="legend-label">Poor</span>
                         </div>
                     </div>
                 </section>
