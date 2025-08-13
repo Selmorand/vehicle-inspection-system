@@ -463,6 +463,64 @@ class InspectionController extends Controller
                     }
                 }
             }
+            
+            // Handle interior images (EXACT SAME AS BODY PANEL)
+            if (!empty($validated['images'])) {
+                foreach ($validated['images'] as $componentId => $imageList) {
+                    if (is_array($imageList) && !empty($imageList)) {
+                        foreach ($imageList as $imageData) {
+                            if (isset($imageData['base64'])) {
+                                // Remove data URL prefix if present
+                                $base64Data = $imageData['base64'];
+                                if (strpos($base64Data, ',') !== false) {
+                                    $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
+                                }
+                                
+                                // Decode base64 image
+                                $imageBinary = base64_decode($base64Data);
+                                
+                                if ($imageBinary !== false) {
+                                    // Generate filename with interior prefix
+                                    $filename = 'interior_' . $componentId . '_' . now()->format('YmdHis') . '_' . uniqid() . '.jpg';
+                                    $imagePath = 'inspections/' . $inspection->id . '/' . $filename;
+                                    
+                                    // Save to storage
+                                    $saved = Storage::disk('public')->put($imagePath, $imageBinary);
+                                    
+                                    if ($saved) {
+                                        // Create database record
+                                        InspectionImage::create([
+                                            'inspection_id' => $inspection->id,
+                                            'area_name' => $componentId, // Use component ID as area name
+                                            'file_path' => $imagePath,
+                                            'original_name' => $filename,
+                                            'mime_type' => 'image/jpeg',
+                                            'file_size' => strlen($imageBinary),
+                                            'image_type' => 'specific_area'
+                                        ]);
+                                        
+                                        Log::info('Interior image saved successfully', [
+                                            'component_id' => $componentId,
+                                            'filename' => $filename,
+                                            'path' => $imagePath,
+                                            'size' => strlen($imageBinary)
+                                        ]);
+                                    } else {
+                                        Log::error('Failed to save interior image to storage', [
+                                            'component_id' => $componentId,
+                                            'path' => $imagePath
+                                        ]);
+                                    }
+                                } else {
+                                    Log::error('Failed to decode base64 interior image', [
+                                        'component_id' => $componentId
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             DB::commit();
 
