@@ -11,7 +11,7 @@ F:\Xampp\htdocs\vehicle-inspection> php artisan serve
   3. Open your browser and go to: http://127.0.0.1:8000
 
   Available pages to view:
-  - http://127.0.0.1:8000/dashboard - Main dashboard
+  - http://127.0.0.1:8000/dahboard - Main dashboard
   - http://127.0.0.1:8000/inspection/visual - Visual inspection form
   - http://127.0.0.1:8000/inspection/body-panel - Body panel assessment (in progress)
   - http://127.0.0.1:8000/test - Test panel page

@@ -182,9 +182,6 @@
             <button type="button" class="btn btn-secondary me-3" onclick="saveDraft()">
                 Save Draft
             </button>
-            <button type="button" class="btn btn-info me-3" onclick="testVisualReport()">
-                Test Report View
-            </button>
             <button type="button" class="btn btn-primary" onclick="continueToNext()">
                 Continue to Next Section
             </button>
@@ -467,13 +464,13 @@ function continueToNext() {
         }
     }
 
-    // Handle PDF file separately (same as testVisualReport)
+    // Handle PDF file separately
     let hasPdfFile = false;
     const diagnosticFileInput = formData.get('diagnostic_file');
     if (diagnosticFileInput instanceof File && diagnosticFileInput.size > 0) {
         hasPdfFile = true;
         console.log('📄 Processing PDF file:', diagnosticFileInput.name);
-        // Convert PDF file to base64 (same as testVisualReport)
+        // Convert PDF file to base64
         const reader = new FileReader();
         reader.onload = function(e) {
             inspectionData.diagnostic_file_data = e.target.result;
@@ -640,127 +637,5 @@ function continueToNext() {
     } // End of processContinueToNext function
 }
 
-// Test Visual Report with current form data
-function testVisualReport() {
-    console.log('testVisualReport function called');
-    
-    // Get current form data
-    const formData = new FormData(document.getElementById('visual-inspection-form'));
-    const visualData = {};
-    
-    console.log('Form data collected, processing...');
-    
-    // Convert FormData to object
-    for (let [key, value] of formData.entries()) {
-        // Handle file inputs separately
-        if (key === 'diagnostic_file' && value instanceof File && value.size > 0) {
-            // Convert PDF file to base64
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                visualData.diagnostic_file_data = e.target.result;
-                visualData.diagnostic_file_name = value.name;
-                visualData.diagnostic_file_size = value.size;
-                console.log('PDF file captured:', value.name);
-                continueProcesing();
-            };
-            reader.readAsDataURL(value);
-            return; // Wait for file to be read
-        } else if (key !== 'diagnostic_file') {
-            visualData[key] = value;
-        }
-    }
-    
-    // Debug: Log the data being sent
-    console.log('Form data being sent:', visualData);
-    continueProcesing();
-    
-    function continueProcesing() {
-    
-    // Get images from sessionStorage (if any)
-    const storedImages = sessionStorage.getItem('visualInspectionImages');
-    console.log('Raw stored images:', storedImages);
-    
-    const imageData = storedImages ? JSON.parse(storedImages) : [];
-    console.log('Parsed image data:', imageData);
-    
-    // Check if we have current uploaded images that aren't in sessionStorage yet
-    if (uploadedImages.length > 0) {
-        console.log('Using current uploadedImages:', uploadedImages.length);
-        // Convert current images to base64 for the test
-        const currentImagePromises = uploadedImages.map(img => {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    resolve(e.target.result);
-                };
-                reader.readAsDataURL(img.blob);
-            });
-        });
-        
-        Promise.all(currentImagePromises).then(base64Images => {
-            visualData.images = base64Images;
-            console.log('Base64 images ready:', base64Images.length);
-            submitTestForm();
-        });
-        return; // Exit early to wait for images
-    }
-    
-    // Add images to the data
-    if (imageData.length > 0) {
-        visualData.images = imageData;
-        console.log('Images found in storage:', imageData.length);
-    }
-    
-    submitTestForm();
-    } // End of continueProcesing
-    
-    function submitTestForm() {
-        console.log('Creating form for submission...');
-        
-        // Create a form to POST to the test endpoint
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/test/visual-report';
-        form.style.display = 'none';
-        
-        // Add CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]');
-        if (!csrfToken) {
-            console.error('CSRF token meta tag not found!');
-            alert('Error: CSRF token not found. Please refresh the page.');
-            return;
-        }
-        
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_token';
-        csrfInput.value = csrfToken.getAttribute('content');
-        form.appendChild(csrfInput);
-        
-        console.log('CSRF token added:', csrfInput.value);
-        
-        // Add visual data
-        const dataInput = document.createElement('input');
-        dataInput.type = 'hidden';
-        dataInput.name = 'visualData';
-        dataInput.value = JSON.stringify(visualData);
-        form.appendChild(dataInput);
-        
-        // Submit to open in same window
-        document.body.appendChild(form);
-        console.log('Form appended to body, submitting...');
-        console.log('Form action:', form.action);
-        console.log('Form method:', form.method);
-        console.log('Number of form inputs:', form.elements.length);
-        
-        try {
-            form.submit();
-            console.log('Form submitted successfully!');
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            alert('Error submitting form: ' + error.message);
-        }
-    }
-}
 </script>
 @endsection

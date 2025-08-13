@@ -370,98 +370,6 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Engine compartment assessment draft saved successfully!');
     });
 
-    // Simple Preview button handler
-    document.getElementById('simplePreviewBtn').addEventListener('click', function() {
-        console.log('Engine Compartment Simple Preview clicked');
-        
-        // Collect findings data (checkboxes and notes)
-        let findingsData = {};
-        const checkboxes = document.querySelectorAll('.finding-checkbox');
-        checkboxes.forEach(checkbox => {
-            if (checkbox.checked) {
-                findingsData[checkbox.name] = checkbox.value;
-            }
-        });
-        
-        const notesInputs = document.querySelectorAll('textarea[name^="findings["]');
-        notesInputs.forEach(input => {
-            if (input.value) {
-                findingsData[input.name] = input.value;
-            }
-        });
-        
-        console.log('Findings data:', findingsData);
-        
-        // Collect engine components data
-        let componentsData = {};
-        let allImages = {};
-        
-        try {
-            if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
-                componentsData = InspectionCards.getFormData() || {};
-                allImages = InspectionCards.getImages() || {};
-                console.log('Components data from InspectionCards:', componentsData);
-                console.log('Images from InspectionCards:', allImages);
-            }
-        } catch (e) {
-            console.warn('Could not get data from InspectionCards:', e);
-        }
-        
-        // Manual collection as fallback
-        const form = document.getElementById('engineCompartmentForm');
-        if (form) {
-            const inputs = form.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                if (input.value && input.name && input.name !== '_token' && !input.name.startsWith('findings[')) {
-                    componentsData[input.name] = input.value;
-                }
-            });
-        }
-        
-        // Check if we have any data
-        const totalFindings = Object.keys(findingsData).length;
-        const totalComponents = Object.keys(componentsData).length;
-        const totalData = totalFindings + totalComponents;
-        
-        if (totalData === 0) {
-            alert('No data to preview. Please:\n\n1. Check relevant findings boxes\n2. Add notes if needed\n3. Assess engine components\n4. Upload images if required');
-            return;
-        }
-        
-        console.log(`Found ${totalData} total form fields (${totalFindings} findings + ${totalComponents} components)`);
-        
-        // Prepare combined data for preview
-        const previewData = {
-            data: {
-                findings: findingsData,
-                components: componentsData
-            },
-            images: allImages
-        };
-        
-        console.log('Sending Engine Compartment preview data:', previewData);
-        
-        // Submit to preview endpoint
-        fetch('/preview/engine-compartment', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(previewData)
-        })
-        .then(response => response.text())
-        .then(html => {
-            // Open preview in new window
-            const previewWindow = window.open('', '_blank');
-            previewWindow.document.write(html);
-            previewWindow.document.close();
-        })
-        .catch(error => {
-            console.error('Preview error:', error);
-            alert('Error generating preview: ' + error.message);
-        });
-    });
 });
 
 // Function to initialize engine components with InspectionCards
@@ -681,4 +589,3 @@ function setupNavigationButtons() {
     }
 }
 </script>
-@endsection

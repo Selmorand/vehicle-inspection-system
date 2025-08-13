@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Vehicle;
 use App\Models\Inspection;
 use App\Models\BodyPanelAssessment;
+use App\Models\InteriorAssessment;
 use App\Models\InspectionImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -419,7 +420,15 @@ class InspectionController extends Controller
         // TODO: Restore required validations before production
         $validated = $request->validate([
             'inspection_id' => 'nullable|exists:inspections,id',
-            'interior_data' => 'nullable|array'
+            'components' => 'nullable|array',
+            'components.*.component_name' => 'nullable|string',
+            'components.*.condition' => 'nullable|in:good,average,bad,Good,Average,Bad',
+            'components.*.colour' => 'nullable|string',
+            'components.*.comment' => 'nullable|string',
+            'images' => 'nullable|array',
+            'images.*.*.id' => 'nullable|string',
+            'images.*.*.data' => 'nullable|string',
+            'images.*.*.timestamp' => 'nullable|string'
         ]);
 
         DB::beginTransaction();
@@ -436,23 +445,22 @@ class InspectionController extends Controller
             
             $inspection = Inspection::findOrFail($inspectionId);
 
-            // Save interior assessment data
-            if (isset($validated['interior_data'])) {
-                foreach ($validated['interior_data'] as $itemId => $data) {
-                    // Store interior assessment data
-                    // You may need to create an InteriorAssessment model for this
-                    DB::table('interior_assessments')->updateOrInsert(
-                        [
-                            'inspection_id' => $inspection->id,
-                            'item_id' => $itemId
-                        ],
-                        [
-                            'colour' => $data['colour'] ?? null,
-                            'condition' => $data['condition'] ?? null,
-                            'comments' => $data['comments'] ?? null,
-                            'updated_at' => now()
-                        ]
-                    );
+            // Delete existing interior assessments for this inspection
+            InteriorAssessment::where('inspection_id', $inspectionId)->delete();
+
+            // Save new interior assessments (matching body panel pattern)
+            if (!empty($validated['components'])) {
+                foreach ($validated['components'] as $component) {
+                    if (!empty($component['condition']) || !empty($component['colour']) || !empty($component['comment'])) {
+                        
+                        InteriorAssessment::create([
+                            'inspection_id' => $inspectionId,
+                            'component_name' => $component['component_name'],
+                            'condition' => $component['condition'] ?? null,
+                            'colour' => $component['colour'] ?? null,
+                            'comment' => $component['comment'] ?? null
+                        ]);
+                    }
                 }
             }
 

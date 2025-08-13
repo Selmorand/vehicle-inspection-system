@@ -91,62 +91,6 @@ let uploadedServiceBookletImages = [];
 document.addEventListener('DOMContentLoaded', function() {
     initializeServiceBookletGrid();
     loadPreviousData();
-    
-    // Simple Preview button handler
-    document.getElementById('simplePreviewBtn').addEventListener('click', function() {
-        console.log('Service Booklet Simple Preview clicked');
-        
-        // Collect form data
-        const form = document.getElementById('service-booklet-form');
-        const formData = {};
-        
-        // Get text fields
-        const serviceComments = document.getElementById('service_comments').value;
-        const serviceRecommendations = document.getElementById('service_recommendations').value;
-        
-        if (serviceComments) formData['service_comments'] = serviceComments;
-        if (serviceRecommendations) formData['service_recommendations'] = serviceRecommendations;
-        
-        // Get image count
-        const imageData = {
-            'service_booklet_images': uploadedServiceBookletImages || []
-        };
-        
-        console.log('Service Booklet Preview - Form Data:', formData);
-        console.log('Service Booklet Preview - Images:', imageData);
-        
-        if (Object.keys(formData).length === 0 && uploadedServiceBookletImages.length === 0) {
-            alert('No data to preview. Please add service booklet images or comments.');
-            return;
-        }
-        
-        // Prepare data for preview
-        const previewData = {
-            data: formData,
-            images: imageData
-        };
-        
-        // Submit to preview endpoint
-        fetch('/preview/service-booklet', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(previewData)
-        })
-        .then(response => response.text())
-        .then(html => {
-            // Open preview in new window
-            const previewWindow = window.open('', '_blank');
-            previewWindow.document.write(html);
-            previewWindow.document.close();
-        })
-        .catch(error => {
-            console.error('Preview error:', error);
-            alert('Error generating preview: ' + error.message);
-        });
-    });
 });
 
 function initializeServiceBookletGrid() {
@@ -370,4 +314,3 @@ function continueToFinalReport() {
     window.location.href = '/inspection/tyres-rims';
 }
 </script>
-@endsection

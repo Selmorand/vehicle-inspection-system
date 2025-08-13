@@ -381,7 +381,7 @@
                         <ul>
                             <li>Go back to the <a href="/inspection/body-panel" target="_blank">Body Panel Assessment page</a></li>
                             <li>Fill out assessments for the panels you want to include</li>
-                            <li>Click "Test Report View" to generate the report with real data</li>
+                            <li>Continue through the inspection process to generate the final report</li>
                         </ul>
                     </div>
                 @endif

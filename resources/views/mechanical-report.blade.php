@@ -1404,59 +1404,6 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Mechanical report draft saved successfully!');
     });
 
-    // Simple Preview button handler
-    document.getElementById('simplePreviewBtn').addEventListener('click', function() {
-        console.log('Mechanical Report Simple Preview clicked');
-        
-        // Wait a bit for any InspectionCards to fully load
-        setTimeout(() => {
-            // Collect ALL form data manually (most reliable approach)
-            const form = document.getElementById('mechanicalReportForm');
-            let mechanicalData = {};
-            let brakingData = {};
-            let allFormData = {};
-            
-            if (form) {
-                console.log('Form found, collecting all data...');
-                console.log('Form HTML:', form.innerHTML.substring(0, 500) + '...');
-                
-                // Get all form inputs
-                const inputs = form.querySelectorAll('input, select, textarea');
-                console.log(`Found ${inputs.length} total inputs in form`);
-                
-                inputs.forEach((input, index) => {
-                    console.log(`Input ${index}: name="${input.name}", value="${input.value}", type="${input.type}"`);
-                    
-                    if (input.value && input.name && input.name !== '_token') {
-                        allFormData[input.name] = input.value;
-                        console.log(`✓ Captured: ${input.name} = ${input.value}`);
-                        
-                        // Separate mechanical and braking data
-                        if (input.name.includes('brake_')) {
-                            brakingData[input.name] = input.value;
-                        } else {
-                            mechanicalData[input.name] = input.value;
-                        }
-                    } else if (!input.value) {
-                        console.log(`✗ Skipped (empty): ${input.name}`);
-                    }
-                });
-                
-                console.log('=== SUMMARY ===');
-                console.log('All form data collected:', allFormData);
-                console.log('Mechanical data:', mechanicalData);
-                console.log('Braking data:', brakingData);
-            } else {
-                console.error('Form not found!');
-                alert('Error: Could not find the mechanical report form!');
-                return;
-            }
-            
-            // Try to get images from InspectionCards if available
-            let allImages = {};
-            try {
-                if (window.InspectionCards && typeof InspectionCards.getImages === 'function') {
-                    allImages = InspectionCards.getImages() || {};
                     console.log('Images from InspectionCards:', allImages);
                     console.log('Number of image categories found:', Object.keys(allImages).length);
                     
@@ -2201,4 +2148,3 @@ if (mechanicalReportData.brakingSystem) {
     updateBrakingSummary();
 }
 </script>
-@endsection

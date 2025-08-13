@@ -953,6 +953,8 @@
             @endif
 
             <!-- Interior Assessment -->
+            <!-- DEBUG: Interior data check -->
+            {{-- DEBUG: {{ isset($inspectionData['interior']['assessments']) ? 'Interior data EXISTS with ' . count($inspectionData['interior']['assessments']) . ' items' : 'Interior data MISSING' }} --}}
             @if(!empty($inspectionData['interior']['assessments']))
             <div class="section">
                 <h2 class="section-title">
@@ -960,31 +962,70 @@
                     Interior Assessment
                 </h2>
                 
-                <div class="table-responsive">
-                    <table class="assessment-table">
-                        <thead>
-                            <tr>
-                                <th>Component</th>
-                                <th>Colour</th>
-                                <th>Condition</th>
-                                <th>Comments</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($inspectionData['interior']['assessments'] as $component => $assessment)
-                            <tr>
-                                <td><strong>{{ ucwords(str_replace('-', ' ', $component)) }}</strong></td>
-                                <td>{{ ucfirst($assessment['colour'] ?? '-') }}</td>
-                                <td>
-                                    <span class="condition-badge condition-{{ $assessment['condition'] ?? 'good' }}">
+                <!-- Individual Interior Component Cards (matching Body Panel style) -->
+                <div class="row" style="margin-top: 2rem;">
+                    @foreach($inspectionData['interior']['assessments'] as $component => $assessment)
+                    <div class="col-12">
+                        <div class="panel-card" data-interior-card="{{ $component }}">
+                            <!-- First Row: Component Name only -->
+                            <div class="panel-header">
+                                <div class="panel-name" style="width: 100%; font-weight: 600; margin-bottom: 10px; font-size: 1.1rem;">
+                                    {{ $assessment['component_name'] ?? ucwords(str_replace('_', ' ', $component)) }}
+                                </div>
+                            </div>
+                            
+                            <!-- Second Row: Condition, Colour, Comments all on same line -->
+                            <div class="panel-details" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 20px; flex-wrap: wrap;">
+                                <!-- Condition -->
+                                <div class="condition-section" style="flex: 0 0 auto; margin-right: 20px; margin-bottom: 10px;">
+                                    <strong style="font-size: 0.9rem; color: #666; display: block; margin-bottom: 5px;">Condition:</strong>
+                                    <span class="condition-badge condition-{{ strtolower($assessment['condition'] ?? 'good') }}" 
+                                          style="padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
                                         {{ ucfirst($assessment['condition'] ?? 'Good') }}
                                     </span>
-                                </td>
-                                <td>{{ $assessment['comment'] ?? '-' }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                </div>
+                                
+                                <!-- Colour -->
+                                @if(!empty($assessment['colour']))
+                                <div class="colour-section" style="flex: 0 0 auto; margin-right: 20px; margin-bottom: 10px;">
+                                    <strong style="font-size: 0.9rem; color: #666; display: block; margin-bottom: 5px;">Colour:</strong>
+                                    <span style="padding: 4px 12px; background: #f8f9fa; border-radius: 15px; font-size: 0.85rem;">
+                                        {{ ucfirst($assessment['colour']) }}
+                                    </span>
+                                </div>
+                                @endif
+                                
+                                <!-- Comments -->
+                                @if(!empty($assessment['comment']))
+                                <div class="comments-section" style="flex: 1; margin-bottom: 10px;">
+                                    <strong style="font-size: 0.9rem; color: #666; display: block; margin-bottom: 5px;">Comments:</strong>
+                                    <span style="color: #333; font-size: 0.9rem; line-height: 1.4;">
+                                        {{ $assessment['comment'] }}
+                                    </span>
+                                </div>
+                                @endif
+                            </div>
+                            
+                            <!-- Images Section -->
+                            @if(!empty($assessment['images']))
+                            <div class="panel-images" style="padding: 0 20px 15px;">
+                                <strong style="font-size: 0.9rem; color: #666; display: block; margin-bottom: 10px;">Images:</strong>
+                                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                    @foreach($assessment['images'] as $image)
+                                    <div class="image-thumbnail" style="flex: 0 0 auto;">
+                                        <a href="{{ $image['url'] }}" data-lightbox="interior-{{ $component }}" 
+                                           data-title="{{ $assessment['component_name'] }} - {{ $assessment['condition'] }}">
+                                            <img src="{{ $image['thumbnail'] }}" alt="{{ $assessment['component_name'] }} Image"
+                                                 style="width: 80px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                                        </a>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
                 
                 <!-- Interior Visual Section -->
@@ -1634,7 +1675,36 @@ function scrollToPanelCard(panelId) {
 
 // Function to scroll to interior component when clicking overlay
 function scrollToInteriorComponent(componentId) {
-    // Look for interior component in the table rows
+    // Clean component ID to match different naming conventions
+    const cleanComponentId = componentId.replace('-', '_');
+    const altComponentId = componentId.replace('_', '-');
+    
+    // First try to find the component card by data attribute
+    const componentCard = document.querySelector(`[data-interior-card="${componentId}"]`) || 
+                         document.querySelector(`[data-interior-card="${cleanComponentId}"]`) ||
+                         document.querySelector(`[data-interior-card="${altComponentId}"]`);
+    
+    if (componentCard) {
+        // Highlight the component card temporarily
+        componentCard.style.transition = 'all 0.3s ease';
+        componentCard.style.backgroundColor = '#fff3cd';
+        componentCard.style.border = '2px solid #ffc107';
+        
+        // Scroll to the component card
+        componentCard.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+        
+        // Remove highlight after 2 seconds
+        setTimeout(() => {
+            componentCard.style.backgroundColor = '';
+            componentCard.style.border = '';
+        }, 2000);
+        return;
+    }
+    
+    // Fallback: Look for component in the table rows if card not found
     const allRows = document.querySelectorAll('table tbody tr');
     for (let row of allRows) {
         const componentName = row.querySelector('td:first-child strong');
@@ -1654,7 +1724,7 @@ function scrollToInteriorComponent(componentId) {
         }
     }
     
-    // Fallback: scroll to the interior section
+    // Final fallback: scroll to the interior section
     const interiorSection = document.querySelector('#interior-diagram');
     if (interiorSection) {
         interiorSection.closest('.section').scrollIntoView({ 

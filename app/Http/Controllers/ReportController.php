@@ -34,7 +34,7 @@ class ReportController extends Controller
             }
             
             // If no InspectionReport, try to find an Inspection and generate report view
-            $inspection = \App\Models\Inspection::with(['client', 'vehicle', 'images', 'bodyPanelAssessments'])->findOrFail($id);
+            $inspection = \App\Models\Inspection::with(['client', 'vehicle', 'images', 'bodyPanelAssessments', 'interiorAssessments'])->findOrFail($id);
             
             // Create a report-like object for the view
             $report = (object)[
@@ -86,8 +86,18 @@ class ReportController extends Controller
                 'images' => [
                     'visual' => $this->formatImagesForReport($inspection->images)
                 ],
-                'body_panels' => $this->formatBodyPanelsForReport($inspection)
+                'body_panels' => $this->formatBodyPanelsForReport($inspection),
+                'interior' => [
+                    'assessments' => $this->formatInteriorAssessmentsForReport($inspection)
+                ]
             ];
+            
+            // Debug log to check Interior data
+            \Log::info('Interior data being passed to view:', [
+                'interior_assessments_count' => $inspection->interiorAssessments->count(),
+                'interior_data' => $inspectionData['interior']['assessments'] ?? 'NOT SET',
+                'interior_data_count' => isset($inspectionData['interior']['assessments']) ? count($inspectionData['interior']['assessments']) : 0
+            ]);
             
             return view('reports.web-report', compact('report', 'inspectionData'));
             
@@ -508,6 +518,59 @@ class ReportController extends Controller
         }
         
         return $bodyPanelData;
+    }
+    
+    /**
+     * Format interior assessments for report display
+     */
+    private function formatInteriorAssessmentsForReport($inspection)
+    {
+        $interiorData = [];
+        
+        // Get interior assessments from database
+        if ($inspection->interiorAssessments) {
+            foreach ($inspection->interiorAssessments as $assessment) {
+                // Get images for this component
+                $componentImages = [];
+                $searchName = 'interior_' . $assessment->component_name;
+                
+                $interiorImages = $inspection->images()
+                    ->where('image_type', 'specific_area')
+                    ->where('area_name', $searchName)
+                    ->get();
+                
+                foreach ($interiorImages as $image) {
+                    $fullPath = storage_path('app/public/' . $image->file_path);
+                    if (file_exists($fullPath)) {
+                        $componentImages[] = [
+                            'url' => asset('storage/' . $image->file_path),
+                            'thumbnail' => asset('storage/' . $image->file_path),
+                            'timestamp' => $image->created_at ? $image->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s')
+                        ];
+                    }
+                }
+                
+                $interiorData[$assessment->component_name] = [
+                    'component_name' => $this->formatInteriorComponentName($assessment->component_name),
+                    'condition' => $assessment->condition,
+                    'colour' => $assessment->colour,
+                    'comment' => $assessment->comment,
+                    'images' => $componentImages
+                ];
+            }
+        }
+        
+        return $interiorData;
+    }
+    
+    /**
+     * Format interior component name to readable format
+     */
+    private function formatInteriorComponentName($componentName)
+    {
+        // Convert underscores to spaces and capitalize words
+        $formatted = str_replace('_', ' ', $componentName);
+        return ucwords($formatted);
     }
     
     /**

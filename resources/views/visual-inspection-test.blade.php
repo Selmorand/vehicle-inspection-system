@@ -14,6 +14,6 @@
     <hr>
     
     <h3>Or test with current form data:</h3>
-    <p>Go to <a href="/inspection/visual">Visual Inspection Form</a>, fill it out, then click "Test Report View"</p>
+    <p>Go to <a href="/inspection/visual">Visual Inspection Form</a>, fill it out, then use this test page to preview the report with sample data.</p>
 </div>
 @endsection

@@ -36,6 +36,11 @@ class Inspection extends Model
         return $this->hasMany(BodyPanelAssessment::class);
     }
 
+    public function interiorAssessments(): HasMany
+    {
+        return $this->hasMany(InteriorAssessment::class);
+    }
+
     public function images(): HasMany
     {
         return $this->hasMany(InspectionImage::class);
