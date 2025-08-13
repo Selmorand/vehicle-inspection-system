@@ -10,6 +10,7 @@ use App\Models\InteriorAssessment;
 use App\Models\InspectionImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -464,14 +465,53 @@ class InspectionController extends Controller
                 }
             }
             
-            // Handle interior images (EXACT SAME AS BODY PANEL)
+            // Handle interior images (FIXED VERSION - EXACT SAME AS BODY PANEL)
             if (!empty($validated['images'])) {
+                Log::info('Processing interior images', [
+                    'inspection_id' => $inspection->id,
+                    'component_count' => count($validated['images']),
+                    'image_structure' => array_keys($validated['images'])
+                ]);
+                
+                // Delete existing interior images for this inspection (same as body panels)
+                InspectionImage::where('inspection_id', $inspection->id)
+                               ->where('image_type', 'specific_area')
+                               ->where(function($query) {
+                                   $query->where('area_name', 'LIKE', '%interior%')
+                                         ->orWhere('area_name', 'LIKE', 'air-vents')
+                                         ->orWhere('area_name', 'LIKE', 'dash')
+                                         ->orWhere('area_name', 'LIKE', 'steering-wheel')
+                                         ->orWhere('area_name', 'LIKE', 'buttons')
+                                         ->orWhere('area_name', 'LIKE', 'door-panel%')
+                                         ->orWhere('area_name', 'LIKE', 'seat%')
+                                         ->orWhere('area_name', 'LIKE', 'gear-lever')
+                                         ->orWhere('area_name', 'LIKE', 'handbrake')
+                                         ->orWhere('area_name', 'LIKE', 'centre-console')
+                                         ->orWhere('area_name', 'LIKE', 'boot')
+                                         ->orWhere('area_name', 'LIKE', 'carpet%')
+                                         ->orWhere('area_name', 'LIKE', 'general');
+                               })
+                               ->delete();
+                
                 foreach ($validated['images'] as $componentId => $imageList) {
                     if (is_array($imageList) && !empty($imageList)) {
+                        Log::info('Processing images for component', [
+                            'component_id' => $componentId,
+                            'image_count' => count($imageList)
+                        ]);
                         foreach ($imageList as $imageData) {
+                            // Handle multiple possible data key formats
+                            $base64Data = null;
                             if (isset($imageData['base64'])) {
-                                // Remove data URL prefix if present
                                 $base64Data = $imageData['base64'];
+                            } elseif (isset($imageData['data'])) {
+                                $base64Data = $imageData['data'];
+                            } elseif (is_string($imageData)) {
+                                $base64Data = $imageData;
+                            }
+                            
+                            if ($base64Data) {
+                                // Remove data URL prefix if present
                                 if (strpos($base64Data, ',') !== false) {
                                     $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
                                 }
@@ -480,11 +520,12 @@ class InspectionController extends Controller
                                 $imageBinary = base64_decode($base64Data);
                                 
                                 if ($imageBinary !== false) {
-                                    // Generate filename with interior prefix
-                                    $filename = 'interior_' . $componentId . '_' . now()->format('YmdHis') . '_' . uniqid() . '.jpg';
-                                    $imagePath = 'inspections/' . $inspection->id . '/' . $filename;
+                                    // Generate filename with interior prefix (matching body panel pattern)
+                                    $filename = 'interior_' . $componentId . '_' . time() . '_' . rand(1000, 9999) . '.jpg';
+                                    $imagePath = 'inspections/' . $inspection->id . '/interior/' . $filename;
                                     
-                                    // Save to storage
+                                    // Ensure directory exists and save to storage (same as body panels)
+                                    Storage::disk('public')->makeDirectory('inspections/' . $inspection->id . '/interior');
                                     $saved = Storage::disk('public')->put($imagePath, $imageBinary);
                                     
                                     if ($saved) {
@@ -503,7 +544,8 @@ class InspectionController extends Controller
                                             'component_id' => $componentId,
                                             'filename' => $filename,
                                             'path' => $imagePath,
-                                            'size' => strlen($imageBinary)
+                                            'size' => strlen($imageBinary),
+                                            'inspection_id' => $inspection->id
                                         ]);
                                     } else {
                                         Log::error('Failed to save interior image to storage', [
@@ -513,9 +555,19 @@ class InspectionController extends Controller
                                     }
                                 } else {
                                     Log::error('Failed to decode base64 interior image', [
-                                        'component_id' => $componentId
+                                        'component_id' => $componentId,
+                                        'inspection_id' => $inspection->id,
+                                        'base64_length' => strlen($base64Data ?? ''),
+                                        'has_prefix' => strpos($base64Data ?? '', 'data:') !== false
                                     ]);
                                 }
+                            } else {
+                                Log::warning('No valid base64 data found for interior image', [
+                                    'component_id' => $componentId,
+                                    'inspection_id' => $inspection->id,
+                                    'image_data_type' => gettype($imageData),
+                                    'available_keys' => is_array($imageData) ? array_keys($imageData) : 'not_array'
+                                ]);
                             }
                         }
                     }

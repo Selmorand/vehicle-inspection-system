@@ -963,8 +963,8 @@
                 </h2>
                 
                 <!-- Individual Interior Component Cards (EXACT SAME AS BODY PANEL) -->
-                @foreach($inspectionData['interior']['assessments'] as $componentKey => $assessment)
-                <div class="panel-card" data-panel-card="{{ str_replace(' ', '_', strtolower($assessment['component_name'] ?? $componentKey)) }}">
+                @foreach($inspectionData['interior']['assessments'] as $assessment)
+                <div class="panel-card" data-panel-card="{{ str_replace(' ', '_', strtolower($assessment['component_name'] ?? $assessment['component_id'])) }}">
                     <!-- First Row: Panel Name only -->
                     <div class="panel-header">
                         <div class="panel-name" style="width: 100%; font-weight: 600; margin-bottom: 10px; font-size: 1.1rem;">
@@ -1009,7 +1009,7 @@
                         <div class="images-row">
                             @foreach($assessment['images'] as $image)
                             <div class="image-thumbnail">
-                                <a href="{{ $image['url'] }}" data-lightbox="interior-{{ str_replace(' ', '_', strtolower($assessment['component_name'] ?? $componentKey)) }}" 
+                                <a href="{{ $image['url'] }}" data-lightbox="interior-{{ str_replace(' ', '_', strtolower($assessment['component_name'] ?? $assessment['component_id'])) }}" 
                                    data-title="{{ $assessment['component_name'] ?? 'Interior Component' }}">
                                     <img src="{{ $image['thumbnail'] }}" alt="{{ $assessment['component_name'] ?? 'Interior Component' }} image">
                                 </a>
@@ -1051,11 +1051,54 @@
                                     ['id' => 'windows', 'name' => 'Windows', 'style' => 'left: 10.35%; top: 0.00%; width: 79.70%; height: 4.25%; z-index: 1;']
                                 ];
                                 
-                                // Create a lookup array for components with conditions
+                                // Create a lookup array for interior components with conditions
                                 $interiorConditions = [];
                                 if(!empty($inspectionData['interior']['assessments'])) {
-                                    foreach($inspectionData['interior']['assessments'] as $component => $assessment) {
-                                        $interiorConditions[$component] = $assessment['condition'] ?? null;
+                                    foreach($inspectionData['interior']['assessments'] as $assessment) {
+                                        // Map interior component IDs to their simplified overlay IDs
+                                        $componentId = $assessment['component_id'] ?? '';
+                                        
+                                        // Map interior_XX IDs to simplified overlay component IDs
+                                        $interiorIdMap = [
+                                            'interior_77' => 'dash',
+                                            'interior_78' => 'steering-wheel',
+                                            'interior_79' => 'buttons',
+                                            'interior_80' => 'seats', // Driver Seat -> general seats
+                                            'interior_81' => 'seats', // Passenger Seat -> general seats
+                                            'interior_82' => 'windows', // Rooflining -> windows (closest match)
+                                            'interior_83' => 'door-panels', // FR Door Panel -> door-panels
+                                            'interior_84' => 'door-panels', // FL Door Panel -> door-panels
+                                            'interior_85' => 'seats', // Rear Seat -> general seats
+                                            'interior_86' => 'seats', // Additional Seats -> general seats
+                                            'interior_87' => 'windows', // Backboard -> windows
+                                            'interior_88' => 'door-panels', // RR Door Panel -> door-panels
+                                            'interior_89' => 'door-panels', // LR Door Panel -> door-panels
+                                            'interior_90' => 'carpets', // Boot -> carpets (floor area)
+                                            'interior_91' => 'gear-lever', // Centre Console -> gear-lever area
+                                            'interior_92' => 'gear-lever',
+                                            'interior_93' => 'handbrake',
+                                            'interior_94' => 'windows', // Air Vents -> windows area
+                                            'interior_95' => 'carpets', // Mats -> carpets
+                                            'interior_96' => 'dash' // General -> dashboard
+                                        ];
+                                        
+                                        $simplifiedId = $interiorIdMap[$componentId] ?? '';
+                                        
+                                        if ($simplifiedId && !empty($assessment['condition'])) {
+                                            // Use the worst condition if multiple components map to same simplified ID
+                                            if (!isset($interiorConditions[$simplifiedId])) {
+                                                $interiorConditions[$simplifiedId] = $assessment['condition'];
+                                            } else {
+                                                // Priority: bad > average > good (show worst condition)
+                                                $currentCondition = strtolower($interiorConditions[$simplifiedId]);
+                                                $newCondition = strtolower($assessment['condition']);
+                                                
+                                                if ($newCondition === 'bad' || 
+                                                    ($newCondition === 'average' && $currentCondition === 'good')) {
+                                                    $interiorConditions[$simplifiedId] = $assessment['condition'];
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             @endphp

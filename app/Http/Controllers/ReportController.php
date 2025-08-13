@@ -83,9 +83,7 @@ class ReportController extends Controller
                     'diagnostic_report' => $inspection->diagnostic_report ?? 'No diagnostic report provided',
                     'diagnostic_file' => $this->getDiagnosticFileData($inspection)
                 ],
-                'images' => [
-                    'visual' => $this->formatImagesForReport($inspection->images)
-                ],
+                'images' => $this->organizeImagesForReport($inspection->images),
                 'body_panels' => $this->formatBodyPanelsForReport($inspection),
                 'interior' => [
                     'assessments' => $this->formatInteriorAssessmentsForReport($inspection)
@@ -426,7 +424,83 @@ class ReportController extends Controller
     }
     
     /**
-     * Format images from database for report display
+     * Organize images into different categories for report display
+     */
+    private function organizeImagesForReport($images)
+    {
+        $organizedImages = [
+            'visual' => [],
+            'interior' => [],
+            'body_panel' => []
+        ];
+        
+        if ($images) {
+            foreach ($images as $image) {
+                // Skip diagnostic PDFs - they're handled separately
+                if ($image->image_type === 'diagnostic_pdf') {
+                    continue;
+                }
+                
+                // Check if image file exists (with fallback for interior path mismatch)
+                $fullPath1 = storage_path('app/public/' . $image->file_path);
+                $fullPath2 = null;
+                
+                // Handle interior path mismatch
+                if (strpos($image->file_path, '/interior/') === false && strpos($image->file_path, 'interior_') !== false) {
+                    $pathParts = explode('/', $image->file_path);
+                    if (count($pathParts) >= 3) {
+                        array_splice($pathParts, 2, 0, 'interior');
+                        $alternativePath = implode('/', $pathParts);
+                        $fullPath2 = storage_path('app/public/' . $alternativePath);
+                    }
+                }
+                
+                $existingPath = null;
+                $publicPath = null;
+                
+                if (file_exists($fullPath1)) {
+                    $existingPath = $fullPath1;
+                    $publicPath = $image->file_path;
+                } elseif ($fullPath2 && file_exists($fullPath2)) {
+                    $existingPath = $fullPath2;
+                    $publicPath = str_replace(storage_path('app/public/'), '', $fullPath2);
+                }
+                
+                if ($existingPath) {
+                    $imageData = [
+                        'area_name' => $image->area_name ?? $image->original_name ?? 'Image',
+                        'data_url' => asset('storage/' . $publicPath),
+                        'timestamp' => $image->created_at ? $image->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s'),
+                        'type' => $image->image_type ?? 'general'
+                    ];
+                    
+                    // Categorize images - INTERIOR IMAGES DO NOT GO TO GALLERY
+                    if ($image->image_type === 'specific_area' && str_starts_with($image->area_name, 'body_panel_')) {
+                        // Skip body panel images - handled in component cards
+                        continue;
+                    } elseif ($image->image_type === 'specific_area' && $this->isInteriorImage($image->area_name)) {
+                        // Skip interior images - handled in component cards only, NOT gallery
+                        continue;
+                    } else {
+                        $organizedImages['visual'][] = $imageData;
+                    }
+                } else {
+                    // If file doesn't exist in either location, log warning
+                    \Log::warning('Image file not found in any location', [
+                        'image_id' => $image->id,
+                        'db_file_path' => $image->file_path,
+                        'tried_path_1' => $fullPath1,
+                        'tried_path_2' => $fullPath2
+                    ]);
+                }
+            }
+        }
+        
+        return $organizedImages;
+    }
+
+    /**
+     * Format images from database for report display (DEPRECATED - use organizeImagesForReport)
      */
     private function formatImagesForReport($images)
     {
@@ -527,31 +601,106 @@ class ReportController extends Controller
     {
         $interiorData = [];
         
+        
         // Get interior assessments from database
         if ($inspection->interiorAssessments) {
             foreach ($inspection->interiorAssessments as $assessment) {
                 // Get images for this component
                 $componentImages = [];
-                // Component name is already like 'interior_77', so use it directly
-                $searchName = $assessment->component_name;
+                
+                // Search for images using multiple patterns (handle naming inconsistencies)
+                $componentId = $assessment->component_name;
+                
+                // Map interior_XX to exact panelId values from interior-assessment.blade.php
+                $componentMap = [
+                    'interior_77' => ['dash'],
+                    'interior_78' => ['steering-wheel'], 
+                    'interior_79' => ['buttons'],
+                    'interior_80' => ['driver-seat'],
+                    'interior_81' => ['passenger-seat'],
+                    'interior_82' => [], // Rooflining - no panelId 
+                    'interior_83' => ['fr-door-panel'],
+                    'interior_84' => ['fl-door-panel'], 
+                    'interior_85' => ['rear-seat'],
+                    'interior_86' => [], // Additional Seats - no panelId
+                    'interior_87' => ['backboard'],
+                    'interior_88' => ['rr-door-panel'],
+                    'interior_89' => ['lr-door-panel'],
+                    'interior_90' => ['boot'],
+                    'interior_91' => ['centre-console'],
+                    'interior_92' => ['gearlever'], // Form shows panelId: 'gearlever'
+                    'interior_93' => [], // Other - no panelId
+                    'interior_94' => ['air-vents']
+                ];
+                
+                $searchNames = [
+                    $componentId, // Direct search: interior_92
+                    'interior_' . str_replace('interior_', '', $componentId), // Ensure prefix
+                ];
+                
+                // Add mapped variations
+                if (isset($componentMap[$componentId])) {
+                    $searchNames = array_merge($searchNames, $componentMap[$componentId]);
+                }
                 
                 $interiorImages = $inspection->images()
                     ->where('image_type', 'specific_area')
-                    ->where('area_name', $searchName)
+                    ->where(function($query) use ($searchNames) {
+                        foreach ($searchNames as $name) {
+                            $query->orWhere('area_name', $name);
+                        }
+                    })
                     ->get();
                 
+                
                 foreach ($interiorImages as $image) {
-                    $fullPath = storage_path('app/public/' . $image->file_path);
-                    if (file_exists($fullPath)) {
+                    // Check if image file exists - handle both path formats
+                    $fullPath1 = storage_path('app/public/' . $image->file_path);
+                    $fullPath2 = null;
+                    
+                    // If path doesn't include 'interior/' subdirectory, try adding it
+                    if (strpos($image->file_path, '/interior/') === false && strpos($image->file_path, 'interior_') !== false) {
+                        $pathParts = explode('/', $image->file_path);
+                        if (count($pathParts) >= 3) {
+                            // Insert 'interior' subdirectory: inspections/ID/filename -> inspections/ID/interior/filename
+                            array_splice($pathParts, 2, 0, 'interior');
+                            $alternativePath = implode('/', $pathParts);
+                            $fullPath2 = storage_path('app/public/' . $alternativePath);
+                        }
+                    }
+                    
+                    $existingPath = null;
+                    $publicPath = null;
+                    
+                    if (file_exists($fullPath1)) {
+                        $existingPath = $fullPath1;
+                        $publicPath = $image->file_path;
+                    } elseif ($fullPath2 && file_exists($fullPath2)) {
+                        $existingPath = $fullPath2;
+                        $publicPath = str_replace(storage_path('app/public/'), '', $fullPath2);
+                    }
+                    
+                    if ($existingPath) {
                         $componentImages[] = [
-                            'url' => asset('storage/' . $image->file_path),
-                            'thumbnail' => asset('storage/' . $image->file_path),
+                            'url' => asset('storage/' . $publicPath),
+                            'thumbnail' => asset('storage/' . $publicPath),
                             'timestamp' => $image->created_at ? $image->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s')
                         ];
+                    } else {
+                        // If file doesn't exist in either location, log warning
+                        \Log::warning('Interior image file not found in any location', [
+                            'image_id' => $image->id,
+                            'db_file_path' => $image->file_path,
+                            'tried_path_1' => $fullPath1,
+                            'tried_path_2' => $fullPath2,
+                            'component_name' => $assessment->component_name
+                        ]);
                     }
                 }
                 
-                $interiorData[$assessment->component_name] = [
+                // Return indexed array like body panels (NOT associative array)
+                $interiorData[] = [
+                    'component_id' => $componentId,
                     'component_name' => $this->formatInteriorComponentName($assessment->component_name),
                     'condition' => $assessment->condition,
                     'colour' => $assessment->colour,
@@ -561,7 +710,36 @@ class ReportController extends Controller
             }
         }
         
+        
         return $interiorData;
+    }
+    
+    /**
+     * Check if an area name represents an interior image
+     */
+    private function isInteriorImage($areaName)
+    {
+        // List of exact panelId values from interior-assessment.blade.php
+        $interiorComponents = [
+            'dash',
+            'steering-wheel', 
+            'buttons',
+            'driver-seat',
+            'passenger-seat',
+            'fr-door-panel',
+            'fl-door-panel',
+            'rear-seat',
+            'backboard',
+            'rr-door-panel',
+            'lr-door-panel',
+            'boot',
+            'centre-console',
+            'gearlever',
+            'air-vents'
+        ];
+        
+        // Check if it starts with interior_ or matches any exact panelId
+        return str_starts_with($areaName, 'interior_') || in_array($areaName, $interiorComponents);
     }
     
     /**
