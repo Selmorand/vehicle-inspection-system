@@ -962,71 +962,71 @@
                     Interior Assessment
                 </h2>
                 
-                <!-- Individual Interior Component Cards (matching Body Panel style) -->
-                <div class="row" style="margin-top: 2rem;">
-                    @foreach($inspectionData['interior']['assessments'] as $component => $assessment)
-                    <div class="col-12">
-                        <div class="panel-card" data-interior-card="{{ $component }}">
-                            <!-- First Row: Component Name only -->
-                            <div class="panel-header">
-                                <div class="panel-name" style="width: 100%; font-weight: 600; margin-bottom: 10px; font-size: 1.1rem;">
-                                    {{ $assessment['component_name'] ?? ucwords(str_replace('_', ' ', $component)) }}
-                                </div>
-                            </div>
-                            
-                            <!-- Second Row: Condition, Colour, Comments all on same line -->
-                            <div class="panel-details" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 20px; flex-wrap: wrap;">
-                                <!-- Condition -->
-                                <div class="condition-section" style="flex: 0 0 auto; margin-right: 20px; margin-bottom: 10px;">
-                                    <strong style="font-size: 0.9rem; color: #666; display: block; margin-bottom: 5px;">Condition:</strong>
-                                    <span class="condition-badge condition-{{ strtolower($assessment['condition'] ?? 'good') }}" 
-                                          style="padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
-                                        {{ ucfirst($assessment['condition'] ?? 'Good') }}
-                                    </span>
-                                </div>
-                                
-                                <!-- Colour -->
-                                @if(!empty($assessment['colour']))
-                                <div class="colour-section" style="flex: 0 0 auto; margin-right: 20px; margin-bottom: 10px;">
-                                    <strong style="font-size: 0.9rem; color: #666; display: block; margin-bottom: 5px;">Colour:</strong>
-                                    <span style="padding: 4px 12px; background: #f8f9fa; border-radius: 15px; font-size: 0.85rem;">
-                                        {{ ucfirst($assessment['colour']) }}
-                                    </span>
-                                </div>
-                                @endif
-                                
-                                <!-- Comments -->
-                                @if(!empty($assessment['comment']))
-                                <div class="comments-section" style="flex: 1; margin-bottom: 10px;">
-                                    <strong style="font-size: 0.9rem; color: #666; display: block; margin-bottom: 5px;">Comments:</strong>
-                                    <span style="color: #333; font-size: 0.9rem; line-height: 1.4;">
-                                        {{ $assessment['comment'] }}
-                                    </span>
-                                </div>
-                                @endif
-                            </div>
-                            
-                            <!-- Images Section -->
-                            @if(!empty($assessment['images']))
-                            <div class="panel-images" style="padding: 0 20px 15px;">
-                                <strong style="font-size: 0.9rem; color: #666; display: block; margin-bottom: 10px;">Images:</strong>
-                                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                                    @foreach($assessment['images'] as $image)
-                                    <div class="image-thumbnail" style="flex: 0 0 auto;">
-                                        <a href="{{ $image['url'] }}" data-lightbox="interior-{{ $component }}" 
-                                           data-title="{{ $assessment['component_name'] }} - {{ $assessment['condition'] }}">
-                                            <img src="{{ $image['thumbnail'] }}" alt="{{ $assessment['component_name'] }} Image"
-                                                 style="width: 80px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
-                                        </a>
-                                    </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endif
+                <!-- Individual Interior Component Cards (EXACT SAME AS BODY PANEL) -->
+                @foreach($inspectionData['interior']['assessments'] as $componentKey => $assessment)
+                <div class="panel-card" data-panel-card="{{ str_replace(' ', '_', strtolower($assessment['component_name'] ?? $componentKey)) }}">
+                    <!-- First Row: Panel Name only -->
+                    <div class="panel-header">
+                        <div class="panel-name" style="width: 100%; font-weight: 600; margin-bottom: 10px; font-size: 1.1rem;">
+                            {{ $assessment['component_name'] ?? 'Interior Component' }}
                         </div>
                     </div>
-                    @endforeach
+                    
+                    <!-- Second Row: Condition, Colour, Comments all on same line (MATCHING BODY PANEL FORMAT) -->
+                    <div class="panel-details" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 20px; flex-wrap: wrap;">
+                        <!-- Condition -->
+                        <div class="panel-condition" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Condition:</span>
+                            @if($assessment['condition'])
+                            <span class="condition-{{ strtolower($assessment['condition']) }}">
+                                {{ ucfirst($assessment['condition']) }}
+                            </span>
+                            @else
+                            <span class="text-muted">Not set</span>
+                            @endif
+                        </div>
+                        
+                        <!-- Colour (Interior specific field) -->
+                        @if(!empty($assessment['colour']))
+                        <div class="panel-dropdown-comment" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Colour:</span>
+                            <span>{{ $assessment['colour'] }}</span>
+                        </div>
+                        @endif
+                        
+                        <!-- Comments -->
+                        @if(!empty($assessment['comment']))
+                        <div class="panel-additional-comment" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Comments:</span>
+                            <span>{{ $assessment['comment'] }}</span>
+                        </div>
+                        @endif
+                    </div>
+                    
+                    <!-- Third Row: Images (EXACT SAME AS BODY PANEL) -->
+                    @if(!empty($assessment['images']))
+                    <div class="panel-images">
+                        <div class="images-row">
+                            @foreach($assessment['images'] as $image)
+                            <div class="image-thumbnail">
+                                <a href="{{ $image['url'] }}" data-lightbox="interior-{{ str_replace(' ', '_', strtolower($assessment['component_name'] ?? $componentKey)) }}" 
+                                   data-title="{{ $assessment['component_name'] ?? 'Interior Component' }}">
+                                    <img src="{{ $image['thumbnail'] }}" alt="{{ $assessment['component_name'] ?? 'Interior Component' }} image">
+                                </a>
+                                <span class="image-delete" title="Image from inspection">×</span>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
+                @endforeach
+                
+                @if(empty($inspectionData['interior']['assessments']))
+                <div class="alert alert-info">
+                    No interior assessments recorded for this inspection.
+                </div>
+                @endif
                 
                 <!-- Interior Visual Section -->
                 <section id="interior-diagram" aria-label="Vehicle Interior Components" style="margin-bottom: 2rem;">

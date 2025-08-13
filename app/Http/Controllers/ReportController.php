@@ -532,7 +532,8 @@ class ReportController extends Controller
             foreach ($inspection->interiorAssessments as $assessment) {
                 // Get images for this component
                 $componentImages = [];
-                $searchName = 'interior_' . $assessment->component_name;
+                // Component name is already like 'interior_77', so use it directly
+                $searchName = $assessment->component_name;
                 
                 $interiorImages = $inspection->images()
                     ->where('image_type', 'specific_area')
@@ -568,7 +569,36 @@ class ReportController extends Controller
      */
     private function formatInteriorComponentName($componentName)
     {
-        // Convert underscores to spaces and capitalize words
+        // Map interior IDs to actual component names
+        $interiorNameMap = [
+            'interior_77' => 'Dashboard',
+            'interior_78' => 'Steering Wheel',
+            'interior_79' => 'Buttons',
+            'interior_80' => 'Driver Seat',
+            'interior_81' => 'Passenger Seat',
+            'interior_82' => 'Rooflining',
+            'interior_83' => 'FR Door Panel',
+            'interior_84' => 'FL Door Panel',
+            'interior_85' => 'Rear Seat',
+            'interior_86' => 'Additional Seats',
+            'interior_87' => 'Backboard',
+            'interior_88' => 'RR Door Panel',
+            'interior_89' => 'LR Door Panel',
+            'interior_90' => 'Boot',
+            'interior_91' => 'Centre Console',
+            'interior_92' => 'Gear Lever',
+            'interior_93' => 'Handbrake',
+            'interior_94' => 'Air Vents',
+            'interior_95' => 'Mats',
+            'interior_96' => 'General'
+        ];
+        
+        // Return mapped name if exists, otherwise format the raw name
+        if (isset($interiorNameMap[$componentName])) {
+            return $interiorNameMap[$componentName];
+        }
+        
+        // Fallback: Convert underscores to spaces and capitalize words
         $formatted = str_replace('_', ' ', $componentName);
         return ucwords($formatted);
     }
