@@ -1037,65 +1037,70 @@
                             
                             <!-- Interior panel overlays with CSS mask technique -->
                             @php
-                                // Define all interior components with their exact positioning from interior-assessment.blade.php
+                                // Define all interior components with their EXACT positioning and images from interior-assessment.blade.php
                                 $allInteriorComponents = [
-                                    ['id' => 'dash', 'name' => 'Dashboard', 'style' => 'left: 6.07%; top: 4.25%; width: 88.36%; height: 17.68%; z-index: 2;'],
-                                    ['id' => 'steering-wheel', 'name' => 'Steering Wheel', 'style' => 'left: 59.20%; top: 17.68%; width: 23.88%; height: 8.56%; z-index: 3;'],
-                                    ['id' => 'buttons', 'name' => 'Buttons', 'style' => 'left: 47.36%; top: 18.86%; width: 6.47%; height: 4.59%; z-index: 2;'], // Using centre buttons as main
-                                    ['id' => 'gear-lever', 'name' => 'Gear Lever', 'style' => 'left: 47.66%; top: 41.88%; width: 6.17%; height: 5.64%; z-index: 2;'],
-                                    ['id' => 'handbrake', 'name' => 'Handbrake', 'style' => 'left: 54.93%; top: 48.33%; width: 4.18%; height: 4.04%; z-index: 2;'],
-                                    ['id' => 'seats', 'name' => 'Seats', 'style' => 'left: 8.96%; top: 73.45%; width: 82.09%; height: 23.88%; z-index: 1;'],
-                                    ['id' => 'carpets', 'name' => 'Carpets', 'style' => 'left: 5.67%; top: 48.33%; width: 88.66%; height: 25.21%; z-index: 1;'],
-                                    ['id' => 'door-handles', 'name' => 'Door Handles', 'style' => 'left: 20.75%; top: 56.89%; width: 3.28%; height: 3.35%; z-index: 3;'],
-                                    ['id' => 'door-panels', 'name' => 'Door Panels', 'style' => 'left: 3.28%; top: 25.42%; width: 18.66%; height: 28.49%; z-index: 2;'],
-                                    ['id' => 'windows', 'name' => 'Windows', 'style' => 'left: 10.35%; top: 0.00%; width: 79.70%; height: 4.25%; z-index: 1;']
+                                    'dash' => ['name' => 'Dashboard', 'style' => 'left: 6.07%; top: 4.25%; width: 88.36%; height: 17.68%; z-index: 2;', 'image' => 'Dash.png'],
+                                    'steering-wheel' => ['name' => 'Steering Wheel', 'style' => 'left: 59.20%; top: 17.68%; width: 23.88%; height: 8.56%; z-index: 3;', 'image' => 'steering-wheel.png'],
+                                    'buttons' => ['name' => 'Buttons', 'style' => 'left: 47.36%; top: 18.86%; width: 6.47%; height: 4.59%; z-index: 2;', 'image' => 'buttons-centre.png'],
+                                    'driver-seat' => ['name' => 'Driver Seat', 'style' => 'left: 55.52%; top: 18.86%; width: 34.43%; height: 31.25%; z-index: 2;', 'image' => 'driver-seat.png'],
+                                    'passenger-seat' => ['name' => 'Passenger Seat', 'style' => 'left: 11.44%; top: 20.74%; width: 33.03%; height: 29.23%; z-index: 2;', 'image' => 'passenger-seat.png'],
+                                    'rear-seat' => ['name' => 'Rear Seat', 'style' => 'left: 13.03%; top: 49.55%; width: 73.33%; height: 27.84%; z-index: 2;', 'image' => 'Rear-Seat.png'],
+                                    'fr-door-panel' => ['name' => 'FR Door Panel', 'style' => 'left: 87.86%; top: 14.13%; width: 9.65%; height: 32.78%; z-index: 2;', 'image' => 'fr-dOORPANEL.png'],
+                                    'fl-door-panel' => ['name' => 'FL Door Panel', 'style' => 'left: 3.08%; top: 14.13%; width: 10.05%; height: 33.47%; z-index: 2;', 'image' => 'FL Doorpanel.png'],
+                                    'rr-door-panel' => ['name' => 'RR Door Panel', 'style' => 'left: 84.98%; top: 47.11%; width: 11.84%; height: 30.83%; z-index: 2;', 'image' => 'RR-Door-Panel.png'],
+                                    'lr-door-panel' => ['name' => 'LR Door Panel', 'style' => 'left: 4.38%; top: 47.18%; width: 13.03%; height: 30.83%; z-index: 2;', 'image' => 'LR-DoorPanel.png'],
+                                    'boot' => ['name' => 'Boot', 'style' => 'left: 10.25%; top: 91.15%; width: 80.70%; height: 8.70%; z-index: 2;', 'image' => 'Boot.png'],
+                                    'centre-console' => ['name' => 'Centre Console', 'style' => 'left: 39.20%; top: 17.82%; width: 22.59%; height: 33.68%; z-index: 2;', 'image' => 'Centre-Consol.png'],
+                                    'gearlever' => ['name' => 'Gear Lever', 'style' => 'left: 47.56%; top: 27.00%; width: 5.37%; height: 4.52%; z-index: 4;', 'image' => 'Gear-Lever.png'],
+                                    'air-vents' => ['name' => 'Air Vents', 'style' => 'left: 7.06%; top: 12.67%; width: 86.37%; height: 10.44%; z-index: 2;', 'image' => 'Airvents.png'],
+                                    'backboard' => ['name' => 'Backboard', 'style' => 'left: 10.65%; top: 76.53%; width: 80.80%; height: 19.14%; z-index: 2;', 'image' => 'backboard.png']
                                 ];
                                 
                                 // Create a lookup array for interior components with conditions
                                 $interiorConditions = [];
                                 if(!empty($inspectionData['interior']['assessments'])) {
                                     foreach($inspectionData['interior']['assessments'] as $assessment) {
-                                        // Map interior component IDs to their simplified overlay IDs
+                                        // Map interior component IDs to their EXACT component IDs from the form
                                         $componentId = $assessment['component_id'] ?? '';
                                         
-                                        // Map interior_XX IDs to simplified overlay component IDs
+                                        // Map interior_XX IDs to EXACT overlay component IDs matching form panelIds
                                         $interiorIdMap = [
                                             'interior_77' => 'dash',
                                             'interior_78' => 'steering-wheel',
                                             'interior_79' => 'buttons',
-                                            'interior_80' => 'seats', // Driver Seat -> general seats
-                                            'interior_81' => 'seats', // Passenger Seat -> general seats
-                                            'interior_82' => 'windows', // Rooflining -> windows (closest match)
-                                            'interior_83' => 'door-panels', // FR Door Panel -> door-panels
-                                            'interior_84' => 'door-panels', // FL Door Panel -> door-panels
-                                            'interior_85' => 'seats', // Rear Seat -> general seats
-                                            'interior_86' => 'seats', // Additional Seats -> general seats
-                                            'interior_87' => 'windows', // Backboard -> windows
-                                            'interior_88' => 'door-panels', // RR Door Panel -> door-panels
-                                            'interior_89' => 'door-panels', // LR Door Panel -> door-panels
-                                            'interior_90' => 'carpets', // Boot -> carpets (floor area)
-                                            'interior_91' => 'gear-lever', // Centre Console -> gear-lever area
-                                            'interior_92' => 'gear-lever',
-                                            'interior_93' => 'handbrake',
-                                            'interior_94' => 'windows', // Air Vents -> windows area
-                                            'interior_95' => 'carpets', // Mats -> carpets
+                                            'interior_80' => 'driver-seat',
+                                            'interior_81' => 'passenger-seat',
+                                            'interior_82' => 'backboard', // Rooflining -> backboard (closest match)
+                                            'interior_83' => 'fr-door-panel',
+                                            'interior_84' => 'fl-door-panel',
+                                            'interior_85' => 'rear-seat',
+                                            'interior_86' => 'rear-seat', // Additional Seats -> rear-seat
+                                            'interior_87' => 'backboard',
+                                            'interior_88' => 'rr-door-panel',
+                                            'interior_89' => 'lr-door-panel',
+                                            'interior_90' => 'boot',
+                                            'interior_91' => 'centre-console',
+                                            'interior_92' => 'gearlever',
+                                            'interior_93' => 'gearlever', // Handbrake -> gearlever (same area)
+                                            'interior_94' => 'air-vents',
+                                            'interior_95' => 'boot', // Mats -> boot (floor area)
                                             'interior_96' => 'dash' // General -> dashboard
                                         ];
                                         
-                                        $simplifiedId = $interiorIdMap[$componentId] ?? '';
+                                        $exactComponentId = $interiorIdMap[$componentId] ?? '';
                                         
-                                        if ($simplifiedId && !empty($assessment['condition'])) {
-                                            // Use the worst condition if multiple components map to same simplified ID
-                                            if (!isset($interiorConditions[$simplifiedId])) {
-                                                $interiorConditions[$simplifiedId] = $assessment['condition'];
+                                        if ($exactComponentId && !empty($assessment['condition'])) {
+                                            // Use the worst condition if multiple components map to same exact component
+                                            if (!isset($interiorConditions[$exactComponentId])) {
+                                                $interiorConditions[$exactComponentId] = $assessment['condition'];
                                             } else {
                                                 // Priority: bad > average > good (show worst condition)
-                                                $currentCondition = strtolower($interiorConditions[$simplifiedId]);
+                                                $currentCondition = strtolower($interiorConditions[$exactComponentId]);
                                                 $newCondition = strtolower($assessment['condition']);
                                                 
                                                 if ($newCondition === 'bad' || 
                                                     ($newCondition === 'average' && $currentCondition === 'good')) {
-                                                    $interiorConditions[$simplifiedId] = $assessment['condition'];
+                                                    $interiorConditions[$exactComponentId] = $assessment['condition'];
                                                 }
                                             }
                                         }
@@ -1103,27 +1108,23 @@
                                 }
                             @endphp
                             
-                            @foreach($allInteriorComponents as $component)
+                            @foreach($allInteriorComponents as $componentId => $componentData)
                                 @php
-                                    $imageName = ucfirst($component['id']) . '.png';
-                                    // Handle special cases for interior images
-                                    if ($component['id'] === 'steering-wheel') $imageName = 'steering-wheel.png';
-                                    if ($component['id'] === 'gear-lever') $imageName = 'gear-lever.png';
-                                    if ($component['id'] === 'door-handles') $imageName = 'door-handle-L.png'; // Use main door handle
-                                    if ($component['id'] === 'door-panels') $imageName = 'door-panel-L.png'; // Use main door panel
-                                    if ($component['id'] === 'buttons') $imageName = 'buttons-centre.png'; // Use centre buttons
-                                    
                                     // Check if this component has a condition
-                                    $hasCondition = isset($interiorConditions[$component['id']]);
-                                    $condition = $hasCondition ? $interiorConditions[$component['id']] : null;
+                                    $hasCondition = isset($interiorConditions[$componentId]);
+                                    $condition = $hasCondition ? $interiorConditions[$componentId] : null;
+                                    
+                                    $imageName = $componentData['image'];
+                                    $componentName = $componentData['name'];
+                                    $componentStyle = $componentData['style'];
                                 @endphp
                                 @if($hasCondition)
-                                <div class="interior-overlay interior-{{ $component['id'] }}" 
-                                     data-panel="{{ $component['id'] }}"
+                                <div class="interior-overlay interior-{{ $componentId }}" 
+                                     data-panel="{{ $componentId }}"
                                      data-condition="{{ strtolower($condition) }}"
-                                     onclick="scrollToInteriorComponent('{{ $component['id'] }}')"
-                                     title="{{ $component['name'] }} - {{ ucfirst($condition) }}"
-                                     style="position: absolute; {{ $component['style'] }} 
+                                     onclick="scrollToInteriorComponent('{{ $componentId }}')"
+                                     title="{{ $componentName }} - {{ ucfirst($condition) }}"
+                                     style="position: absolute; {{ $componentStyle }} 
                                             -webkit-mask-image: url('/images/interior/{{ $imageName }}'); 
                                             mask-image: url('/images/interior/{{ $imageName }}'); 
                                             -webkit-mask-repeat: no-repeat; 

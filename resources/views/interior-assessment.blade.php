@@ -109,7 +109,7 @@
                             <img src="/images/interior/driver-seat.png" 
                                  class="panel-overlay" 
                                  data-panel="driver-seat"
-                                 style="position: absolute; left: 55.52%; top: 18.86%; width: 34.43%; height: 31.25%;"
+                                 style="position: absolute; left: 55.52%; top: 18.86%; width: 34.43%; height: 31.25%; z-index: 2;"
                                  title="Driver Seat" 
                                  alt="Driver Seat">
                         
@@ -117,7 +117,7 @@
                             <img src="/images/interior/passenger-seat.png" 
                                  class="panel-overlay" 
                                  data-panel="passenger-seat"
-                                 style="position: absolute; left: 11.44%; top: 20.74%; width: 33.03%; height: 29.23%;"
+                                 style="position: absolute; left: 11.44%; top: 20.74%; width: 33.03%; height: 29.23%; z-index: 2;"
                                  title="Passenger Seat" 
                                  alt="Passenger Seat">
                         
@@ -125,7 +125,7 @@
                             <img src="/images/interior/fr-dOORPANEL.png" 
                                  class="panel-overlay" 
                                  data-panel="fr-door-panel"
-                                 style="position: absolute; left: 87.86%; top: 14.13%; width: 9.65%; height: 32.78%;"
+                                 style="position: absolute; left: 87.86%; top: 14.13%; width: 9.65%; height: 32.78%; z-index: 2;"
                                  title="FR Door Panel" 
                                  alt="FR Door Panel">
                         
@@ -133,7 +133,7 @@
                             <img src="/images/interior/FL Doorpanel.png" 
                                  class="panel-overlay" 
                                  data-panel="fl-door-panel"
-                                 style="position: absolute; left: 3.08%; top: 14.13%; width: 10.05%; height: 33.47%;"
+                                 style="position: absolute; left: 3.08%; top: 14.13%; width: 10.05%; height: 33.47%; z-index: 2;"
                                  title="FL Door Panel" 
                                  alt="FL Door Panel">
                         
@@ -141,7 +141,7 @@
                             <img src="/images/interior/Rear-Seat.png" 
                                  class="panel-overlay" 
                                  data-panel="rear-seat"
-                                 style="position: absolute; left: 13.03%; top: 49.55%; width: 73.33%; height: 27.84%;"
+                                 style="position: absolute; left: 13.03%; top: 49.55%; width: 73.33%; height: 27.84%; z-index: 2;"
                                  title="Rear Seat" 
                                  alt="Rear Seat">
                         
@@ -149,7 +149,7 @@
                             <img src="/images/interior/backboard.png" 
                                  class="panel-overlay" 
                                  data-panel="backboard"
-                                 style="position: absolute; left: 10.65%; top: 76.53%; width: 80.80%; height: 19.14%;"
+                                 style="position: absolute; left: 10.65%; top: 76.53%; width: 80.80%; height: 19.14%; z-index: 2;"
                                  title="Backboard" 
                                  alt="Backboard">
                         
@@ -157,7 +157,7 @@
                             <img src="/images/interior/RR-Door-Panel.png" 
                                  class="panel-overlay" 
                                  data-panel="rr-door-panel"
-                                 style="position: absolute; left: 84.98%; top: 47.11%; width: 11.84%; height: 30.83%;"
+                                 style="position: absolute; left: 84.98%; top: 47.11%; width: 11.84%; height: 30.83%; z-index: 2;"
                                  title="RR Door Panel" 
                                  alt="RR Door Panel">
                         
@@ -165,7 +165,7 @@
                             <img src="/images/interior/LR-DoorPanel.png" 
                                  class="panel-overlay" 
                                  data-panel="lr-door-panel"
-                                 style="position: absolute; left: 4.38%; top: 47.18%; width: 13.03%; height: 30.83%;"
+                                 style="position: absolute; left: 4.38%; top: 47.18%; width: 13.03%; height: 30.83%; z-index: 2;"
                                  title="LR Door Panel" 
                                  alt="LR Door Panel">
                         
@@ -173,7 +173,7 @@
                             <img src="/images/interior/Boot.png" 
                                  class="panel-overlay" 
                                  data-panel="boot"
-                                 style="position: absolute; left: 10.25%; top: 91.15%; width: 80.70%; height: 8.70%;"
+                                 style="position: absolute; left: 10.25%; top: 91.15%; width: 80.70%; height: 8.70%; z-index: 2;"
                                  title="Boot" 
                                  alt="Boot">
                         
@@ -181,7 +181,7 @@
                             <img src="/images/interior/Centre-Consol.png" 
                                  class="panel-overlay" 
                                  data-panel="centre-console"
-                                 style="position: absolute; left: 39.20%; top: 17.82%; width: 22.59%; height: 33.68%;"
+                                 style="position: absolute; left: 39.20%; top: 17.82%; width: 22.59%; height: 33.68%; z-index: 2;"
                                  title="Centre Console" 
                                  alt="Centre Console">
                         
@@ -189,7 +189,7 @@
                             <img src="/images/interior/Gear-Lever.png" 
                                  class="panel-overlay" 
                                  data-panel="gearlever"
-                                 style="position: absolute; left: 47.56%; top: 27.00%; width: 5.37%; height: 4.52%;"
+                                 style="position: absolute; left: 47.56%; top: 27.00%; width: 5.37%; height: 4.52%; z-index: 4;"
                                  title="Gear Lever" 
                                  alt="Gear Lever">
                         
@@ -197,7 +197,7 @@
                             <img src="/images/interior/Airvents.png" 
                                  class="panel-overlay" 
                                  data-panel="air-vents"
-                                 style="position: absolute; left: 7.06%; top: 12.67%; width: 86.37%; height: 10.44%; z-index: 1;"
+                                 style="position: absolute; left: 7.06%; top: 12.67%; width: 86.37%; height: 10.44%; z-index: 2;"
                                  title="Air Vents" 
                                  alt="Air Vents">
 
@@ -267,19 +267,18 @@
 .panel-overlay {
     cursor: pointer;
     transition: all 0.3s ease;
-    opacity: 0;
+    opacity: 0.15;
     position: absolute !important;
+    filter: brightness(0) saturate(100%) invert(21%) sepia(100%) saturate(7463%) hue-rotate(358deg) brightness(105%) contrast(115%);
 }
 
 /* Hover effects for panels */
 .panel-overlay:hover {
     opacity: 0.7;
-    filter: brightness(0) saturate(100%) invert(21%) sepia(100%) saturate(7463%) hue-rotate(358deg) brightness(105%) contrast(115%);
 }
 
 .panel-overlay.active {
     opacity: 0.7;
-    filter: brightness(0) saturate(100%) invert(21%) sepia(100%) saturate(7463%) hue-rotate(358deg) brightness(105%) contrast(115%);
 }
 
 /* Button responsive layout for tablets */
