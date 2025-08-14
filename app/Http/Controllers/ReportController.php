@@ -87,7 +87,8 @@ class ReportController extends Controller
                 'body_panels' => $this->formatBodyPanelsForReport($inspection),
                 'interior' => [
                     'assessments' => $this->formatInteriorAssessmentsForReport($inspection)
-                ]
+                ],
+                'service_booklet' => $this->formatServiceBookletForReport($inspection)
             ];
             
             // Debug log to check Interior data
@@ -95,6 +96,14 @@ class ReportController extends Controller
                 'interior_assessments_count' => $inspection->interiorAssessments->count(),
                 'interior_data' => $inspectionData['interior']['assessments'] ?? 'NOT SET',
                 'interior_data_count' => isset($inspectionData['interior']['assessments']) ? count($inspectionData['interior']['assessments']) : 0
+            ]);
+            
+            // Debug log to check Service Booklet data
+            \Log::info('Service Booklet data being passed to view:', [
+                'service_comments' => $inspection->service_comments ?? 'NULL',
+                'service_recommendations' => $inspection->service_recommendations ?? 'NULL',
+                'service_booklet_images_count' => $inspection->images()->where('image_type', 'service_booklet')->count(),
+                'service_booklet_data' => $inspectionData['service_booklet'] ?? 'NOT SET'
             ]);
             
             return view('reports.web-report', compact('report', 'inspectionData'));
@@ -202,6 +211,12 @@ class ReportController extends Controller
                 if (is_array($images)) {
                     $transformedData['images'][$section] = [];
                     foreach ($images as $index => $image) {
+                        // Skip service booklet images from appearing in other galleries
+                        $areaName = $image['area_name'] ?? '';
+                        if (strpos($areaName, 'service_page') !== false || strpos($areaName, 'service_booklet') !== false) {
+                            continue; // Skip service booklet images from general galleries
+                        }
+                        
                         // Ensure images have proper data URL format for web display
                         if (isset($image['base64']) && !str_starts_with($image['base64'], 'data:')) {
                             $mimeType = $image['mime_type'] ?? 'image/jpeg';
@@ -212,6 +227,8 @@ class ReportController extends Controller
                         $transformedData['images'][$section][$index]['area_name'] = $image['area_name'] ?? 'Image ' . ($index + 1);
                         $transformedData['images'][$section][$index]['timestamp'] = $image['timestamp'] ?? now()->format('Y-m-d H:i:s');
                     }
+                    // Re-index array after filtering
+                    $transformedData['images'][$section] = array_values($transformedData['images'][$section]);
                 }
             }
         }
@@ -438,6 +455,11 @@ class ReportController extends Controller
             foreach ($images as $image) {
                 // Skip diagnostic PDFs - they're handled separately
                 if ($image->image_type === 'diagnostic_pdf') {
+                    continue;
+                }
+                
+                // Skip service booklet images - they're handled separately in formatServiceBookletForReport
+                if ($image->image_type === 'service_booklet') {
                     continue;
                 }
                 
@@ -712,6 +734,46 @@ class ReportController extends Controller
         
         
         return $interiorData;
+    }
+    
+    /**
+     * Format service booklet data for report display
+     */
+    private function formatServiceBookletForReport($inspection)
+    {
+        $serviceBookletData = [
+            'comments' => $inspection->service_comments,
+            'recommendations' => $inspection->service_recommendations,
+            'images' => []
+        ];
+        
+        // Get service booklet images
+        $serviceBookletImages = $inspection->images()
+            ->where('image_type', 'service_booklet')
+            ->orderBy('created_at')
+            ->get();
+        
+        foreach ($serviceBookletImages as $image) {
+            // Check if image file exists (with fallback for path mismatches)
+            $fullPath1 = storage_path('app/public/' . $image->file_path);
+            $existingPath = null;
+            $publicPath = null;
+            
+            if (file_exists($fullPath1)) {
+                $existingPath = $fullPath1;
+                $publicPath = $image->file_path;
+            }
+            
+            if ($existingPath) {
+                $serviceBookletData['images'][] = [
+                    'url' => asset('storage/' . $publicPath),
+                    'title' => $image->area_name ?? 'Service Booklet Page',
+                    'created_at' => $image->created_at->format('Y-m-d H:i:s')
+                ];
+            }
+        }
+        
+        return $serviceBookletData;
     }
     
     /**

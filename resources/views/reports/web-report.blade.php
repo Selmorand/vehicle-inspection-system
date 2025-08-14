@@ -1502,6 +1502,65 @@
             </div>
             @endif
 
+            <!-- Service Booklet Section -->
+            @if(!empty($inspectionData['service_booklet']))
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="bi bi-journal"></i>
+                    Service Booklet Documentation
+                </h2>
+                
+                @if(!empty($inspectionData['service_booklet']['images']))
+                <div class="service-images-section" style="margin-bottom: 2rem;">
+                    <h3 style="color: #495057; margin-bottom: 1rem;">Service Booklet Images</h3>
+                    <div class="service-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
+                        @foreach($inspectionData['service_booklet']['images'] as $index => $image)
+                        <div class="service-image-card" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background: white;">
+                            <a href="{{ $image['url'] }}" data-lightbox="service-booklet" data-title="Service Booklet Page {{ $index + 1 }}">
+                                <img src="{{ $image['url'] }}" 
+                                     alt="Service Booklet Page {{ $index + 1 }}" 
+                                     style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
+                            </a>
+                            <div style="padding: 10px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+                                Page {{ $index + 1 }}
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+                
+                @if(!empty($inspectionData['service_booklet']['comments']) || !empty($inspectionData['service_booklet']['recommendations']))
+                <div class="service-text-section">
+                    @if(!empty($inspectionData['service_booklet']['comments']))
+                    <div class="service-comments" style="margin-bottom: 1.5rem;">
+                        <h3 style="color: #495057; margin-bottom: 0.5rem;">Service History Comments</h3>
+                        <div style="background: #f8f9fa; border-left: 4px solid #4f959b; padding: 15px; border-radius: 4px;">
+                            <p style="margin: 0; line-height: 1.6; color: #495057;">{{ $inspectionData['service_booklet']['comments'] }}</p>
+                        </div>
+                    </div>
+                    @endif
+                    
+                    @if(!empty($inspectionData['service_booklet']['recommendations']))
+                    <div class="service-recommendations" style="margin-bottom: 1.5rem;">
+                        <h3 style="color: #495057; margin-bottom: 0.5rem;">Service Recommendations</h3>
+                        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
+                            <p style="margin: 0; line-height: 1.6; color: #495057;">{{ $inspectionData['service_booklet']['recommendations'] }}</p>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                @endif
+                
+                @if(empty($inspectionData['service_booklet']['images']) && empty($inspectionData['service_booklet']['comments']) && empty($inspectionData['service_booklet']['recommendations']))
+                <div style="text-align: center; padding: 2rem; color: #6c757d;">
+                    <i class="bi bi-journal" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem;"></i>
+                    <p>No service booklet documentation was recorded during this inspection.</p>
+                </div>
+                @endif
+            </div>
+            @endif
+
             <!-- Summary & Recommendations -->
             <div class="section">
                 <h2 class="section-title">

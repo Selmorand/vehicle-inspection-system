@@ -31,43 +31,15 @@
     <form id="service-booklet-form" enctype="multipart/form-data">
         @csrf
         
-        <!-- Service Booklet Images Section -->
-        <div class="form-section">
-            <h3>Service Booklet Images</h3>
-            <p class="text-muted mb-3">Take photos of service booklet pages using your tablet camera. Photos are automatically cropped to square format.</p>
-            
-            <!-- Image upload grid optimized for tablets -->
-            <div class="image-upload-grid" id="serviceBookletGrid">
-                <!-- Initial placeholder will be created by JavaScript -->
-            </div>
-            
-            <!-- Hidden file input optimized for tablet camera -->
-            <input type="file" id="serviceBookletCameraInput" accept="image/*" capture="environment" style="display: none;">
-        </div>
-
-        <!-- Service Comments Section -->
-        <div class="form-section">
-            <h3>Service History Comments</h3>
-            <div class="form-row">
-                <label for="service_comments" class="form-label fw-bold">Service History Notes:</label>
-                <textarea class="form-control" id="service_comments" name="service_comments" rows="6" 
-                    placeholder="Add any relevant comments about the vehicle's service history, maintenance records, or observations from the service booklet..."></textarea>
-            </div>
-            
-            <div class="form-row">
-                <label for="service_recommendations" class="form-label fw-bold">Service Recommendations:</label>
-                <textarea class="form-control" id="service_recommendations" name="service_recommendations" rows="4" 
-                    placeholder="Any recommended services or maintenance based on the service history review..."></textarea>
-            </div>
+        <!-- Service Booklet Assessment Cards -->
+        <div id="serviceBookletAssessments">
+            <!-- Service booklet cards will be generated here -->
         </div>
 
         <!-- Action buttons -->
         <div class="text-center mb-4">
             <button type="button" class="btn btn-outline-secondary me-3" onclick="goBack()">
-                <i class="bi bi-arrow-left me-1"></i>Back to Interior Images
-            </button>
-            <button type="button" class="btn btn-success me-3" id="simplePreviewBtn">
-                <i class="bi bi-eye me-1"></i>Simple Preview
+                <i class="bi bi-arrow-left me-1"></i>Back to Interior Assessment
             </button>
             <button type="button" class="btn btn-secondary me-3" onclick="saveDraft()">
                 Save Draft
@@ -80,237 +52,189 @@
 </div>
 @endsection
 
+@section('additional-css')
+<link rel="stylesheet" href="{{ asset('css/panel-cards.css') }}">
+@endsection
+
 @section('additional-js')
+<script src="{{ asset('js/inspection-cards.js') }}"></script>
 <script>
-// Image management
-const maxImages = 20; // Maximum number of images allowed
-let imageCount = 0;
-let uploadedServiceBookletImages = [];
-
-// Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
-    initializeServiceBookletGrid();
-    loadPreviousData();
-});
-
-function initializeServiceBookletGrid() {
-    const grid = document.getElementById('serviceBookletGrid');
-    // Create initial placeholder
-    createServiceBookletSlot(grid);
-}
-
-function createServiceBookletSlot(container) {
-    const slot = document.createElement('div');
-    slot.className = 'image-upload-slot';
-    slot.innerHTML = `
-        <div class="upload-placeholder">
-            <i class="bi bi-camera"></i>
-            <small>Tap to capture photo</small>
-        </div>
-    `;
-    
-    // Optimized for tablet touch - larger touch area and immediate camera trigger
-    slot.addEventListener('click', function() {
-        if (!this.classList.contains('has-image')) {
-            triggerServiceBookletCamera();
+    // Initialize the reusable InspectionCards system for service booklet
+    InspectionCards.init({
+        // Required Configuration
+        formId: 'service-booklet-form',
+        containerId: 'serviceBookletAssessments',
+        storageKey: 'serviceBookletData',
+        
+        // Service booklet specific configuration
+        hasColorField: false,
+        hasOverlays: false,
+        
+        // Service booklet items - in order: Images first, then text sections
+        items: [
+            { id: 'service_images', category: 'Service Booklet Images', panelId: null, hasCamera: true },
+            { id: 'service_comments', category: 'Service History Comments', panelId: null, hasCamera: false },
+            { id: 'service_recommendations', category: 'Service Recommendations', panelId: null, hasCamera: false }
+        ],
+        
+        // Custom field configuration for service booklet
+        fields: {
+            condition: { 
+                enabled: false
+            },
+            comments: { 
+                enabled: true, 
+                label: 'Notes', 
+                type: 'textarea', 
+                placeholder: 'Add relevant information...',
+                rows: 6
+            }
+        },
+        
+        // Custom placeholders for each section
+        customPlaceholders: {
+            'service_images': 'Take photos of service booklet pages',
+            'service_comments': 'Add relevant comments about the vehicle\'s service history, maintenance records, or observations from the service booklet...',
+            'service_recommendations': 'Any recommended services or maintenance based on the service history review...'
+        },
+        
+        // Callback for form submission
+        onFormSubmit: function(data) {
+            sessionStorage.setItem('serviceBookletData', JSON.stringify(data));
+            window.location.href = '/inspection/tyres-rims';
         }
     });
     
-    // Also handle touch events for better tablet responsiveness
-    slot.addEventListener('touchstart', function(e) {
-        e.preventDefault(); // Prevent double-tap zoom
-        if (!this.classList.contains('has-image')) {
-            triggerServiceBookletCamera();
-        }
-    });
-    
-    container.appendChild(slot);
-}
-
-function triggerServiceBookletCamera() {
-    const input = document.getElementById('serviceBookletCameraInput');
-    input.click();
-}
-
-// Handle camera input
-document.getElementById('serviceBookletCameraInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    
-    if (file && file.type.startsWith('image/')) {
-        processServiceBookletImage(file);
-    }
-    
-    // Clear the input to allow taking the same photo again if needed
-    this.value = '';
+    // Display inspection progress summary
+    displayInspectionSummary();
 });
 
-function processServiceBookletImage(file) {
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        // Create a canvas to crop the image to square
-        const img = new Image();
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Make it square by using the smaller dimension
-            const size = Math.min(img.width, img.height);
-            canvas.width = 300; // Fixed output size
-            canvas.height = 300;
-            
-            // Calculate crop area (center crop)
-            const startX = (img.width - size) / 2;
-            const startY = (img.height - size) / 2;
-            
-            // Draw cropped image
-            ctx.drawImage(img, startX, startY, size, size, 0, 0, 300, 300);
-            
-            // Convert to blob and add to interface
-            canvas.toBlob(function(blob) {
-                addServiceBookletImageToGrid(URL.createObjectURL(blob), blob);
-            }, 'image/jpeg', 0.8);
-        };
-        img.src = e.target.result;
-    };
-    
-    reader.readAsDataURL(file);
-}
-
-function addServiceBookletImageToGrid(imageSrc, blob) {
-    const grid = document.getElementById('serviceBookletGrid');
-    const emptySlot = grid.querySelector('.image-upload-slot:not(.has-image)');
-    
-    if (emptySlot) {
-        emptySlot.innerHTML = `
-            <img src="${imageSrc}" alt="Service booklet image">
-            <button type="button" class="remove-image" onclick="removeServiceBookletImage(this)">
-                <i class="bi bi-x"></i>
-            </button>
-        `;
-        emptySlot.classList.add('has-image');
-        
-        // Store the image data
-        uploadedServiceBookletImages.push({
-            slot: emptySlot,
-            blob: blob,
-            src: imageSrc
-        });
-        
-        // Always add a new placeholder after adding an image (if under max limit)
-        if (grid.children.length < maxImages) {
-            createServiceBookletSlot(grid);
-        }
-    }
-}
-
-function removeServiceBookletImage(button) {
-    const slot = button.closest('.image-upload-slot');
-    const imageIndex = uploadedServiceBookletImages.findIndex(img => img.slot === slot);
-    
-    if (imageIndex > -1) {
-        // Revoke the object URL to free memory
-        URL.revokeObjectURL(uploadedServiceBookletImages[imageIndex].src);
-        uploadedServiceBookletImages.splice(imageIndex, 1);
-    }
-    
-    // Remove the slot entirely instead of converting back to placeholder
-    slot.remove();
-    
-    // Ensure there's always at least one placeholder available
-    const grid = document.getElementById('serviceBookletGrid');
-    if (grid.querySelectorAll('.image-upload-slot:not(.has-image)').length === 0) {
-        createServiceBookletSlot(grid);
-    }
-}
-
-function loadPreviousData() {
-    // Display summary of inspection progress
+function displayInspectionSummary() {
     const visualData = sessionStorage.getItem('visualInspectionData');
     
     if (visualData) {
         const data = JSON.parse(visualData);
-        displayInspectionSummary(data);
-    }
-
-    // Load any existing service booklet data
-    const serviceBookletData = sessionStorage.getItem('serviceBookletData');
-    if (serviceBookletData) {
-        restoreServiceBookletData(JSON.parse(serviceBookletData));
-    }
-}
-
-function displayInspectionSummary(data) {
-    const breadcrumbContainer = document.querySelector('.breadcrumb').parentElement.parentElement;
-    const summaryDiv = document.createElement('div');
-    summaryDiv.className = 'row mb-3';
-    summaryDiv.innerHTML = `
-        <div class="col-12">
-            <div class="alert alert-info">
-                <strong>Inspection Progress:</strong>
-                ${data.manufacturer} ${data.model} (${data.vehicle_type}) | 
-                VIN: ${data.vin} | 
-                Inspector: ${data.inspector_name} |
-                Progress: Visual ✓ | Body Panels ✓ | Specific Areas ✓ | Interior Assessment ✓ | Interior Images ✓ | Service Booklet
+        const breadcrumbContainer = document.querySelector('.breadcrumb').parentElement.parentElement;
+        const summaryDiv = document.createElement('div');
+        summaryDiv.className = 'row mb-3';
+        summaryDiv.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <strong>Inspection Progress:</strong>
+                    ${data.manufacturer || 'Unknown'} ${data.model || 'Vehicle'} (${data.vehicle_type || 'Vehicle'}) | 
+                    VIN: ${data.vin || 'Not specified'} | 
+                    Inspector: ${data.inspector_name || 'Not specified'} |
+                    Progress: Visual ✓ | Body Panels ✓ | Interior Assessment ✓ | Service Booklet
+                </div>
             </div>
-        </div>
-    `;
-    breadcrumbContainer.parentNode.insertBefore(summaryDiv, breadcrumbContainer.nextSibling);
-}
-
-function restoreServiceBookletData(data) {
-    // Restore form fields
-    if (data.service_comments) {
-        document.getElementById('service_comments').value = data.service_comments;
+        `;
+        breadcrumbContainer.parentNode.insertBefore(summaryDiv, breadcrumbContainer.nextSibling);
     }
-    if (data.service_recommendations) {
-        document.getElementById('service_recommendations').value = data.service_recommendations;
-    }
-    
-    // Restore images
-    if (data.images) {
-        data.images.forEach(imageData => {
-            if (imageData && imageData.src) {
-                addServiceBookletImageToGrid(imageData.src, imageData.blob);
-            }
-        });
-    }
-}
-
-function saveCurrentProgress() {
-    // Collect form data
-    const formData = new FormData(document.getElementById('service-booklet-form'));
-    const serviceBookletData = {};
-    
-    for (let [key, value] of formData.entries()) {
-        if (key !== '_token' && value) {
-            serviceBookletData[key] = value;
-        }
-    }
-    
-    // Store images data
-    serviceBookletData.images = uploadedServiceBookletImages.map(img => ({
-        src: img.src,
-        // Note: In production, images would be uploaded to server
-    }));
-    
-    sessionStorage.setItem('serviceBookletData', JSON.stringify(serviceBookletData));
 }
 
 function goBack() {
-    saveCurrentProgress();
-    window.location.href = '/inspection/interior-images';
+    if (confirm('Are you sure you want to go back? Any unsaved data will be lost.')) {
+        window.location.href = '/inspection/interior';
+    }
 }
 
 function saveDraft() {
-    saveCurrentProgress();
+    InspectionCards.saveData();
     alert('Service booklet draft saved successfully!');
 }
 
-function continueToFinalReport() {
-    saveCurrentProgress();
+async function continueToFinalReport() {
+    console.log('Service Booklet: Starting save and navigation...');
     
-    // Navigate to tyres and rims assessment section
-    window.location.href = '/inspection/tyres-rims';
+    // Get current inspection ID
+    const inspectionId = sessionStorage.getItem('currentInspectionId');
+    console.log('Current Inspection ID:', inspectionId);
+    
+    // Get form data and images from InspectionCards
+    let formData = {};
+    let imageData = {};
+    
+    try {
+        if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+            formData = InspectionCards.getFormData();
+            imageData = InspectionCards.getImages();
+            console.log('Service Booklet Form Data:', formData);
+            console.log('Service Booklet Images:', imageData);
+        }
+    } catch (e) {
+        console.error('Error getting InspectionCards data:', e);
+    }
+    
+    // Extract service comments and recommendations from form data
+    const serviceComments = formData['service_comments-comments'] || '';
+    const serviceRecommendations = formData['service_recommendations-comments'] || '';
+    
+    // Prepare API data (JSON like interior assessment)
+    const apiData = {
+        inspection_id: inspectionId,
+        service_comments: serviceComments,
+        service_recommendations: serviceRecommendations,
+        images: imageData
+    };
+    
+    console.log('Service booklet API data prepared:', apiData);
+    
+    try {
+        // Save to database via API (JSON like interior assessment)
+        const response = await fetch('/api/inspection/service-booklet', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(apiData)
+        });
+        
+        console.log('Service booklet API Response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Service booklet API Error Response:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log('Service booklet API Response:', result);
+        
+        if (result.success) {
+            console.log('✅ Service booklet saved successfully!');
+            
+            // Also save to sessionStorage for compatibility
+            InspectionCards.saveData();
+            
+            // Show success message
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+                background-color: #28a745; color: white; border-radius: 5px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 9999;
+            `;
+            notification.textContent = 'Service booklet saved to database successfully!';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+                window.location.href = '/inspection/tyres-rims';
+            }, 1500);
+        } else {
+            throw new Error(result.message || 'Failed to save service booklet');
+        }
+    } catch (error) {
+        console.error('Database save failed:', error);
+        alert('Warning: Data saved locally only. Database save failed: ' + error.message);
+        
+        // Save to sessionStorage anyway and continue
+        InspectionCards.saveData();
+        setTimeout(() => {
+            window.location.href = '/inspection/tyres-rims';
+        }, 2000);
+    }
 }
 </script>

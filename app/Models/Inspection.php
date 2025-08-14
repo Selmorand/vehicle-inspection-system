@@ -14,6 +14,8 @@ class Inspection extends Model
         'inspector_name',
         'inspection_date',
         'diagnostic_report',
+        'service_comments',
+        'service_recommendations',
         'status'
     ];
 

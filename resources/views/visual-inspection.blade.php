@@ -109,7 +109,7 @@
                 <div class="col-md-4">
                     <div class="form-row">
                         <label for="year_model" class="form-label fw-bold">Year Model:</label>
-                        <input type="number" class="form-control" id="year_model" name="year_model" min="1900" max="2030">
+                        <input type="number" class="form-control" id="year_model" name="year_model" min="1900" max="2026">
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -457,7 +457,15 @@ function continueToNext() {
         if (key !== '_token' && key !== 'diagnostic_file') {
             // Convert numeric fields to proper types
             if (key === 'km_reading' || key === 'year_model') {
-                inspectionData[key] = value ? parseInt(value) || null : null;
+                // Parse the value and validate it's actually a number
+                const numValue = parseInt(value);
+                if (!isNaN(numValue)) {
+                    inspectionData[key] = numValue;
+                } else {
+                    inspectionData[key] = null;
+                }
+                // Log for debugging
+                console.log(`Field ${key}: raw="${value}", parsed=${inspectionData[key]}`);
             } else {
                 inspectionData[key] = value || '';
             }
@@ -589,6 +597,16 @@ function continueToNext() {
             console.error('Database save failed:', error);
             console.error('Error details:', error.message);
             console.error('API response:', error);
+            
+            // Clear any potentially corrupted data
+            if (error.message && error.message.includes('year_model') && error.message.includes('must not be greater')) {
+                console.error('Year model validation error detected. Check the year_model field value.');
+                const yearInput = document.getElementById('year_model');
+                if (yearInput) {
+                    console.log('Current year_model input value:', yearInput.value);
+                }
+            }
+            
             showNotification('Warning: Data saved locally only. Database save failed. Check console for details.', 'warning');
             
             // Navigate anyway after delay

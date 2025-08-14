@@ -595,12 +595,27 @@ class InspectionController extends Controller
     {
         // TESTING: Relaxed validation for testing navigation
         // TODO: Restore required validations before production
+        // Debug incoming request data
+        \Log::info('Service Booklet Request Data:', [
+            'has_files' => $request->hasFile('service_booklet_images'),
+            'all_files' => $request->allFiles(),
+            'inspection_id' => $request->input('inspection_id'),
+            'service_comments' => $request->input('service_comments'),
+            'service_recommendations' => $request->input('service_recommendations'),
+            'images_data' => $request->input('images'),
+            'images_structure' => is_array($request->input('images')) ? array_keys($request->input('images')) : 'not array'
+        ]);
+
         $validated = $request->validate([
             'inspection_id' => 'nullable|exists:inspections,id',
             'service_comments' => 'nullable|string',
             'service_recommendations' => 'nullable|string',
             'service_booklet_images' => 'nullable|array',
-            'service_booklet_images.*' => 'image|max:10240' // 10MB max per image
+            'service_booklet_images.*' => 'nullable|image|max:10240', // File uploads
+            'images' => 'nullable|array', // Base64 images from InspectionCards
+            'images.*.*.id' => 'nullable|string',
+            'images.*.*.data' => 'nullable|string',
+            'images.*.*.timestamp' => 'nullable|string'
         ]);
 
         DB::beginTransaction();
@@ -623,7 +638,7 @@ class InspectionController extends Controller
                 'service_recommendations' => $validated['service_recommendations'] ?? null,
             ]);
 
-            // Handle service booklet image uploads
+            // Handle service booklet image uploads (file uploads)
             if ($request->hasFile('service_booklet_images')) {
                 foreach ($request->file('service_booklet_images') as $index => $image) {
                     $path = $image->store('inspections/' . $inspection->id . '/service-booklet', 'public');
@@ -635,6 +650,40 @@ class InspectionController extends Controller
                         'file_path' => $path,
                         'original_name' => $image->getClientOriginalName()
                     ]);
+                }
+            }
+            
+            // Handle service booklet images from InspectionCards (base64 data)
+            if (!empty($validated['images'])) {
+                foreach ($validated['images'] as $panelId => $images) {
+                    if ($panelId === 'service_images' && is_array($images)) {
+                        foreach ($images as $index => $imageData) {
+                            if (!empty($imageData['data'])) {
+                                // Decode base64 image
+                                $imageContent = base64_decode(preg_replace('#^data:image/[^;]+;base64,#', '', $imageData['data']));
+                                
+                                if ($imageContent) {
+                                    $filename = 'service_page_' . ($index + 1) . '_' . time() . '.jpg';
+                                    $directory = 'inspections/' . $inspection->id . '/service-booklet';
+                                    $path = $directory . '/' . $filename;
+                                    
+                                    // Ensure directory exists
+                                    Storage::disk('public')->makeDirectory($directory);
+                                    
+                                    // Save the image
+                                    Storage::disk('public')->put($path, $imageContent);
+                                    
+                                    InspectionImage::create([
+                                        'inspection_id' => $inspection->id,
+                                        'image_type' => 'service_booklet',
+                                        'area_name' => 'service_page_' . ($index + 1),
+                                        'file_path' => $path,
+                                        'original_name' => $filename
+                                    ]);
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
