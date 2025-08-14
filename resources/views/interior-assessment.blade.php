@@ -55,53 +55,53 @@
                                  title="Steering Wheel" 
                                  alt="Steering Wheel">
                         
-                            <!-- Individual Button Components -->
+                            <!-- Individual Button Components - All as one group with z-index 100 -->
                             <img src="/images/interior/buttons-RF.png" 
                                  class="panel-overlay buttons-group" 
                                  data-panel="buttons"
-                                 style="position: absolute; left: 87.16%; top: 19.69%; width: 8.46%; height: 5.92%; z-index: 2;"
+                                 style="position: absolute; left: 87.16%; top: 19.69%; width: 8.46%; height: 5.92%;"
                                  title="Buttons RF" 
                                  alt="Buttons RF">
                         
                             <img src="/images/interior/buttons-centre.png" 
                                  class="panel-overlay buttons-group" 
                                  data-panel="buttons"
-                                 style="position: absolute; left: 47.36%; top: 18.86%; width: 6.47%; height: 4.59%; z-index: 2;"
+                                 style="position: absolute; left: 47.36%; top: 18.86%; width: 6.47%; height: 4.59%;"
                                  title="Buttons Centre" 
                                  alt="Buttons Centre">
                         
                             <img src="/images/interior/buttons-ML.png" 
                                  class="panel-overlay buttons-group" 
                                  data-panel="buttons"
-                                 style="position: absolute; left: 45.27%; top: 26.72%; width: 2.99%; height: 2.92%; z-index: 2;"
+                                 style="position: absolute; left: 45.27%; top: 26.72%; width: 2.99%; height: 2.92%;"
                                  title="Buttons ML" 
                                  alt="Buttons ML">
                         
                             <img src="/images/interior/buttons-MR.png" 
                                  class="panel-overlay buttons-group" 
                                  data-panel="buttons"
-                                 style="position: absolute; left: 52.44%; top: 26.93%; width: 2.99%; height: 2.78%; z-index: 2;"
+                                 style="position: absolute; left: 52.44%; top: 26.93%; width: 2.99%; height: 2.78%;"
                                  title="Buttons MR" 
                                  alt="Buttons MR">
                         
                             <img src="/images/interior/buttons-FL.png" 
                                  class="panel-overlay buttons-group" 
                                  data-panel="buttons"
-                                 style="position: absolute; left: 7.66%; top: 22.61%; width: 3.58%; height: 2.51%; z-index: 2;"
+                                 style="position: absolute; left: 7.66%; top: 22.61%; width: 3.58%; height: 2.51%;"
                                  title="Buttons FL" 
                                  alt="Buttons FL">
                         
                             <img src="/images/interior/buttons-RL.png" 
                                  class="panel-overlay buttons-group" 
                                  data-panel="buttons"
-                                 style="position: absolute; left: 10.35%; top: 51.42%; width: 3.28%; height: 2.30%; z-index: 2;"
+                                 style="position: absolute; left: 10.35%; top: 51.42%; width: 3.28%; height: 2.30%;"
                                  title="Buttons RL" 
                                  alt="Buttons RL">
                         
                             <img src="/images/interior/buttons-RR.png" 
                                  class="panel-overlay buttons-group" 
                                  data-panel="buttons"
-                                 style="position: absolute; left: 87.66%; top: 50.87%; width: 3.88%; height: 2.71%; z-index: 2;"
+                                 style="position: absolute; left: 87.66%; top: 50.87%; width: 3.88%; height: 2.71%;"
                                  title="Buttons RR" 
                                  alt="Buttons RR">
                         
@@ -267,14 +267,20 @@
 .panel-overlay {
     cursor: pointer;
     transition: all 0.3s ease;
-    opacity: 0.15;
+    /*opacity: 0.15;*/
     position: absolute !important;
-    filter: brightness(0) saturate(100%) invert(21%) sepia(100%) saturate(7463%) hue-rotate(358deg) brightness(105%) contrast(115%);
+   
+}
+
+/* Buttons group with higher z-index */
+.buttons-group {
+    z-index: 100 !important;
 }
 
 /* Hover effects for panels */
 .panel-overlay:hover {
     opacity: 0.7;
+    
 }
 
 .panel-overlay.active {
@@ -317,6 +323,306 @@
 <script src="{{ asset('js/inspection-cards.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Wait a moment for any other scripts to initialize
+    setTimeout(() => {
+        // Handle buttons group as a single unit
+        const buttonsGroup = document.querySelectorAll('.buttons-group');
+        console.log('Found button elements:', buttonsGroup.length); // Debug
+        
+        // Function to handle all buttons as one
+        function syncButtonsState(action, activeState = null) {
+            const allButtons = document.querySelectorAll('.buttons-group');
+            allButtons.forEach(btn => {
+                if (action === 'toggle') {
+                    if (activeState) {
+                        btn.classList.add('active');
+                        btn.style.opacity = '0.7';
+                    } else {
+                        btn.classList.remove('active');
+                        btn.style.opacity = '';
+                    }
+                } else if (action === 'hover') {
+                    btn.style.opacity = '0.7';
+                } else if (action === 'leave') {
+                    if (!btn.classList.contains('active')) {
+                        btn.style.opacity = '';
+                    }
+                }
+            });
+        }
+    
+    buttonsGroup.forEach((button, index) => {
+        console.log(`Button ${index}:`, button.alt, button.className); // Debug each button
+        
+        // Ensure consistent opacity initially
+        button.style.opacity = '';
+        
+        // Click handler - all buttons act as one
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = this.classList.contains('active');
+            syncButtonsState('toggle', !isActive);
+            
+            // Also trigger the form panel for buttons
+            const buttonsFormPanel = document.querySelector('#interiorAssessments [data-panel-id="interior_79"]');
+            if (buttonsFormPanel) {
+                buttonsFormPanel.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+        
+        // Hover handlers - all buttons respond together
+        button.addEventListener('mouseenter', function(e) {
+            e.stopPropagation();
+            syncButtonsState('hover');
+        });
+        
+        button.addEventListener('mouseleave', function(e) {
+            e.stopPropagation();
+            syncButtonsState('leave');
+        });
+    });
+    }, 100); // End of setTimeout
+    
+    // Override the panel highlighting for buttons to highlight all button overlays
+    const originalHighlightPanel = window.highlightPanel || function() {};
+    window.highlightPanel = function(panelId) {
+        if (panelId === 'buttons') {
+            // Highlight all button overlays together
+            document.querySelectorAll('.buttons-group').forEach(btn => {
+                btn.classList.add('active');
+                btn.style.opacity = '0.7';
+            });
+        } else {
+            // For other panels, use default behavior
+            originalHighlightPanel(panelId);
+        }
+    };
+    
+    // Override the panel unhighlighting for buttons
+    const originalUnhighlightPanel = window.unhighlightPanel || function() {};
+    window.unhighlightPanel = function(panelId) {
+        if (panelId === 'buttons') {
+            // Unhighlight all button overlays together
+            document.querySelectorAll('.buttons-group').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.opacity = '';
+            });
+        } else {
+            // For other panels, use default behavior
+            originalUnhighlightPanel(panelId);
+        }
+    };
+    
+    // Watch for changes to the buttons panel card title
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const target = mutation.target;
+                if (target.dataset.panelLabel === 'buttons') {
+                    const isActive = target.classList.contains('active');
+                    document.querySelectorAll('.buttons-group').forEach(btn => {
+                        if (isActive) {
+                            btn.classList.add('active');
+                            btn.style.opacity = '0.7';
+                        } else {
+                            btn.classList.remove('active');
+                            btn.style.opacity = '';
+                        }
+                    });
+                }
+            }
+        });
+    });
+    
+    // Start observing after cards are initialized
+    setTimeout(() => {
+        const panelTitles = document.querySelectorAll('.panel-card-title');
+        panelTitles.forEach(title => {
+            observer.observe(title, { attributes: true, attributeFilter: ['class'] });
+            
+            // Add hover and click handlers for buttons panel
+            if (title.dataset.panelLabel === 'buttons') {
+                // Click handler
+                title.addEventListener('click', function() {
+                    setTimeout(() => {
+                        const isActive = this.classList.contains('active');
+                        document.querySelectorAll('.buttons-group').forEach(btn => {
+                            if (isActive) {
+                                btn.classList.add('active');
+                                btn.style.opacity = '0.7';
+                            } else {
+                                btn.classList.remove('active');
+                                btn.style.opacity = '';
+                            }
+                        });
+                    }, 10);
+                });
+                
+                // Hover handlers - highlight all buttons when hovering over form panel
+                title.addEventListener('mouseenter', function() {
+                    document.querySelectorAll('.buttons-group').forEach(btn => {
+                        if (!btn.classList.contains('active')) {
+                            btn.style.opacity = '0.5'; // Lighter opacity for hover
+                        }
+                    });
+                });
+                
+                title.addEventListener('mouseleave', function() {
+                    document.querySelectorAll('.buttons-group').forEach(btn => {
+                        if (!btn.classList.contains('active')) {
+                            btn.style.opacity = '';
+                        }
+                    });
+                });
+                
+                // Also add hover to the parent panel card
+                const panelCard = title.closest('.panel-card');
+                if (panelCard) {
+                    panelCard.addEventListener('mouseenter', function() {
+                        if (title.dataset.panelLabel === 'buttons') {
+                            document.querySelectorAll('.buttons-group').forEach(btn => {
+                                if (!btn.classList.contains('active')) {
+                                    btn.style.opacity = '0.5';
+                                }
+                            });
+                        }
+                    });
+                    
+                    panelCard.addEventListener('mouseleave', function() {
+                        if (title.dataset.panelLabel === 'buttons') {
+                            document.querySelectorAll('.buttons-group').forEach(btn => {
+                                if (!btn.classList.contains('active')) {
+                                    btn.style.opacity = '';
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }, 500);
+    
+    // Monitor the buttons condition dropdown and sync all button overlays
+    setTimeout(() => {
+        // Find the buttons condition dropdown
+        const buttonsConditionSelect = document.querySelector('select[name="interior_79-condition"]');
+        if (buttonsConditionSelect) {
+            console.log('Found buttons condition dropdown');
+            
+            // Function to update all button overlays based on condition
+            function updateButtonsCondition(condition) {
+                const allButtons = document.querySelectorAll('.buttons-group');
+                
+                // Remove all condition classes first
+                allButtons.forEach(btn => {
+                    btn.classList.remove('condition-good', 'condition-average', 'condition-bad');
+                    btn.style.opacity = '';
+                });
+                
+                // Add the new condition class to all buttons
+                if (condition) {
+                    allButtons.forEach(btn => {
+                        btn.classList.add(`condition-${condition}`);
+                        // Set opacity based on condition
+                        if (condition === 'good') {
+                            btn.style.opacity = '0.8';
+                            btn.style.filter = 'brightness(0) saturate(100%) invert(25%) sepia(98%) saturate(1044%) hue-rotate(73deg) brightness(92%) contrast(101%)';
+                        } else if (condition === 'average') {
+                            btn.style.opacity = '0.8';
+                            btn.style.filter = 'brightness(0) saturate(100%) invert(66%) sepia(68%) saturate(3428%) hue-rotate(8deg) brightness(102%) contrast(95%)';
+                        } else if (condition === 'bad') {
+                            btn.style.opacity = '0.8';
+                            btn.style.filter = 'brightness(0) saturate(100%) invert(16%) sepia(90%) saturate(3122%) hue-rotate(348deg) brightness(93%) contrast(87%)';
+                        }
+                    });
+                }
+            }
+            
+            // Listen for changes to the dropdown
+            buttonsConditionSelect.addEventListener('change', function() {
+                const selectedCondition = this.value;
+                console.log('Buttons condition changed to:', selectedCondition);
+                updateButtonsCondition(selectedCondition);
+            });
+            
+            // Apply initial condition if one is selected
+            if (buttonsConditionSelect.value) {
+                updateButtonsCondition(buttonsConditionSelect.value);
+            }
+        }
+        
+        // Also ensure clicking any button image selects the buttons panel in the form
+        document.querySelectorAll('.buttons-group').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Find and click the buttons panel title in the form
+                const buttonsPanel = document.querySelector('[data-panel-label="buttons"]');
+                if (buttonsPanel && !buttonsPanel.classList.contains('active')) {
+                    buttonsPanel.click();
+                }
+                
+                // Sync all buttons visual state
+                const allButtons = document.querySelectorAll('.buttons-group');
+                const isActive = this.classList.contains('active');
+                
+                allButtons.forEach(button => {
+                    if (!isActive) {
+                        button.classList.add('active');
+                    } else {
+                        button.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Add hover synchronization - all buttons respond together
+            btn.addEventListener('mouseenter', function(e) {
+                e.stopPropagation();
+                const allButtons = document.querySelectorAll('.buttons-group');
+                
+                // Apply hover effect to all buttons
+                allButtons.forEach(button => {
+                    if (!button.classList.contains('active')) {
+                        // Enhance existing opacity/filter or set default hover
+                        const currentOpacity = button.style.opacity || '0';
+                        if (parseFloat(currentOpacity) < 0.7) {
+                            button.style.opacity = '0.7';
+                        }
+                        
+                        // Add hover class for additional styling if needed
+                        button.classList.add('hover-state');
+                    }
+                });
+            });
+            
+            btn.addEventListener('mouseleave', function(e) {
+                e.stopPropagation();
+                const allButtons = document.querySelectorAll('.buttons-group');
+                
+                // Remove hover effect from all buttons
+                allButtons.forEach(button => {
+                    button.classList.remove('hover-state');
+                    
+                    if (!button.classList.contains('active')) {
+                        // Reset to condition-based opacity or hide
+                        const condition = button.classList.contains('condition-good') ? 'good' :
+                                         button.classList.contains('condition-average') ? 'average' :
+                                         button.classList.contains('condition-bad') ? 'bad' : null;
+                        
+                        if (condition) {
+                            button.style.opacity = '0.8'; // Maintain condition opacity
+                        } else {
+                            button.style.opacity = ''; // Reset to CSS default
+                        }
+                    }
+                });
+            });
+        });
+    }, 1000); // Wait for form to be fully initialized
+    
     // Initialize the reusable InspectionCards system for interior assessment
     InspectionCards.init({
         // Required Configuration
