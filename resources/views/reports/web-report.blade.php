@@ -1627,17 +1627,20 @@
                     
                     <!-- Third Row: Images -->
                     @if(!empty($tyre['images']))
-                    <div class="panel-images">
-                        <div class="images-row">
+                    <div class="panel-images" style="padding: 15px 20px; border-top: 1px solid #e0e0e0;">
+                        <div class="images-label" style="font-weight: 500; margin-bottom: 10px;">Images ({{ count($tyre['images']) }} found):</div>
+                        <div class="images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
                             @foreach($tyre['images'] as $image)
-                            <div class="image-thumbnail">
-                                <a href="{{ $image['url'] }}" data-lightbox="tyre-{{ $tyre['component_name'] }}" data-title="{{ $tyreName }}">
-                                    <img src="{{ $image['url'] }}" alt="{{ $tyreName }} image">
-                                </a>
-                                <span class="image-delete" title="Image from inspection">×</span>
-                            </div>
+                            <a href="{{ $image['url'] }}" data-lightbox="tyre-{{ $tyre['component_name'] }}" data-title="{{ $tyreName }}">
+                                <img src="{{ $image['url'] }}" alt="{{ $tyreName }}" class="panel-image-thumb">
+                            </a>
                             @endforeach
                         </div>
+                    </div>
+                    @else
+                    <!-- DEBUG: Show when no images -->
+                    <div class="panel-images" style="padding: 15px 20px; border-top: 1px solid #e0e0e0; color: #999;">
+                        <div class="images-label" style="font-weight: 500; margin-bottom: 10px;">Images: None found for {{ $tyre['component_name'] ?? 'unknown component' }}</div>
                     </div>
                     @endif
                 </div>

@@ -1,11 +1,11 @@
-yres & Rims API Error Response: {"success":false,"message":"Error saving tyres assessment: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'image_path' in 'field list' (Connection: mysql, SQL: insert into `inspection_images` (`inspection_id`, `image_type`, `image_path`, `area_name`, `created_at`, `updated_at`) values (114, tyres_rims, inspections\/114\/tyres\/tyres_114_front-left_689eea32e74c0.jpg, front-left, 2025-08-15 10:05:06, 2025-08-15 10:05:06))"}
-
-tyres-rims:194 Failed to save tyres & rims assessment: Error: HTTP 500: {"success":false,"message":"Error saving tyres assessment: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'image_path' in 'field list' (Connection: mysql, SQL: insert into `inspection_images` (`inspection_id`, `image_type`, `image_path`, `area_name`, `created_at`, `updated_at`) values (114, tyres_rims, inspections\/114\/tyres\/tyres_114_front-left_689eea32e74c0.jpg, front-left, 2025-08-15 10:05:06, 2025-08-15 10:05:06))"}
-    at HTMLButtonElement.<anonymous> (tyres-rims:161:23)
-(anonymous)	@	tyres-rims:194
-
-tyres-rims:160 Tyres & Rims API Error Response: {"success":false,"message":"Error saving tyres assessment: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'image_path' in 'field list' (Connection: mysql, SQL: insert into `inspection_images` (`inspection_id`, `image_type`, `image_path`, `area_name`, `created_at`, `updated_at`) values (114, tyres_rims, inspections\/114\/tyres\/tyres_114_front-left_689eea4962fd8.jpg, front-left, 2025-08-15 10:05:29, 2025-08-15 10:05:29))"}
-(anonymous)	@	tyres-rims:160
-
-tyres-rims:194 Failed to save tyres & rims assessment: Error: HTTP 500: {"success":false,"message":"Error saving tyres assessment: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'image_path' in 'field list' (Connection: mysql, SQL: insert into `inspection_images` (`inspection_id`, `image_type`, `image_path`, `area_name`, `created_at`, `updated_at`) values (114, tyres_rims, inspections\/114\/tyres\/tyres_114_front-left_689eea4962fd8.jpg, front-left, 2025-08-15 10:05:29, 2025-08-15 10:05:29))"}
-    at HTMLButtonElement.<anonymous> (tyres-rims:161:23)
+<!--THIS IS WHAT THE SERVICE BOOKLET IMAGES LAYOUTLOOKS LIKE--->
+<div class="service-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
+                                                <div class="service-image-card" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background: white;">
+                            <a href="http://127.0.0.1:8000/storage/inspections/116/service-booklet/service_page_1_1755247451.jpg" data-lightbox="service-booklet" data-title="Service Booklet Page 1">
+                                <img src="http://127.0.0.1:8000/storage/inspections/116/service-booklet/service_page_1_1755247451.jpg" alt="Service Booklet Page 1" style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
+                            </a>
+                            <div style="padding: 10px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+                                Page 1
+                            </div>
+                        </div>
+                                            </div>

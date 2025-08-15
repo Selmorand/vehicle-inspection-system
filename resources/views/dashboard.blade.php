@@ -136,6 +136,7 @@ function clearInspectionData() {
     sessionStorage.removeItem('interiorAssessmentImages');
     sessionStorage.removeItem('serviceBookletData');
     sessionStorage.removeItem('tyresRimsData');
+    sessionStorage.removeItem('tyresRimsAssessmentData');
     sessionStorage.removeItem('mechanicalReportData');
     sessionStorage.removeItem('engineCompartmentData');
     sessionStorage.removeItem('physicalHoistData');

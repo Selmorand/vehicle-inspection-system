@@ -344,7 +344,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         sessionStorage.removeItem('bodyPanelAssessmentData');
         sessionStorage.removeItem('bodyPanelAssessmentImages');
         sessionStorage.removeItem('visualInspectionData');
+        sessionStorage.removeItem('visualInspectionImages');
         sessionStorage.removeItem('interiorAssessmentData');
+        sessionStorage.removeItem('interiorAssessmentImages');
+        sessionStorage.removeItem('serviceBookletData');
+        sessionStorage.removeItem('tyresRimsData');
+        sessionStorage.removeItem('tyresRimsAssessmentData');
+        sessionStorage.removeItem('mechanicalReportData');
+        sessionStorage.removeItem('engineCompartmentData');
+        sessionStorage.removeItem('physicalHoistData');
         
         // Set a new inspection ID
         const newInspectionId = 'inspection_' + Date.now();
