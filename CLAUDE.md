@@ -29,6 +29,7 @@ Web-based vehicle inspection system for tablet use. Features:
 - Must be tablet-optimised first.
 - Minimal dependencies for low maintenance.
 - Do not break working camera capture.
+- **NEVER modify panel-card CSS or styling in web-report.blade.php unless explicitly requested and confirmed** - This styling is finalized and critical for report consistency.
 
 ---
 

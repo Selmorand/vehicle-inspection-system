@@ -155,10 +155,10 @@
                     <i class="bi bi-arrow-left me-1"></i>Back to Mechanical Report
                 </button>
                 <button type="button" class="btn btn-secondary me-3" id="saveDraftBtn">Save Draft</button>
-                <button type="submit" class="btn btn-success" id="completeConditionBtn" form="engineCompartmentForm" style="display: none;">
+                <button type="button" class="btn btn-success" id="completeConditionBtn" style="display: none;">
                     <i class="bi bi-check-circle me-1"></i>Complete Condition Report
                 </button>
-                <button type="submit" class="btn btn-primary" id="continueTechnicalBtn" form="engineCompartmentForm" style="display: none;">
+                <button type="button" class="btn btn-primary" id="continueTechnicalBtn" style="display: none;">
                     Continue to Physical Hoist Inspection <i class="bi bi-arrow-right ms-1"></i>
                 </button>
             </div>
@@ -345,16 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Form submission handler
-    document.getElementById('engineCompartmentForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Save the data
-        saveCurrentProgress();
-        
-        // Navigate to physical hoist inspection section
-        window.location.href = '/inspection/physical-hoist';
-    });
+    // REMOVED manual form submission handler - InspectionCards handles this
 
     // Navigation button handlers
     document.getElementById('backBtn').addEventListener('click', function() {
@@ -363,8 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('saveDraftBtn').addEventListener('click', function() {
-        saveCurrentProgress();
-        alert('Engine compartment assessment draft saved successfully!');
+        saveEngineCompartmentData();
     });
 
 });
@@ -410,12 +400,11 @@ function initializeEngineComponents() {
             }
         },
         
-        // Callback for form submission
+        // Callback for form submission - just save to sessionStorage
         onFormSubmit: function(data) {
             // Store the engine components data
             sessionStorage.setItem('engineComponentsData', JSON.stringify(data));
-            // Continue with existing form submission logic
-            window.location.href = '/inspection/physical-hoist';
+            // Don't do API call here - button handler will do it
         }
     });
 }
@@ -517,6 +506,169 @@ function saveCurrentProgress() {
     sessionStorage.setItem('engineCompartmentData', JSON.stringify(updatedData));
 }
 
+async function saveEngineCompartmentData() {
+    console.log('Starting engine compartment save...');
+    
+    try {
+        let inspectionId = sessionStorage.getItem('currentInspectionId');
+        console.log('Inspection ID from storage:', inspectionId);
+        
+        // If no inspection ID, use a default for testing (like we do in other controllers)
+        if (!inspectionId) {
+            console.warn('No inspection ID in sessionStorage, using default ID 121 for testing');
+            inspectionId = '121';
+            sessionStorage.setItem('currentInspectionId', inspectionId);
+        }
+
+        // Prepare API data structure
+        const apiData = {
+            inspection_id: parseInt(inspectionId),
+            findings: [],
+            components: [],
+            images: []
+        };
+
+        // Extract findings from form checkboxes
+        const checkboxes = document.querySelectorAll('.finding-checkbox:checked');
+        checkboxes.forEach(checkbox => {
+            const findingType = checkbox.name.replace('findings[', '').replace(']', '');
+            const notesInput = document.querySelector(`textarea[name="findings[${findingType}_notes]"]`);
+            
+            apiData.findings.push({
+                finding_type: findingType,
+                is_checked: true,
+                notes: notesInput ? notesInput.value : null
+            });
+        });
+
+        // Get data from sessionStorage (saved by InspectionCards onFormSubmit)
+        const storedData = sessionStorage.getItem('engineComponentsData');
+        let componentData = {};
+        
+        if (storedData) {
+            componentData = JSON.parse(storedData);
+            console.log('Retrieved engine components data from sessionStorage:', componentData);
+        }
+        
+        // Build component map from stored data
+        const componentMap = {};
+        
+        for (let [key, value] of Object.entries(componentData)) {
+            // Skip non-string values and handle them properly
+            if (key !== '_token' && value !== null && value !== undefined) {
+                // Convert value to string if it's not already
+                const stringValue = typeof value === 'string' ? value : String(value);
+                
+                if (stringValue.trim() !== '') {
+                    // Parse field names like "brakefluid_cleanliness-condition" 
+                    const parts = key.split('-');
+                    if (parts.length >= 2) {
+                        const componentId = parts[0];
+                        const fieldName = parts[1];
+                        
+                        if (!componentMap[componentId]) {
+                            componentMap[componentId] = {
+                                component_type: componentId,
+                                condition: null,
+                                comments: null
+                            };
+                        }
+                        
+                        if (fieldName === 'condition') {
+                            componentMap[componentId].condition = stringValue;
+                        } else if (fieldName === 'comments') {
+                            componentMap[componentId].comments = stringValue;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Convert component map to array  
+        apiData.components = Object.values(componentMap);
+        apiData.images = []; // No images for now
+        
+        console.log('Engine components data extracted:', apiData.components);
+        console.log('Engine images data:', apiData.images);
+
+        console.log('Final API data to send:', apiData);
+
+        // Check if we have valid data
+        if (!apiData.inspection_id) {
+            throw new Error('No inspection ID available');
+        }
+
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (!csrfToken) {
+            throw new Error('CSRF token not found');
+        }
+
+        console.log('Making fetch request with inspection_id:', apiData.inspection_id);
+        console.log('CSRF token:', csrfToken.getAttribute('content'));
+
+        // Save to database via API
+        const response = await fetch('/api/inspection/engine-compartment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(apiData)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Response error:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Response JSON:', result);
+
+        if (result.success) {
+            // Show success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+                background: #28a745; color: white; border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10000;
+                font-weight: 500;
+            `;
+            notification.textContent = 'Engine compartment assessment saved successfully!';
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.remove(), 3000);
+
+            // Clear local storage
+            sessionStorage.removeItem('engineCompartmentData');
+            sessionStorage.removeItem('engineComponentsData');
+
+            // Navigate based on inspection type
+            const inspectionType = sessionStorage.getItem('inspectionType');
+            if (inspectionType === 'condition') {
+                // Complete condition report
+                alert('Condition Report completed successfully!');
+                window.location.href = '/dashboard';
+            } else {
+                // Continue to physical hoist inspection
+                window.location.href = '/inspection/physical-hoist';
+            }
+        } else {
+            throw new Error(result.message || 'Unknown error occurred');
+        }
+
+    } catch (error) {
+        console.error('Failed to save engine compartment assessment:', error);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        
+        alert('Failed to save engine compartment assessment: ' + error.message);
+    }
+}
+
 function restoreEngineCompartmentData(data) {
     engineCompartmentData = data;
     
@@ -564,9 +716,154 @@ function setupNavigationButtons() {
         nextStepBreadcrumb.textContent = 'Physical Hoist';
         
         // Update form submission to continue to physical hoist
-        continueTechnicalBtn.onclick = function() {
-            saveCurrentProgress();
-            window.location.href = '/inspection/physical-hoist';
+        continueTechnicalBtn.onclick = async function(e) {
+            e.preventDefault();
+            
+            console.log('Engine Compartment: Starting save and navigation...');
+            
+            // Get form data and images from InspectionCards (EXACT WORKING PATTERN)
+            let formData = {};
+            let imageData = {};
+            
+            try {
+                if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+                    formData = InspectionCards.getFormData();
+                    imageData = InspectionCards.getImages();
+                    console.log('Engine Form Data:', formData);
+                    console.log('Engine Images:', imageData);
+                }
+            } catch (e) {
+                console.error('Error getting InspectionCards data:', e);
+            }
+            
+            // Get current inspection ID from session storage
+            const inspectionId = sessionStorage.getItem('currentInspectionId') || '121';
+            console.log('Current Inspection ID:', inspectionId);
+            
+            // Prepare API data
+            const apiData = {
+                inspection_id: inspectionId,
+                findings: [],
+                components: [],
+                images: []
+            };
+            
+            // Transform image data to engine compartment format
+            console.log('Raw imageData before transformation:', imageData);
+            
+            if (imageData && typeof imageData === 'object') {
+                // imageData is like: {"exhaust-system": [{id: "...", data: "..."}]}
+                for (const [componentType, componentImages] of Object.entries(imageData)) {
+                    console.log('Processing component:', componentType, 'with images:', componentImages);
+                    if (Array.isArray(componentImages)) {
+                        componentImages.forEach(img => {
+                            if (img && img.data) {
+                                // Transform hyphenated names to underscores for backend
+                                const cleanComponentType = componentType.replace(/-/g, '_');
+                                apiData.images.push({
+                                    component_type: cleanComponentType,
+                                    image_data: img.data
+                                });
+                                console.log('Added image for:', cleanComponentType);
+                            }
+                        });
+                    }
+                }
+            }
+            
+            console.log('Final transformed images for API:', apiData.images);
+            
+            // Extract findings from checkboxes
+            const checkboxes = document.querySelectorAll('.finding-checkbox:checked');
+            checkboxes.forEach(checkbox => {
+                const findingType = checkbox.name.replace('findings[', '').replace(']', '');
+                const notesInput = document.querySelector(`textarea[name="findings[${findingType}_notes]"]`);
+                
+                apiData.findings.push({
+                    finding_type: findingType,
+                    is_checked: true,
+                    notes: notesInput ? notesInput.value : null
+                });
+            });
+            
+            // Extract component data from form data (map engine fields) 
+            const componentMap = {};
+            for (const [key, value] of Object.entries(formData)) {
+                const match = key.match(/^([^-]+)-(.+)$/);
+                if (match) {
+                    const componentId = match[1];
+                    const fieldName = match[2];
+                    
+                    if (!componentMap[componentId]) {
+                        componentMap[componentId] = { component_type: componentId };
+                    }
+                    
+                    if (fieldName === 'condition') {
+                        componentMap[componentId].condition = value;
+                    } else if (fieldName === 'comments') {
+                        componentMap[componentId].comments = value;
+                    }
+                }
+            }
+            
+            // Convert component map to array
+            apiData.components = Object.values(componentMap);
+            
+            console.log('Engine API Data being sent:', apiData);
+            
+            try {
+                // Save to database via API (EXACT WORKING PATTERN FROM TYRES)
+                const response = await fetch('/api/inspection/engine-compartment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(apiData)
+                });
+                
+                console.log('Engine API Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Engine API Error Response:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                console.log('Engine API Response:', result);
+                
+                if (result.success) {
+                    console.log('✅ Engine compartment assessment saved successfully!');
+                    
+                    // Also save to sessionStorage for compatibility
+                    InspectionCards.saveData();
+                    
+                    // Show success message
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+                        background: #28a745; color: white; border-radius: 5px;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10000;
+                        font-weight: 500;
+                    `;
+                    notification.textContent = '✅ Engine compartment data saved successfully!';
+                    document.body.appendChild(notification);
+                    
+                    // Remove notification after delay and navigate
+                    setTimeout(() => {
+                        notification.remove();
+                        window.location.href = '/inspection/physical-hoist';
+                    }, 1500);
+                } else {
+                    throw new Error(result.message || 'Failed to save engine compartment data');
+                }
+                
+            } catch (error) {
+                console.error('Failed to save engine compartment assessment:', error);
+                alert('Failed to save engine compartment assessment: ' + error.message);
+            }
         };
         
     } else {
@@ -577,9 +874,154 @@ function setupNavigationButtons() {
         // Keep default breadcrumb text
         nextStepBreadcrumb.textContent = 'Physical Hoist';
         
-        continueTechnicalBtn.onclick = function() {
-            saveCurrentProgress();
-            window.location.href = '/inspection/physical-hoist';
+        continueTechnicalBtn.onclick = async function(e) {
+            e.preventDefault();
+            
+            console.log('Engine Compartment: Starting save and navigation...');
+            
+            // Get form data and images from InspectionCards (EXACT WORKING PATTERN)
+            let formData = {};
+            let imageData = {};
+            
+            try {
+                if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+                    formData = InspectionCards.getFormData();
+                    imageData = InspectionCards.getImages();
+                    console.log('Engine Form Data:', formData);
+                    console.log('Engine Images:', imageData);
+                }
+            } catch (e) {
+                console.error('Error getting InspectionCards data:', e);
+            }
+            
+            // Get current inspection ID from session storage
+            const inspectionId = sessionStorage.getItem('currentInspectionId') || '121';
+            console.log('Current Inspection ID:', inspectionId);
+            
+            // Prepare API data
+            const apiData = {
+                inspection_id: inspectionId,
+                findings: [],
+                components: [],
+                images: []
+            };
+            
+            // Transform image data to engine compartment format
+            console.log('Raw imageData before transformation:', imageData);
+            
+            if (imageData && typeof imageData === 'object') {
+                // imageData is like: {"exhaust-system": [{id: "...", data: "..."}]}
+                for (const [componentType, componentImages] of Object.entries(imageData)) {
+                    console.log('Processing component:', componentType, 'with images:', componentImages);
+                    if (Array.isArray(componentImages)) {
+                        componentImages.forEach(img => {
+                            if (img && img.data) {
+                                // Transform hyphenated names to underscores for backend
+                                const cleanComponentType = componentType.replace(/-/g, '_');
+                                apiData.images.push({
+                                    component_type: cleanComponentType,
+                                    image_data: img.data
+                                });
+                                console.log('Added image for:', cleanComponentType);
+                            }
+                        });
+                    }
+                }
+            }
+            
+            console.log('Final transformed images for API:', apiData.images);
+            
+            // Extract findings from checkboxes
+            const checkboxes = document.querySelectorAll('.finding-checkbox:checked');
+            checkboxes.forEach(checkbox => {
+                const findingType = checkbox.name.replace('findings[', '').replace(']', '');
+                const notesInput = document.querySelector(`textarea[name="findings[${findingType}_notes]"]`);
+                
+                apiData.findings.push({
+                    finding_type: findingType,
+                    is_checked: true,
+                    notes: notesInput ? notesInput.value : null
+                });
+            });
+            
+            // Extract component data from form data (map engine fields) 
+            const componentMap = {};
+            for (const [key, value] of Object.entries(formData)) {
+                const match = key.match(/^([^-]+)-(.+)$/);
+                if (match) {
+                    const componentId = match[1];
+                    const fieldName = match[2];
+                    
+                    if (!componentMap[componentId]) {
+                        componentMap[componentId] = { component_type: componentId };
+                    }
+                    
+                    if (fieldName === 'condition') {
+                        componentMap[componentId].condition = value;
+                    } else if (fieldName === 'comments') {
+                        componentMap[componentId].comments = value;
+                    }
+                }
+            }
+            
+            // Convert component map to array
+            apiData.components = Object.values(componentMap);
+            
+            console.log('Engine API Data being sent:', apiData);
+            
+            try {
+                // Save to database via API (EXACT WORKING PATTERN FROM TYRES)
+                const response = await fetch('/api/inspection/engine-compartment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(apiData)
+                });
+                
+                console.log('Engine API Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Engine API Error Response:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                console.log('Engine API Response:', result);
+                
+                if (result.success) {
+                    console.log('✅ Engine compartment assessment saved successfully!');
+                    
+                    // Also save to sessionStorage for compatibility
+                    InspectionCards.saveData();
+                    
+                    // Show success message
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+                        background: #28a745; color: white; border-radius: 5px;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10000;
+                        font-weight: 500;
+                    `;
+                    notification.textContent = '✅ Engine compartment data saved successfully!';
+                    document.body.appendChild(notification);
+                    
+                    // Remove notification after delay and navigate
+                    setTimeout(() => {
+                        notification.remove();
+                        window.location.href = '/inspection/physical-hoist';
+                    }, 1500);
+                } else {
+                    throw new Error(result.message || 'Failed to save engine compartment data');
+                }
+                
+            } catch (error) {
+                console.error('Failed to save engine compartment assessment:', error);
+                alert('Failed to save engine compartment assessment: ' + error.message);
+            }
         };
         
         console.log('No inspection type found, defaulting to technical inspection');

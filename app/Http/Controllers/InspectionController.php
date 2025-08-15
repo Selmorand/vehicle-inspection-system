@@ -8,6 +8,8 @@ use App\Models\Inspection;
 use App\Models\BodyPanelAssessment;
 use App\Models\InteriorAssessment;
 use App\Models\InspectionImage;
+use App\Models\EngineCompartment;
+use App\Models\EngineCompartmentFinding;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -923,65 +925,95 @@ class InspectionController extends Controller
 
     public function saveEngineCompartmentAssessment(Request $request)
     {
-        $validated = $request->validate([
-            'findings' => 'nullable|array',
-            'findings.*' => 'nullable',
-            'images' => 'nullable|array',
-            'images.*.category' => 'nullable|string|max:100',
-            'images.*.caption' => 'nullable|string|max:100',
-            'images.*.file' => 'nullable|image|max:2048', // 2MB limit per image
-            'components' => 'nullable|array',
-            'components.*.condition' => 'nullable|in:Good,Average,Bad,N/A',
-            'components.*.comments' => 'nullable|string|max:1000'
+        // Add debugging for received data
+        \Log::info('Engine compartment save request received:', [
+            'all_data' => $request->all(),
+            'headers' => $request->headers->all()
         ]);
+
+        try {
+            $validated = $request->validate([
+                'inspection_id' => 'nullable|exists:inspections,id',
+                'findings' => 'nullable|array',
+                'findings.*.finding_type' => 'nullable|string',
+                'findings.*.is_checked' => 'nullable|boolean',
+                'findings.*.notes' => 'nullable|string',
+                'components' => 'nullable|array',
+                'components.*.component_type' => 'nullable|string',
+                'components.*.condition' => 'nullable|string',
+                'components.*.comments' => 'nullable|string',
+                'images' => 'nullable|array'
+            ]);
+            
+            \Log::info('Engine compartment validation passed:', $validated);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Engine compartment validation failed:', $e->errors());
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         DB::beginTransaction();
 
         try {
-            // Create or find inspection record
-            $inspection = Inspection::firstOrCreate(
-                ['id' => session('current_inspection_id', 1)], // Use session or default for testing
-                [
-                    'client_id' => 1, // Default for testing
-                    'vehicle_id' => 1, // Default for testing
-                    'inspector_name' => 'Default Inspector',
-                    'status' => 'in_progress'
-                ]
-            );
+            $inspection = Inspection::findOrFail($validated['inspection_id']);
 
-            // Store engine compartment findings
-            if (!empty($validated['findings'])) {
-                $inspection->update([
-                    'engine_compartment_findings' => json_encode($validated['findings'])
-                ]);
+            // Delete existing data for updates
+            EngineCompartment::where('inspection_id', $inspection->id)->delete();
+            EngineCompartmentFinding::where('inspection_id', $inspection->id)->delete();
+
+            // Save component data
+            if (isset($validated['components'])) {
+                foreach ($validated['components'] as $component) {
+                    if (!empty($component['component_type'])) {
+                        EngineCompartment::create([
+                            'inspection_id' => $inspection->id,
+                            'component_type' => $component['component_type'],
+                            'condition' => $component['condition'] ?? null,
+                            'comments' => $component['comments'] ?? null
+                        ]);
+                    }
+                }
             }
 
-            // Store component assessments
-            if (!empty($validated['components'])) {
-                $inspection->update([
-                    'engine_compartment_components' => json_encode($validated['components'])
-                ]);
+            // Save findings data
+            if (isset($validated['findings'])) {
+                foreach ($validated['findings'] as $finding) {
+                    if (!empty($finding['finding_type'])) {
+                        EngineCompartmentFinding::create([
+                            'inspection_id' => $inspection->id,
+                            'finding_type' => $finding['finding_type'],
+                            'is_checked' => $finding['is_checked'] ?? false,
+                            'notes' => $finding['notes'] ?? null
+                        ]);
+                    }
+                }
             }
 
-            // Process and store images
-            if (!empty($validated['images'])) {
+            // Process images in base64 format
+            if (isset($validated['images'])) {
+                // Delete existing engine compartment images
+                InspectionImage::where('inspection_id', $inspection->id)
+                    ->where('image_type', 'engine_compartment')
+                    ->delete();
+
                 foreach ($validated['images'] as $imageData) {
-                    if (isset($imageData['file'])) {
-                        $file = $imageData['file'];
-                        $filename = 'engine_compartment_' . time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-                        $path = $file->storeAs('inspection_images/engine_compartment', $filename, 'public');
+                    if (!empty($imageData['image_data'])) {
+                        $filename = 'engine_compartment_' . $imageData['component_type'] . '_' . time() . '_' . Str::random(6) . '.jpg';
+                        $path = 'inspection_images/engine_compartment/' . $filename;
+                        
+                        // Decode base64 image
+                        $imageContent = base64_decode(preg_replace('#^data:image/[^;]+;base64,#', '', $imageData['image_data']));
+                        Storage::disk('public')->put($path, $imageContent);
 
                         InspectionImage::create([
                             'inspection_id' => $inspection->id,
                             'image_type' => 'engine_compartment',
-                            'image_path' => $path,
-                            'caption' => $imageData['caption'] ?? '',
-                            'category' => $imageData['category'] ?? '',
-                            'metadata' => json_encode([
-                                'timestamp' => now()->toISOString(),
-                                'file_size' => $file->getSize(),
-                                'original_name' => $file->getClientOriginalName()
-                            ])
+                            'file_path' => $path,
+                            'area_name' => $imageData['component_type'] ?? 'engine_compartment',
+                            'original_name' => $imageData['component_type'] . '_image.jpg'
                         ]);
                     }
                 }

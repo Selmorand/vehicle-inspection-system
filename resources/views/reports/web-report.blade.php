@@ -258,6 +258,50 @@
         border: 2px dashed #dee2e6;
     }
     
+    /* Panel card styling for assessments */
+    .panel-card {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .panel-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 15px 20px;
+    }
+    
+    .panel-name {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .panel-details {
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .panel-images {
+        border-top: 1px solid #e0e0e0;
+        padding: 15px 20px;
+        background: #fafafa;
+    }
+    
+    .images-label {
+        font-weight: 500;
+        margin-bottom: 10px;
+        color: #495057;
+    }
+    
     @media print {
         .print-hide {
             display: none !important;
@@ -1370,61 +1414,6 @@
             </div>
             @endif
 
-            <!-- Engine Compartment Assessment -->
-            @if(!empty($inspectionData['engine_compartment']))
-            <div class="section">
-                <h2 class="section-title">
-                    <i class="bi bi-cpu"></i>
-                    Engine Compartment Assessment
-                </h2>
-                
-                <div class="info-grid">
-                    <div class="info-card">
-                        <div class="info-label">Overall Condition</div>
-                        <div class="info-value">
-                            <span class="condition-badge condition-{{ strtolower($inspectionData['engine_compartment']['overall_condition'] ?? 'good') }}">
-                                {{ ucfirst($inspectionData['engine_compartment']['overall_condition'] ?? 'Good') }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-label">Oil Leaks</div>
-                        <div class="info-value">{{ ucfirst($inspectionData['engine_compartment']['oil_leaks'] ?? 'None') }}</div>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-label">Coolant Leaks</div>
-                        <div class="info-value">{{ ucfirst($inspectionData['engine_compartment']['coolant_leaks'] ?? 'None') }}</div>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-label">Belt Condition</div>
-                        <div class="info-value">
-                            <span class="condition-badge condition-{{ strtolower($inspectionData['engine_compartment']['belt_condition'] ?? 'good') }}">
-                                {{ ucfirst($inspectionData['engine_compartment']['belt_condition'] ?? 'Good') }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-label">Battery Condition</div>
-                        <div class="info-value">
-                            <span class="condition-badge condition-{{ strtolower($inspectionData['engine_compartment']['battery_condition'] ?? 'good') }}">
-                                {{ ucfirst($inspectionData['engine_compartment']['battery_condition'] ?? 'Good') }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-label">Battery Age</div>
-                        <div class="info-value">{{ $inspectionData['engine_compartment']['battery_age'] ?? '-' }}</div>
-                    </div>
-                </div>
-                
-                @if(!empty($inspectionData['engine_compartment']['notes']))
-                <h3 style="color: #4f959b; margin: 2rem 0 1rem;">Engine Compartment Notes</h3>
-                <div class="info-card">
-                    <div class="info-value">{{ $inspectionData['engine_compartment']['notes'] }}</div>
-                </div>
-                @endif
-            </div>
-            @endif
 
             <!-- Physical Hoist Inspection -->
             @if(!empty($inspectionData['physical_hoist']))
@@ -1852,6 +1841,101 @@
                     @endif
                 </div>
                 @endforeach
+            </div>
+            @endif
+
+            <!-- Engine Compartment Assessment -->
+            @if(!empty($inspectionData['engine_compartment']))
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="bi bi-cpu"></i>
+                    Engine Compartment Assessment
+                </h2>
+                
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-label">Overall Condition</div>
+                        <div class="info-value">
+                            <span class="condition-{{ strtolower($inspectionData['engine_compartment']['overall_condition'] ?? 'good') }}">
+                                {{ ucfirst($inspectionData['engine_compartment']['overall_condition'] ?? 'Good') }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                @if(!empty($inspectionData['engine_compartment']['components']))
+                <h3 style="color: #4f959b; margin: 2rem 0 1rem;">Component Assessments</h3>
+                @foreach($inspectionData['engine_compartment']['components'] as $component)
+                <div class="panel-card" data-engine-card="{{ $component['component_type'] ?? '' }}">
+                    <!-- First Row: Component Name -->
+                    <div class="panel-header">
+                        <div class="panel-name" style="width: 100%; font-weight: 600; margin-bottom: 10px; font-size: 1.1rem;">
+                            @php
+                                $componentName = str_replace('_', ' ', $component['component_type'] ?? '');
+                                $componentName = ucwords($componentName);
+                            @endphp
+                            {{ $componentName }}
+                        </div>
+                    </div>
+                    
+                    <!-- Second Row: Condition and Comments -->
+                    <div class="panel-details" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 20px; flex-wrap: wrap; gap: 15px;">
+                        @if(!empty($component['condition']))
+                        <div class="mechanical-condition" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Condition:</span>
+                            <span class="condition-{{ $component['condition'] }}">{{ $component['condition'] }}</span>
+                        </div>
+                        @endif
+                        
+                        @if(!empty($component['comments']))
+                        <div class="mechanical-comments" style="display: flex; align-items: center; flex-grow: 1;">
+                            <span style="font-weight: 500; margin-right: 10px;">Comments:</span>
+                            <span style="font-style: italic;">{{ $component['comments'] }}</span>
+                        </div>
+                        @endif
+                    </div>
+                    
+                    <!-- Third Row: Images -->
+                    @if(!empty($component['images']))
+                    <div class="panel-images" style="padding: 15px 20px; border-top: 1px solid #e0e0e0;">
+                        <div class="images-label" style="font-weight: 500; margin-bottom: 10px;">Images:</div>
+                        <div class="engine-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
+                            @foreach($component['images'] as $image)
+                            <div class="engine-image-card" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background: white;">
+                                <a href="{{ $image['url'] }}" data-lightbox="engine-{{ $component['component_type'] }}" data-title="{{ ucwords(str_replace('_', ' ', $component['component_type'])) }}">
+                                    <img src="{{ $image['url'] }}" alt="{{ ucwords(str_replace('_', ' ', $component['component_type'])) }}" style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
+                                </a>
+                                <div style="padding: 10px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+                                    {{ ucwords(str_replace(['_', '-'], ' ', $component['component_type'])) }}
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+                @else
+                <div class="info-card" style="text-align: center; color: #666; font-style: italic;">
+                    No engine compartment component assessments completed for this inspection.
+                </div>
+                @endif
+
+                @if(!empty($inspectionData['engine_compartment']['findings']))
+                <h3 style="color: #4f959b; margin: 2rem 0 1rem;">Inspection Findings</h3>
+                <div class="info-card">
+                    <ul style="margin: 0; padding-left: 20px;">
+                        @foreach($inspectionData['engine_compartment']['findings'] as $finding)
+                        <li>
+                            <strong>{{ ucwords(str_replace('_', ' ', $finding['finding_type'])) }}</strong>
+                            @if(!empty($finding['notes']))
+                            <br><span style="color: #666; font-style: italic;">{{ $finding['notes'] }}</span>
+                            @endif
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
             </div>
             @endif
 

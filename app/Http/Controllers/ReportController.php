@@ -91,8 +91,10 @@ class ReportController extends Controller
                 'service_booklet' => $this->formatServiceBookletForReport($inspection),
                 'tyres_rims' => $this->formatTyresRimsForReport($inspection),
                 'mechanical_report' => $this->formatMechanicalReportForReport($inspection),
-                'braking_system' => $this->formatBrakingSystemForReport($inspection)
+                'braking_system' => $this->formatBrakingSystemForReport($inspection),
+                'engine_compartment' => $this->formatEngineCompartmentForReport($inspection)
             ];
+            
             
             // Debug log to check Interior data
             \Log::info('Interior data being passed to view:', [
@@ -474,8 +476,8 @@ class ReportController extends Controller
                     continue;
                 }
                 
-                // Skip tyres_rims and mechanical_report images - they're handled separately
-                if ($image->image_type === 'tyres_rims' || $image->image_type === 'mechanical_report') {
+                // Skip tyres_rims, mechanical_report and engine_compartment images - they're handled separately
+                if ($image->image_type === 'tyres_rims' || $image->image_type === 'mechanical_report' || $image->image_type === 'engine_compartment') {
                     continue;
                 }
                 
@@ -1109,5 +1111,93 @@ class ReportController extends Controller
         }
         
         return $brakingData;
+    }
+
+    private function formatEngineCompartmentForReport($inspection)
+    {
+        $engineCompartmentData = [];
+        
+        // Get engine compartment component data from database
+        $components = \DB::table('engine_compartment')
+            ->where('inspection_id', $inspection->id)
+            ->get();
+        
+        
+        foreach ($components as $component) {
+            // Get images for this engine component
+            $componentImages = [];
+            
+            $images = $inspection->images()
+                ->where('image_type', 'engine_compartment')
+                ->where('area_name', $component->component_type)
+                ->get();
+                
+            foreach ($images as $image) {
+                $fullPath = storage_path('app/public/' . $image->file_path);
+                
+                if (file_exists($fullPath)) {
+                    $componentImages[] = [
+                        'path' => $image->file_path,
+                        'url' => asset('storage/' . $image->file_path),
+                        'caption' => $image->area_name ?? $component->component_type,
+                        'timestamp' => $image->created_at
+                    ];
+                }
+            }
+            
+            $engineCompartmentData[] = [
+                'component_type' => $component->component_type,
+                'condition' => $component->condition,
+                'comments' => $component->comments,
+                'images' => $componentImages
+            ];
+        }
+        
+        // Get findings data
+        $findings = \DB::table('engine_compartment_findings')
+            ->where('inspection_id', $inspection->id)
+            ->where('is_checked', true)
+            ->get();
+        
+        $findingsData = [];
+        foreach ($findings as $finding) {
+            $findingsData[] = [
+                'finding_type' => $finding->finding_type,
+                'notes' => $finding->notes
+            ];
+        }
+        
+        $result = [
+            'components' => $engineCompartmentData,
+            'findings' => $findingsData,
+            'overall_condition' => $this->calculateOverallCondition($engineCompartmentData)
+        ];
+        
+        
+        return $result;
+    }
+
+    private function calculateOverallCondition($components)
+    {
+        if (empty($components)) {
+            return 'Good';
+        }
+        
+        $conditionCounts = ['Bad' => 0, 'Average' => 0, 'Good' => 0];
+        
+        foreach ($components as $component) {
+            $condition = $component['condition'] ?? 'Good';
+            if (isset($conditionCounts[$condition])) {
+                $conditionCounts[$condition]++;
+            }
+        }
+        
+        if ($conditionCounts['Bad'] > 0) {
+            return 'Bad';
+        } elseif ($conditionCounts['Average'] > 0) {
+            return 'Average';
+        } else {
+            return 'Good';
+        }
     }
 }
