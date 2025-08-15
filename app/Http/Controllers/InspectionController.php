@@ -708,11 +708,16 @@ class InspectionController extends Controller
 
     public function saveTyresRimsAssessment(Request $request)
     {
-        // TESTING: Relaxed validation for testing navigation
-        // TODO: Restore required validations before production
         $validated = $request->validate([
             'inspection_id' => 'nullable|exists:inspections,id',
-            'tyres_data' => 'nullable|array'
+            'components' => 'nullable|array',
+            'components.*.component_name' => 'nullable|string',
+            'components.*.size' => 'nullable|string',
+            'components.*.manufacture' => 'nullable|string',
+            'components.*.model' => 'nullable|string',
+            'components.*.tread_depth' => 'nullable|string',
+            'components.*.damages' => 'nullable|string',
+            'images' => 'nullable|array'
         ]);
 
         DB::beginTransaction();
@@ -729,21 +734,63 @@ class InspectionController extends Controller
             
             $inspection = Inspection::findOrFail($inspectionId);
 
+            // Delete existing tyres data for this inspection (to handle updates)
+            DB::table('tyres_rims')->where('inspection_id', $inspection->id)->delete();
+
             // Save tyres assessment data
-            if (isset($validated['tyres_data'])) {
-                foreach ($validated['tyres_data'] as $fieldName => $value) {
-                    // Store tyres assessment data
-                    // You may need to create a TyresAssessment model for this
-                    DB::table('tyres_assessments')->updateOrInsert(
-                        [
-                            'inspection_id' => $inspection->id,
-                            'field_name' => $fieldName
-                        ],
-                        [
-                            'field_value' => $value,
-                            'updated_at' => now()
-                        ]
-                    );
+            if (isset($validated['components']) && is_array($validated['components'])) {
+                foreach ($validated['components'] as $component) {
+                    DB::table('tyres_rims')->insert([
+                        'inspection_id' => $inspection->id,
+                        'component_name' => $component['component_name'] ?? '',
+                        'size' => $component['size'] ?? null,
+                        'manufacture' => $component['manufacture'] ?? null,
+                        'model' => $component['model'] ?? null,
+                        'tread_depth' => $component['tread_depth'] ?? null,
+                        'damages' => $component['damages'] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
+            // Save images if provided
+            if (isset($validated['images']) && is_array($validated['images'])) {
+                \Log::info('Tyres images being saved:', [
+                    'image_keys' => array_keys($validated['images']),
+                    'component_names_in_db' => $validated['components'] ? array_column($validated['components'], 'component_name') : []
+                ]);
+                
+                foreach ($validated['images'] as $componentName => $componentImages) {
+                    \Log::info('Processing images for component: ' . $componentName, [
+                        'images_count' => count($componentImages)
+                    ]);
+                    
+                    foreach ($componentImages as $image) {
+                        if (isset($image['data'])) {
+                            // Process base64 image
+                            $imageData = $image['data'];
+                            if (strpos($imageData, 'data:image') === 0) {
+                                $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                            }
+                            
+                            $decodedImage = base64_decode($imageData);
+                            $fileName = 'tyres_' . $inspection->id . '_' . $componentName . '_' . uniqid() . '.jpg';
+                            $path = 'inspections/' . $inspection->id . '/tyres/' . $fileName;
+                            
+                            Storage::disk('public')->put($path, $decodedImage);
+                            
+                            // Store image reference in database
+                            DB::table('inspection_images')->insert([
+                                'inspection_id' => $inspection->id,
+                                'image_type' => 'tyres_rims',
+                                'file_path' => $path,
+                                'area_name' => $componentName,
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ]);
+                        }
+                    }
                 }
             }
 

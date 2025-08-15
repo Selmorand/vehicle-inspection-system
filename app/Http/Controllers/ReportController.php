@@ -88,7 +88,8 @@ class ReportController extends Controller
                 'interior' => [
                     'assessments' => $this->formatInteriorAssessmentsForReport($inspection)
                 ],
-                'service_booklet' => $this->formatServiceBookletForReport($inspection)
+                'service_booklet' => $this->formatServiceBookletForReport($inspection),
+                'tyres_rims' => $this->formatTyresRimsForReport($inspection)
             ];
             
             // Debug log to check Interior data
@@ -104,6 +105,14 @@ class ReportController extends Controller
                 'service_recommendations' => $inspection->service_recommendations ?? 'NULL',
                 'service_booklet_images_count' => $inspection->images()->where('image_type', 'service_booklet')->count(),
                 'service_booklet_data' => $inspectionData['service_booklet'] ?? 'NOT SET'
+            ]);
+            
+            // Debug log to check Tyres & Rims data
+            \Log::info('Tyres & Rims data being passed to view:', [
+                'tyres_rims_count' => \DB::table('tyres_rims')->where('inspection_id', $inspection->id)->count(),
+                'tyres_rims_images_count' => $inspection->images()->where('image_type', 'tyres_rims')->count(),
+                'tyres_rims_data' => $inspectionData['tyres_rims'] ?? 'NOT SET',
+                'tyres_rims_data_count' => isset($inspectionData['tyres_rims']) ? count($inspectionData['tyres_rims']) : 0
             ]);
             
             return view('reports.web-report', compact('report', 'inspectionData'));
@@ -460,6 +469,11 @@ class ReportController extends Controller
                 
                 // Skip service booklet images - they're handled separately in formatServiceBookletForReport
                 if ($image->image_type === 'service_booklet') {
+                    continue;
+                }
+                
+                // Skip tyres_rims images - they're handled separately in formatTyresRimsForReport
+                if ($image->image_type === 'tyres_rims') {
                     continue;
                 }
                 
@@ -909,5 +923,68 @@ class ReportController extends Controller
             'data' => null,
             'size' => null
         ];
+    }
+
+    /**
+     * Format tyres & rims data for report display
+     */
+    private function formatTyresRimsForReport($inspection)
+    {
+        $tyresData = [];
+        
+        // Get tyres data from database
+        $tyresRims = \DB::table('tyres_rims')
+            ->where('inspection_id', $inspection->id)
+            ->get();
+        
+        foreach ($tyresRims as $tyre) {
+            // Get images for this tyre component
+            $tyreImages = [];
+            
+            // Try both naming conventions: underscores and hyphens
+            $componentNameUnderscore = $tyre->component_name; // e.g., front_left
+            $componentNameHyphen = str_replace('_', '-', $tyre->component_name); // e.g., front-left
+            
+            $images = $inspection->images()
+                ->where('image_type', 'tyres_rims')
+                ->where(function($query) use ($componentNameUnderscore, $componentNameHyphen) {
+                    $query->where('area_name', $componentNameUnderscore)
+                          ->orWhere('area_name', $componentNameHyphen);
+                })
+                ->get();
+            
+            \Log::info('Tyres images for component: ' . $tyre->component_name, [
+                'searched_names' => [$componentNameUnderscore, $componentNameHyphen],
+                'images_found' => $images->count(),
+                'images_data' => $images->pluck('file_path')->toArray()
+            ]);
+            
+            foreach ($images as $image) {
+                $fullPath = storage_path('app/public/' . $image->file_path);
+                \Log::info('Processing tyre image: ' . $image->file_path, [
+                    'full_path' => $fullPath,
+                    'file_exists' => file_exists($fullPath)
+                ]);
+                
+                if (file_exists($fullPath)) {
+                    $tyreImages[] = [
+                        'url' => asset('storage/' . $image->file_path),
+                        'created_at' => $image->created_at->format('Y-m-d H:i:s')
+                    ];
+                }
+            }
+            
+            $tyresData[] = [
+                'component_name' => $tyre->component_name,
+                'size' => $tyre->size,
+                'manufacture' => $tyre->manufacture,
+                'model' => $tyre->model,
+                'tread_depth' => $tyre->tread_depth,
+                'damages' => $tyre->damages,
+                'images' => $tyreImages
+            ];
+        }
+        
+        return $tyresData;
     }
 }

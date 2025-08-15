@@ -1561,6 +1561,106 @@
             </div>
             @endif
 
+            <!-- Tyres & Rims Assessment -->
+            @if(!empty($inspectionData['tyres_rims']))
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="bi bi-circle"></i>
+                    Tyres & Rims Assessment
+                </h2>
+                
+                @foreach($inspectionData['tyres_rims'] as $tyre)
+                <div class="panel-card" data-tyre-card="{{ $tyre['component_name'] ?? '' }}">
+                    <!-- First Row: Tyre Name only -->
+                    <div class="panel-header">
+                        <div class="panel-name" style="width: 100%; font-weight: 600; margin-bottom: 10px; font-size: 1.1rem;">
+                            @php
+                                $tyreName = str_replace('_', ' ', $tyre['component_name'] ?? '');
+                                $tyreName = ucwords($tyreName);
+                            @endphp
+                            {{ $tyreName }}
+                        </div>
+                    </div>
+                    
+                    <!-- Second Row: Tyre Details all on same line -->
+                    <div class="panel-details" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 20px; flex-wrap: wrap; gap: 15px;">
+                        <!-- Size -->
+                        @if(!empty($tyre['size']))
+                        <div class="tyre-size" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Size:</span>
+                            <span>{{ $tyre['size'] }}</span>
+                        </div>
+                        @endif
+                        
+                        <!-- Manufacture -->
+                        @if(!empty($tyre['manufacture']))
+                        <div class="tyre-manufacture" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Manufacture:</span>
+                            <span>{{ $tyre['manufacture'] }}</span>
+                        </div>
+                        @endif
+                        
+                        <!-- Model -->
+                        @if(!empty($tyre['model']))
+                        <div class="tyre-model" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Model:</span>
+                            <span>{{ $tyre['model'] }}</span>
+                        </div>
+                        @endif
+                        
+                        <!-- Tread Depth -->
+                        @if(!empty($tyre['tread_depth']))
+                        <div class="tyre-tread" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Tread Depth:</span>
+                            <span>{{ $tyre['tread_depth'] }}</span>
+                        </div>
+                        @endif
+                        
+                        <!-- Damages -->
+                        @if(!empty($tyre['damages']))
+                        <div class="tyre-damages" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Damages:</span>
+                            <span class="{{ $tyre['damages'] === 'None' ? 'text-success' : 'text-warning' }}">{{ $tyre['damages'] }}</span>
+                        </div>
+                        @endif
+                    </div>
+                    
+                    <!-- Third Row: Images -->
+                    @if(!empty($tyre['images']))
+                    <div class="panel-images">
+                        <div class="images-row">
+                            @foreach($tyre['images'] as $image)
+                            <div class="image-thumbnail">
+                                <a href="{{ $image['url'] }}" data-lightbox="tyre-{{ $tyre['component_name'] }}" data-title="{{ $tyreName }}">
+                                    <img src="{{ $image['url'] }}" alt="{{ $tyreName }} image">
+                                </a>
+                                <span class="image-delete" title="Image from inspection">×</span>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+                
+                <!-- Tyre Safety Disclaimer -->
+                <div class="alert alert-info mt-4" style="background-color: #e8f4f8; border-color: #4f959b; border-radius: 8px; padding: 20px;">
+                    <h4 style="color: #4f959b; margin-bottom: 15px;">
+                        <i class="bi bi-info-circle"></i> Tyre Safety Information
+                    </h4>
+                    <p style="margin-bottom: 10px; line-height: 1.6;">
+                        It is recommended that tyres are replaced when the tread depth reaches 2mm. If uneven tyre wear is noted, this may indicate incorrect geometry, which can result in excessive and rapid tyre wear. A full steering and geometry check is therefore recommended.
+                    </p>
+                    <p style="margin-bottom: 10px; line-height: 1.6;">
+                        If this vehicle is fitted with "Run Flat" tyres and no spare wheel. The tyre's effectiveness in a puncture situation cannot be commented on.
+                    </p>
+                    <p style="margin-bottom: 0; line-height: 1.6;">
+                        It is advised to have tyres of the correct size and of similar make, tread pattern and tread depth across axles. This will benefit steering and handling, the operation of the transmission, 4 wheel drive, traction control, ABS and puncture detection systems. This can also prevent premature transmission wear or failure.
+                    </p>
+                </div>
+            </div>
+            @endif
+
             <!-- Summary & Recommendations -->
             <div class="section">
                 <h2 class="section-title">
