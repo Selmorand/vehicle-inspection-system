@@ -1669,6 +1669,190 @@
             </div>
             @endif
 
+            <!-- Mechanical Report Assessment -->
+            @if(!empty($inspectionData['mechanical_report']))
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="bi bi-gear"></i>
+                    Mechanical Report
+                </h2>
+                
+                @foreach($inspectionData['mechanical_report'] as $component)
+                <div class="panel-card" data-mechanical-card="{{ $component['component_name'] ?? '' }}">
+                    <!-- First Row: Component Name -->
+                    <div class="panel-header">
+                        <div class="panel-name" style="width: 100%; font-weight: 600; margin-bottom: 10px; font-size: 1.1rem;">
+                            @php
+                                $componentName = str_replace('_', ' ', $component['component_name'] ?? '');
+                                $componentName = ucwords($componentName);
+                            @endphp
+                            {{ $componentName }}
+                        </div>
+                    </div>
+                    
+                    <!-- Second Row: Condition and Comments -->
+                    <div class="panel-details" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 20px; flex-wrap: wrap; gap: 15px;">
+                        <!-- Condition -->
+                        @if(!empty($component['condition']))
+                        <div class="mechanical-condition" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Condition:</span>
+                            <span class="badge 
+                                @if($component['condition'] === 'Good') bg-success
+                                @elseif($component['condition'] === 'Average') bg-warning text-dark
+                                @elseif($component['condition'] === 'Bad') bg-danger
+                                @else bg-secondary
+                                @endif
+                            ">{{ $component['condition'] }}</span>
+                        </div>
+                        @endif
+                        
+                        <!-- Comments -->
+                        @if(!empty($component['comments']))
+                        <div class="mechanical-comments" style="display: flex; align-items: center; flex-grow: 1;">
+                            <span style="font-weight: 500; margin-right: 10px;">Comments:</span>
+                            <span style="font-style: italic;">{{ $component['comments'] }}</span>
+                        </div>
+                        @endif
+                    </div>
+                    
+                    <!-- Third Row: Images -->
+                    @if(!empty($component['images']))
+                    <div class="panel-images" style="padding: 15px 20px; border-top: 1px solid #e0e0e0;">
+                        <div class="images-label" style="font-weight: 500; margin-bottom: 10px;">Images:</div>
+                        <div class="mechanical-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
+                            @foreach($component['images'] as $image)
+                            <div class="mechanical-image-card" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background: white;">
+                                <a href="{{ $image['url'] }}" data-lightbox="mechanical-{{ $component['component_name'] }}" data-title="{{ $componentName }}">
+                                    <img src="{{ $image['url'] }}" alt="{{ $componentName }}" style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
+                                </a>
+                                <div style="padding: 10px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+                                    {{ ucwords(str_replace(['_', '-'], ' ', $component['component_name'])) }}
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+                
+                <!-- Mechanical Disclaimer -->
+                <div class="alert alert-warning mt-4" style="background-color: #fff3cd; border-color: #ffeaa7; border-radius: 8px; padding: 20px;">
+                    <h4 style="color: #856404; margin-bottom: 15px;">
+                        <i class="bi bi-exclamation-triangle"></i> Mechanical Assessment Information
+                    </h4>
+                    <p style="margin-bottom: 10px; line-height: 1.6;">
+                        This mechanical assessment represents the condition of accessible components during the road test and visual inspection. Some internal mechanical components may not be fully assessable without dismantling.
+                    </p>
+                    <p style="margin-bottom: 10px; line-height: 1.6;">
+                        Any components marked as "Average" or "Bad" should be inspected by a qualified technician before purchase or use. Mechanical issues can affect safety, performance, and reliability.
+                    </p>
+                    <p style="margin-bottom: 0; line-height: 1.6;">
+                        This report does not constitute a full mechanical diagnosis. For comprehensive mechanical assessment, a detailed workshop inspection is recommended.
+                    </p>
+                </div>
+            </div>
+            @endif
+
+            <!-- Braking System Assessment -->
+            @if(!empty($inspectionData['braking_system']))
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="bi bi-disc"></i>
+                    Braking System Assessment
+                </h2>
+                
+                @foreach($inspectionData['braking_system'] as $brake)
+                <div class="panel-card" data-brake-card="{{ $brake['position'] ?? '' }}">
+                    <!-- First Row: Brake Position -->
+                    <div class="panel-header">
+                        <div class="panel-name" style="width: 100%; font-weight: 600; margin-bottom: 10px; font-size: 1.1rem;">
+                            @php
+                                $positionName = str_replace('_', ' ', $brake['position'] ?? '');
+                                $positionName = ucwords($positionName);
+                            @endphp
+                            {{ $positionName }}
+                        </div>
+                    </div>
+                    
+                    <!-- Second Row: Brake Details -->
+                    <div class="panel-details" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 20px; flex-wrap: wrap; gap: 15px;">
+                        <!-- Pad Life -->
+                        @if(!empty($brake['pad_life']))
+                        <div class="brake-pad-life" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Pad Life:</span>
+                            <span class="badge bg-info">{{ $brake['pad_life'] }}</span>
+                        </div>
+                        @endif
+                        
+                        <!-- Pad Condition -->
+                        @if(!empty($brake['pad_condition']))
+                        <div class="brake-pad-condition" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Pad Condition:</span>
+                            <span class="badge 
+                                @if($brake['pad_condition'] === 'Good') bg-success
+                                @elseif($brake['pad_condition'] === 'Average') bg-warning text-dark
+                                @elseif($brake['pad_condition'] === 'Bad') bg-danger
+                                @else bg-secondary
+                                @endif
+                            ">{{ $brake['pad_condition'] }}</span>
+                        </div>
+                        @endif
+                        
+                        <!-- Disc Life -->
+                        @if(!empty($brake['disc_life']))
+                        <div class="brake-disc-life" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Disc Life:</span>
+                            <span class="badge bg-info">{{ $brake['disc_life'] }}</span>
+                        </div>
+                        @endif
+                        
+                        <!-- Disc Condition -->
+                        @if(!empty($brake['disc_condition']))
+                        <div class="brake-disc-condition" style="display: flex; align-items: center;">
+                            <span style="font-weight: 500; margin-right: 10px;">Disc Condition:</span>
+                            <span class="badge 
+                                @if($brake['disc_condition'] === 'Good') bg-success
+                                @elseif($brake['disc_condition'] === 'Average') bg-warning text-dark
+                                @elseif($brake['disc_condition'] === 'Bad') bg-danger
+                                @else bg-secondary
+                                @endif
+                            ">{{ $brake['disc_condition'] }}</span>
+                        </div>
+                        @endif
+                        
+                        <!-- Comments -->
+                        @if(!empty($brake['comments']))
+                        <div class="brake-comments" style="display: flex; align-items: center; flex-grow: 1;">
+                            <span style="font-weight: 500; margin-right: 10px;">Comments:</span>
+                            <span style="font-style: italic;">{{ $brake['comments'] }}</span>
+                        </div>
+                        @endif
+                    </div>
+                    
+                    <!-- Third Row: Images -->
+                    @if(!empty($brake['images']))
+                    <div class="panel-images" style="padding: 15px 20px; border-top: 1px solid #e0e0e0;">
+                        <div class="images-label" style="font-weight: 500; margin-bottom: 10px;">Images:</div>
+                        <div class="brake-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
+                            @foreach($brake['images'] as $image)
+                            <div class="brake-image-card" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background: white;">
+                                <a href="{{ $image['url'] }}" data-lightbox="brake-{{ $brake['position'] }}" data-title="{{ $positionName }}">
+                                    <img src="{{ $image['url'] }}" alt="{{ $positionName }}" style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
+                                </a>
+                                <div style="padding: 10px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+                                    {{ ucwords(str_replace(['_', '-'], ' ', $brake['position'])) }}
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+            @endif
+
             <!-- Summary & Recommendations -->
             <div class="section">
                 <h2 class="section-title">

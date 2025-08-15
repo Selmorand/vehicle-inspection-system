@@ -89,7 +89,9 @@ class ReportController extends Controller
                     'assessments' => $this->formatInteriorAssessmentsForReport($inspection)
                 ],
                 'service_booklet' => $this->formatServiceBookletForReport($inspection),
-                'tyres_rims' => $this->formatTyresRimsForReport($inspection)
+                'tyres_rims' => $this->formatTyresRimsForReport($inspection),
+                'mechanical_report' => $this->formatMechanicalReportForReport($inspection),
+                'braking_system' => $this->formatBrakingSystemForReport($inspection)
             ];
             
             // Debug log to check Interior data
@@ -472,8 +474,8 @@ class ReportController extends Controller
                     continue;
                 }
                 
-                // Skip tyres_rims images - they're handled separately in formatTyresRimsForReport
-                if ($image->image_type === 'tyres_rims') {
+                // Skip tyres_rims and mechanical_report images - they're handled separately
+                if ($image->image_type === 'tyres_rims' || $image->image_type === 'mechanical_report') {
                     continue;
                 }
                 
@@ -986,5 +988,126 @@ class ReportController extends Controller
         }
         
         return $tyresData;
+    }
+
+    private function formatMechanicalReportForReport($inspection)
+    {
+        $mechanicalData = [];
+        
+        // Get mechanical report data from database
+        $mechanicalReports = \DB::table('mechanical_reports')
+            ->where('inspection_id', $inspection->id)
+            ->get();
+        
+        foreach ($mechanicalReports as $component) {
+            // Get images for this mechanical component
+            $componentImages = [];
+            
+            // Try both naming conventions: underscores and hyphens
+            $componentNameUnderscore = $component->component_name; // e.g., final_drive_noise
+            $componentNameHyphen = str_replace('_', '-', $component->component_name); // e.g., final-drive-noise
+            
+            $images = $inspection->images()
+                ->where('image_type', 'mechanical_report')
+                ->where(function($query) use ($componentNameUnderscore, $componentNameHyphen) {
+                    $query->where('area_name', $componentNameUnderscore)
+                          ->orWhere('area_name', $componentNameHyphen);
+                })
+                ->get();
+            
+            \Log::info('Mechanical images for component: ' . $component->component_name, [
+                'searched_names' => [$componentNameUnderscore, $componentNameHyphen],
+                'images_found' => $images->count(),
+                'images_data' => $images->pluck('file_path')->toArray()
+            ]);
+            
+            foreach ($images as $image) {
+                $fullPath = storage_path('app/public/' . $image->file_path);
+                \Log::info('Processing mechanical image: ' . $image->file_path, [
+                    'full_path' => $fullPath,
+                    'file_exists' => file_exists($fullPath)
+                ]);
+                
+                if (file_exists($fullPath)) {
+                    $componentImages[] = [
+                        'url' => asset('storage/' . $image->file_path),
+                        'created_at' => $image->created_at->format('Y-m-d H:i:s')
+                    ];
+                }
+            }
+            
+            $mechanicalData[] = [
+                'component_name' => $component->component_name,
+                'condition' => $component->condition,
+                'comments' => $component->comments,
+                'images' => $componentImages
+            ];
+        }
+        
+        return $mechanicalData;
+    }
+
+    private function formatBrakingSystemForReport($inspection)
+    {
+        $brakingData = [];
+        
+        // Get braking system data from database
+        $brakingSystem = \DB::table('braking_system')
+            ->where('inspection_id', $inspection->id)
+            ->get();
+        
+        foreach ($brakingSystem as $brake) {
+            // Get images for this brake position
+            $brakeImages = [];
+            
+            // Try multiple naming conventions for brake images
+            $positionNameUnderscore = $brake->position; // e.g., front_left
+            $positionNameHyphen = str_replace('_', '-', $brake->position); // e.g., front-left
+            $brakeNameHyphen = 'brake-' . $positionNameHyphen; // e.g., brake-front-left
+            $brakeNameUnderscore = 'brake_' . $positionNameUnderscore; // e.g., brake_front_left
+            
+            $images = $inspection->images()
+                ->where('image_type', 'mechanical_report')
+                ->where(function($query) use ($positionNameUnderscore, $positionNameHyphen, $brakeNameHyphen, $brakeNameUnderscore) {
+                    $query->where('area_name', $positionNameUnderscore)
+                          ->orWhere('area_name', $positionNameHyphen)
+                          ->orWhere('area_name', $brakeNameHyphen)
+                          ->orWhere('area_name', $brakeNameUnderscore);
+                })
+                ->get();
+            
+            foreach ($images as $image) {
+                $fullPath = storage_path('app/public/' . $image->file_path);
+                if (file_exists($fullPath)) {
+                    $brakeImages[] = [
+                        'url' => asset('storage/' . $image->file_path),
+                        'created_at' => $image->created_at->format('Y-m-d H:i:s')
+                    ];
+                }
+            }
+            
+            // Format pad and disc life with % suffix
+            $padLife = $brake->pad_life;
+            if ($padLife && is_numeric($padLife)) {
+                $padLife = round($padLife * 100) . '%';
+            }
+            
+            $discLife = $brake->disc_life;
+            if ($discLife && is_numeric($discLife)) {
+                $discLife = round($discLife * 100) . '%';
+            }
+            
+            $brakingData[] = [
+                'position' => $brake->position,
+                'pad_life' => $padLife,
+                'pad_condition' => $brake->pad_condition,
+                'disc_life' => $discLife,
+                'disc_condition' => $brake->disc_condition,
+                'comments' => $brake->comments,
+                'images' => $brakeImages
+            ];
+        }
+        
+        return $brakingData;
     }
 }

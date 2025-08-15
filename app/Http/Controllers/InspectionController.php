@@ -820,59 +820,104 @@ class InspectionController extends Controller
 
     public function saveMechanicalReport(Request $request)
     {
-        // TESTING: Relaxed validation for testing navigation
-        // TODO: Restore required validations before production
         $validated = $request->validate([
             'inspection_id' => 'nullable|exists:inspections,id',
-            'mechanical_data' => 'nullable|array'
+            'components' => 'nullable|array',
+            'components.*.component_name' => 'nullable|string',
+            'components.*.condition' => 'nullable|string',
+            'components.*.comments' => 'nullable|string',
+            'braking_system' => 'nullable|array',
+            'braking_system.*.position' => 'nullable|string',
+            'braking_system.*.pad_life' => 'nullable|string',
+            'braking_system.*.pad_condition' => 'nullable|string',
+            'braking_system.*.disc_life' => 'nullable|string',
+            'braking_system.*.disc_condition' => 'nullable|string',
+            'braking_system.*.comments' => 'nullable|string',
+            'images' => 'nullable|array'
         ]);
 
         DB::beginTransaction();
 
         try {
-            // Handle missing inspection_id for testing
-            $inspectionId = $validated['inspection_id'];
-            if (!$inspectionId) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Mechanical report saved (testing mode)'
-                ]);
-            }
-            
-            $inspection = Inspection::findOrFail($inspectionId);
+            $inspection = Inspection::findOrFail($validated['inspection_id']);
 
-            // Save mechanical report data
-            if (isset($validated['mechanical_data'])) {
-                foreach ($validated['mechanical_data'] as $component => $data) {
-                    // Store mechanical assessment data
-                    // You may need to create a MechanicalAssessment model for this
-                    DB::table('mechanical_assessments')->updateOrInsert(
-                        [
+            // Delete existing data for updates
+            DB::table('mechanical_reports')->where('inspection_id', $inspection->id)->delete();
+
+            // Save component data
+            if (isset($validated['components'])) {
+                foreach ($validated['components'] as $component) {
+                    if (!empty($component['component_name'])) {
+                        DB::table('mechanical_reports')->insert([
                             'inspection_id' => $inspection->id,
-                            'component_name' => $component
-                        ],
-                        [
-                            'condition' => $data['condition'] ?? null,
-                            'comments' => $data['comments'] ?? null,
+                            'component_name' => $component['component_name'] ?? '',
+                            'condition' => $component['condition'] ?? null,
+                            'comments' => $component['comments'] ?? null,
+                            'created_at' => now(),
                             'updated_at' => now()
-                        ]
-                    );
+                        ]);
+                    }
+                }
+            }
+
+            // Save braking system data
+            if (isset($validated['braking_system'])) {
+                // Delete existing braking system data for updates
+                DB::table('braking_system')->where('inspection_id', $inspection->id)->delete();
+
+                foreach ($validated['braking_system'] as $brakeData) {
+                    if (!empty($brakeData['position'])) {
+                        DB::table('braking_system')->insert([
+                            'inspection_id' => $inspection->id,
+                            'position' => $brakeData['position'] ?? '',
+                            'pad_life' => $brakeData['pad_life'] ?? null,
+                            'pad_condition' => $brakeData['pad_condition'] ?? null,
+                            'disc_life' => $brakeData['disc_life'] ?? null,
+                            'disc_condition' => $brakeData['disc_condition'] ?? null,
+                            'comments' => $brakeData['comments'] ?? null,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                    }
+                }
+            }
+
+            // Save images (using file_path column, not image_path)
+            if (isset($validated['images'])) {
+                foreach ($validated['images'] as $componentName => $componentImages) {
+                    foreach ($componentImages as $image) {
+                        if (isset($image['data'])) {
+                            // Process base64 image
+                            $imageData = $image['data'];
+                            if (strpos($imageData, 'data:image') === 0) {
+                                $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                            }
+
+                            $decodedImage = base64_decode($imageData);
+                            $fileName = 'mechanical_' . $inspection->id . '_' . $componentName . '_' . uniqid() . '.jpg';
+                            $path = 'inspections/' . $inspection->id . '/mechanical/' . $fileName;
+
+                            Storage::disk('public')->put($path, $decodedImage);
+
+                            DB::table('inspection_images')->insert([
+                                'inspection_id' => $inspection->id,
+                                'image_type' => 'mechanical_report',
+                                'file_path' => $path, // Note: file_path not image_path
+                                'area_name' => $componentName,
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ]);
+                        }
+                    }
                 }
             }
 
             DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Mechanical report saved successfully'
-            ]);
+            return response()->json(['success' => true, 'message' => 'Mechanical report saved successfully']);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error saving mechanical report: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'message' => 'Error saving mechanical report: ' . $e->getMessage()], 500);
         }
     }
 
