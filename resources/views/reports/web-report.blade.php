@@ -151,31 +151,42 @@
     }
     
     .condition-badge {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: bold;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 0.875rem;
         display: inline-block;
     }
     
+    /* Legacy condition classes - now use standardized colors */
     .condition-good {
-        background: #d4edda;
-        color: #155724;
-        border: 2px solid #c3e6cb;
+        background-color: #277020;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        display: inline-block;
+        font-weight: 500;
+        font-size: 0.875rem;
     }
     
     .condition-average {
-        background: #fff3cd;
-        color: #856404;
-        border: 2px solid #ffeaa7;
+        background-color: #f5a409;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        display: inline-block;
+        font-weight: 500;
+        font-size: 0.875rem;
     }
     
     .condition-bad {
-        background: #f8d7da;
-        color: #721c24;
-        border: 2px solid #f5c6cb;
+        background-color: #c62121;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        display: inline-block;
+        font-weight: 500;
+        font-size: 0.875rem;
     }
     
     .image-gallery {
@@ -836,27 +847,36 @@
                         font-size: 16px;
                         line-height: 1;
                     }
+                    /* Standardized condition badges - mechanical system style */
                     .condition-Good, .condition-good {
-                        background-color: #d4edda;
-                        color: #155724;
+                        background-color: #277020;
+                        color: white;
                         padding: 0.25rem 0.75rem;
                         border-radius: 4px;
                         display: inline-block;
+                        font-weight: 500;
+                        font-size: 0.875rem;
                     }
                     .condition-Average, .condition-average {
-                        background-color: #fff3cd;
-                        color: #856404;
+                        background-color: #f5a409;
+                        color: white;
                         padding: 0.25rem 0.75rem;
                         border-radius: 4px;
                         display: inline-block;
+                        font-weight: 500;
+                        font-size: 0.875rem;
                     }
                     .condition-Bad, .condition-bad {
-                        background-color: #f8d7da;
-                        color: #721c24;
+                        background-color: #c62121;
+                        color: white;
                         padding: 0.25rem 0.75rem;
                         border-radius: 4px;
                         display: inline-block;
+                        font-weight: 500;
+                        font-size: 0.875rem;
                     }
+                    
+                    /* Mechanical report now uses .condition-* classes directly */
                 </style>
                 
                 @foreach($inspectionData['body_panels'] as $panel)
@@ -1696,13 +1716,7 @@
                         @if(!empty($component['condition']))
                         <div class="mechanical-condition" style="display: flex; align-items: center;">
                             <span style="font-weight: 500; margin-right: 10px;">Condition:</span>
-                            <span class="badge 
-                                @if($component['condition'] === 'Good') bg-success
-                                @elseif($component['condition'] === 'Average') bg-warning text-dark
-                                @elseif($component['condition'] === 'Bad') bg-danger
-                                @else bg-secondary
-                                @endif
-                            ">{{ $component['condition'] }}</span>
+                            <span class="condition-{{ $component['condition'] }}">{{ $component['condition'] }}</span>
                         </div>
                         @endif
                         
@@ -1789,13 +1803,7 @@
                         @if(!empty($brake['pad_condition']))
                         <div class="brake-pad-condition" style="display: flex; align-items: center;">
                             <span style="font-weight: 500; margin-right: 10px;">Pad Condition:</span>
-                            <span class="badge 
-                                @if($brake['pad_condition'] === 'Good') bg-success
-                                @elseif($brake['pad_condition'] === 'Average') bg-warning text-dark
-                                @elseif($brake['pad_condition'] === 'Bad') bg-danger
-                                @else bg-secondary
-                                @endif
-                            ">{{ $brake['pad_condition'] }}</span>
+                            <span class="condition-{{ $brake['pad_condition'] }}">{{ $brake['pad_condition'] }}</span>
                         </div>
                         @endif
                         
@@ -1811,13 +1819,7 @@
                         @if(!empty($brake['disc_condition']))
                         <div class="brake-disc-condition" style="display: flex; align-items: center;">
                             <span style="font-weight: 500; margin-right: 10px;">Disc Condition:</span>
-                            <span class="badge 
-                                @if($brake['disc_condition'] === 'Good') bg-success
-                                @elseif($brake['disc_condition'] === 'Average') bg-warning text-dark
-                                @elseif($brake['disc_condition'] === 'Bad') bg-danger
-                                @else bg-secondary
-                                @endif
-                            ">{{ $brake['disc_condition'] }}</span>
+                            <span class="condition-{{ $brake['disc_condition'] }}">{{ $brake['disc_condition'] }}</span>
                         </div>
                         @endif
                         
