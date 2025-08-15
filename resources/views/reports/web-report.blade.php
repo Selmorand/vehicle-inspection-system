@@ -1629,11 +1629,16 @@
                     @if(!empty($tyre['images']))
                     <div class="panel-images" style="padding: 15px 20px; border-top: 1px solid #e0e0e0;">
                         <div class="images-label" style="font-weight: 500; margin-bottom: 10px;">Images ({{ count($tyre['images']) }} found):</div>
-                        <div class="images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
+                        <div class="tyre-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
                             @foreach($tyre['images'] as $image)
-                            <a href="{{ $image['url'] }}" data-lightbox="tyre-{{ $tyre['component_name'] }}" data-title="{{ $tyreName }}">
-                                <img src="{{ $image['url'] }}" alt="{{ $tyreName }}" class="panel-image-thumb">
-                            </a>
+                            <div class="tyre-image-card" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background: white;">
+                                <a href="{{ $image['url'] }}" data-lightbox="tyre-{{ $tyre['component_name'] }}" data-title="{{ $tyreName }}">
+                                    <img src="{{ $image['url'] }}" alt="{{ $tyreName }}" style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
+                                </a>
+                                <div style="padding: 10px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+                                    {{ ucwords(str_replace(['_', '-'], ' ', $tyre['component_name'])) }}
+                                </div>
+                            </div>
                             @endforeach
                         </div>
                     </div>

@@ -715,7 +715,7 @@ class InspectionController extends Controller
             'components.*.size' => 'nullable|string',
             'components.*.manufacture' => 'nullable|string',
             'components.*.model' => 'nullable|string',
-            'components.*.tread_depth' => 'nullable|string',
+            'components.*.tread_depth' => 'nullable|numeric',
             'components.*.damages' => 'nullable|string',
             'images' => 'nullable|array'
         ]);
@@ -740,13 +740,21 @@ class InspectionController extends Controller
             // Save tyres assessment data
             if (isset($validated['components']) && is_array($validated['components'])) {
                 foreach ($validated['components'] as $component) {
+                    // Format tread_depth with mm suffix if it's a number
+                    $treadDepth = null;
+                    if (isset($component['tread_depth']) && is_numeric($component['tread_depth'])) {
+                        $treadDepth = $component['tread_depth'] . 'mm';
+                    } elseif (isset($component['tread_depth']) && !empty($component['tread_depth'])) {
+                        $treadDepth = $component['tread_depth'];
+                    }
+                    
                     DB::table('tyres_rims')->insert([
                         'inspection_id' => $inspection->id,
                         'component_name' => $component['component_name'] ?? '',
                         'size' => $component['size'] ?? null,
                         'manufacture' => $component['manufacture'] ?? null,
                         'model' => $component['model'] ?? null,
-                        'tread_depth' => $component['tread_depth'] ?? null,
+                        'tread_depth' => $treadDepth,
                         'damages' => $component['damages'] ?? null,
                         'created_at' => now(),
                         'updated_at' => now()
