@@ -241,8 +241,8 @@ document.addEventListener('DOMContentLoaded', function() {
             damages: { 
                 enabled: true, 
                 label: 'Damages', 
-                type: 'text', 
-                placeholder: 'e.g., Uneven rundown' 
+                type: 'select',
+                options: ['None', 'Puncture', 'Sidewall damage', 'Tread', 'Uneven rundown', 'Mag scuffed', 'Bulges', 'Cracking']
             }
         },
         
