@@ -265,9 +265,151 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Draft saved successfully!');
     });
     
-    document.getElementById('nextBtn').addEventListener('click', function() {
-        InspectionCards.saveData();
-        window.location.href = '/inspection/mechanical-report';
+    document.getElementById('nextBtn').addEventListener('click', async function(e) {
+        e.preventDefault(); // Prevent form submission
+        
+        console.log('Tyres & Rims Assessment: Starting save and navigation...');
+        
+        // Get form data and images from InspectionCards
+        let formData = {};
+        let imageData = {};
+        
+        try {
+            if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+                formData = InspectionCards.getFormData();
+                imageData = InspectionCards.getImages();
+                console.log('Tyres & Rims Form Data:', formData);
+                console.log('Tyres & Rims Images:', imageData);
+            }
+        } catch (e) {
+            console.error('Error getting InspectionCards data:', e);
+        }
+        
+        // Get current inspection ID from session storage
+        const inspectionId = sessionStorage.getItem('currentInspectionId');
+        console.log('Current Inspection ID:', inspectionId);
+        
+        // Prepare API data
+        const apiData = {
+            inspection_id: inspectionId,
+            components: [],
+            images: imageData
+        };
+        
+        // Extract component data from form data (map tyre fields)
+        const componentMap = {};
+        for (const [key, value] of Object.entries(formData)) {
+            const match = key.match(/^([^-]+)-(.+)$/);
+            if (match) {
+                const componentId = match[1];
+                const fieldName = match[2];
+                
+                if (!componentMap[componentId]) {
+                    componentMap[componentId] = { component_name: componentId };
+                }
+                
+                // Map field names to expected backend format for tyres
+                if (fieldName === 'size') {
+                    componentMap[componentId].size = value;
+                } else if (fieldName === 'manufacture') {
+                    componentMap[componentId].manufacture = value;
+                } else if (fieldName === 'model') {
+                    componentMap[componentId].model = value;
+                } else if (fieldName === 'tread_depth') {
+                    componentMap[componentId].tread_depth = value;
+                } else if (fieldName === 'damages') {
+                    componentMap[componentId].damages = value;
+                } else {
+                    componentMap[componentId][fieldName] = value;
+                }
+            }
+        }
+        
+        // Convert component map to array
+        apiData.components = Object.values(componentMap);
+        
+        console.log('Tyres & Rims API Data being sent:', apiData);
+        
+        try {
+            // Save to database via API
+            const response = await fetch('/api/inspection/tyres-rims', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(apiData)
+            });
+            
+            console.log('Tyres & Rims API Response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Tyres & Rims API Error Response:', errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            const result = await response.json();
+            console.log('Tyres & Rims API Response:', result);
+            
+            if (result.success) {
+                console.log('✅ Tyres & Rims assessment saved successfully!');
+                
+                // Also save to sessionStorage for compatibility
+                InspectionCards.saveData();
+                
+                // Show success message
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+                    background: #28a745; color: white; border-radius: 5px;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10000;
+                    font-weight: 500; animation: slideIn 0.3s ease;
+                `;
+                notification.textContent = '✅ Tyres & Rims data saved successfully!';
+                document.body.appendChild(notification);
+                
+                // Remove notification after delay and navigate
+                setTimeout(() => {
+                    notification.remove();
+                    window.location.href = '/inspection/mechanical-report';
+                }, 1500);
+            } else {
+                throw new Error(result.message || 'Failed to save tyres & rims data');
+            }
+            
+        } catch (error) {
+            console.error('Failed to save tyres & rims assessment:', error);
+            
+            // Show error notification
+            const errorNotification = document.createElement('div');
+            errorNotification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+                background: #dc3545; color: white; border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10000;
+                font-weight: 500; animation: slideIn 0.3s ease;
+                max-width: 350px;
+            `;
+            errorNotification.textContent = '❌ Failed to save tyres & rims data: ' + error.message;
+            document.body.appendChild(errorNotification);
+            
+            // Remove error notification after longer delay
+            setTimeout(() => {
+                errorNotification.remove();
+            }, 5000);
+            
+            // Still save to sessionStorage as fallback
+            InspectionCards.saveData();
+            sessionStorage.setItem('tyresRimsAssessmentData', JSON.stringify(formData));
+            
+            // Ask user if they want to continue anyway
+            setTimeout(() => {
+                if (confirm('Failed to save to database. Do you want to continue anyway? (Data is saved locally)')) {
+                    window.location.href = '/inspection/mechanical-report';
+                }
+            }, 1000);
+        }
     });
     
     // Add color coding for condition dropdowns
