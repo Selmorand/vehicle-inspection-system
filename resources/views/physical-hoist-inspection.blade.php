@@ -986,9 +986,6 @@
                 <button type="button" class="btn btn-outline-secondary me-3" id="backBtn">
                     <i class="bi bi-arrow-left me-1"></i>Back to Engine Compartment
                 </button>
-                <button type="button" class="btn btn-info me-3" id="simplePreviewBtn">
-                    <i class="bi bi-eye me-1"></i>Preview Report
-                </button>
                 <button type="button" class="btn btn-secondary me-3" id="saveDraftBtn">Save Draft</button>
                 <button type="submit" class="btn btn-success" id="completeInspectionBtn" form="physicalHoistForm">
                     <i class="bi bi-check-circle me-1"></i>Complete Inspection
@@ -1257,34 +1254,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('backBtn').addEventListener('click', function() {
         saveCurrentProgress();
         window.location.href = '/inspection/engine-compartment';
-    });
-
-    document.getElementById('simplePreviewBtn').addEventListener('click', function() {
-        // Collect all form data for preview
-        const formData = collectPhysicalHoistFormData();
-        
-        // Open preview in new tab
-        fetch('/preview/physical-hoist', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                data: formData,
-                images: {} // Physical hoist images if implemented
-            })
-        })
-        .then(response => response.text())
-        .then(html => {
-            const previewWindow = window.open('', '_blank', 'width=1200,height=800');
-            previewWindow.document.write(html);
-            previewWindow.document.close();
-        })
-        .catch(error => {
-            console.error('Preview error:', error);
-            alert('Error generating preview. Please try again.');
-        });
     });
 
     document.getElementById('saveDraftBtn').addEventListener('click', function() {

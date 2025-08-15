@@ -154,9 +154,6 @@
                 <button type="button" class="btn btn-outline-secondary me-3" id="backBtn">
                     <i class="bi bi-arrow-left me-1"></i>Back to Mechanical Report
                 </button>
-                <button type="button" class="btn btn-success me-3" id="simplePreviewBtn">
-                    <i class="bi bi-eye me-1"></i>Simple Preview
-                </button>
                 <button type="button" class="btn btn-secondary me-3" id="saveDraftBtn">Save Draft</button>
                 <button type="submit" class="btn btn-success" id="completeConditionBtn" form="engineCompartmentForm" style="display: none;">
                     <i class="bi bi-check-circle me-1"></i>Complete Condition Report

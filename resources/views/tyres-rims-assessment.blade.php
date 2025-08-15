@@ -58,9 +58,6 @@
                                 <i class="bi bi-arrow-left me-1"></i>Back to Service Booklet
                             </button>
                             <div class="button-group-responsive">
-                                <button type="button" class="btn btn-success me-2 mb-2" id="simplePreviewBtn">
-                                    <i class="bi bi-eye me-1"></i>Simple Preview
-                                </button>
                                 <button type="button" class="btn btn-secondary me-2 mb-2" id="saveDraftBtn">Save Draft</button>
                                 <button type="submit" class="btn btn-primary mb-2" id="nextBtn">
                                     Continue to Mechanical Report <i class="bi bi-arrow-right ms-1"></i>

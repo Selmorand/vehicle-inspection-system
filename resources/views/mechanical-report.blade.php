@@ -926,9 +926,6 @@
                 <button type="button" class="btn btn-outline-secondary me-3" id="backBtn">
                     <i class="bi bi-arrow-left me-1"></i>Back to Tyres & Rims
                 </button>
-                <button type="button" class="btn btn-success me-3" id="simplePreviewBtn">
-                    <i class="bi bi-eye me-1"></i>Simple Preview
-                </button>
                 <button type="button" class="btn btn-secondary me-3" id="saveDraftBtn">Save Draft</button>
                 <button type="submit" class="btn btn-primary" id="nextBtn" form="mechanicalReportForm">
                     Continue to Engine Compartment <i class="bi bi-arrow-right ms-1"></i>
