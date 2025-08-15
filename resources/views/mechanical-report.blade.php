@@ -1354,14 +1354,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load previous inspection data if available
     loadPreviousData();
     
-    // Initialize mechanical components using InspectionCards
-    initializeMechanicalComponents();
+    // Initialize forms using InspectionCards - single initialization call
+    initializeForms();
     
-    // Initialize braking system using InspectionCards  
-    // NOTE: This creates a second instance which may cause conflicts, but forms need to be generated
-    initializeBrakingSystem();
+    console.log('Mechanical Report: Forms initialized');
     
-    console.log('Mechanical Report: Re-enabled InspectionCards for form generation');
+    // Check if components were generated
+    setTimeout(() => {
+        const container = document.getElementById('mechanicalComponentsAssessments');
+        const cards = container ? container.querySelectorAll('.panel-assessment') : [];
+        console.log('Container found:', !!container);
+        console.log('Number of assessment cards generated:', cards.length);
+        if (cards.length === 0) {
+            console.error('No mechanical components cards were generated!');
+        } else {
+            console.log('First few cards:', Array.from(cards).slice(0, 3).map(card => card.dataset.panel));
+        }
+    }, 500);
     
     // Add color coding for condition dropdowns in InspectionCards
     document.addEventListener('change', function(e) {
@@ -1373,9 +1382,6 @@ document.addEventListener('DOMContentLoaded', function() {
             select.setAttribute('value', select.value);
         }
     });
-    
-    // Initialize condition dropdowns (for legacy table - can be removed later)
-    initializeConditionDropdowns();
     
 
     // Form submission handler
@@ -1401,72 +1407,149 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Mechanical report draft saved successfully!');
     });
 
-                    console.log('Images from InspectionCards:', allImages);
-                    console.log('Number of image categories found:', Object.keys(allImages).length);
-                    
-                    // Log each image category
-                    Object.keys(allImages).forEach(category => {
-                        console.log(`Category "${category}": ${allImages[category].length} images`);
-                    });
-                }
-            } catch (e) {
-                console.warn('Could not get images from InspectionCards:', e);
-                // Try alternative image collection method
-                try {
-                    const imageInputs = form.querySelectorAll('input[type="file"]');
-                    console.log(`Found ${imageInputs.length} file inputs for manual image collection`);
-                } catch (e2) {
-                    console.error('Alternative image collection also failed:', e2);
-                }
-            }
-            
-            // Check if we have any data
-            const totalData = Object.keys(mechanicalData).length + Object.keys(brakingData).length;
-            if (totalData === 0) {
-                console.warn('No form data found!');
-                alert('No data to preview. Please fill out at least one assessment:\n\n1. Select conditions from dropdowns\n2. Add comments if needed\n3. Upload images if required\n\nTip: Make sure the forms have loaded completely before filling them out.');
-                return;
-            }
-            
-            console.log(`✅ Found ${totalData} total form fields with data`);
-            
-            // Prepare combined data for preview
-            const previewData = {
-                data: {
-                    mechanical: mechanicalData,
-                    braking: brakingData,
-                    all: allFormData
-                },
-                images: allImages
-            };
-            
-            console.log('Sending preview data:', previewData);
-            
-            // Submit to preview endpoint
-            fetch('/preview/mechanical-report', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(previewData)
-            })
-            .then(response => response.text())
-            .then(html => {
-                // Open preview in new window
-                const previewWindow = window.open('', '_blank');
-                previewWindow.document.write(html);
-                previewWindow.document.close();
-            })
-            .catch(error => {
-                console.error('Preview error:', error);
-                alert('Error generating preview: ' + error.message);
-            });
-        }, 1000); // Wait 1 second for forms to load
-    });
 });
 
+
 function initializeConditionDropdowns() {
+    // Initialize mechanical components using InspectionCards
+    initializeMechanicalComponents();
+    
+    // Initialize braking system using InspectionCards  
+    initializeBrakingSystem();
+    
+    console.log('Mechanical Report: InspectionCards initialized for form generation');
+    
+    const conditionDropdowns = document.querySelectorAll('.condition-dropdown');
+    
+    conditionDropdowns.forEach(dropdown => {
+        dropdown.addEventListener('change', function() {
+            const row = this.closest('.component-row');
+            const component = row.dataset.component;
+            const condition = this.value;
+            const commentsField = row.querySelector('.component-comments');
+            
+            // Update styling
+            updateConditionStyling(this, condition);
+            
+            // Handle comments field
+            if (condition === 'Bad') {
+                highlightComments(row);
+            } else if (condition === 'Average') {
+                commentsField.classList.remove('required');
+                commentsField.setAttribute('placeholder', 'Add comments if needed...');
+            } else {
+                commentsField.classList.remove('required');
+                commentsField.setAttribute('placeholder', 'Add comments...');
+            }
+            
+            // Store the condition
+            if (mechanicalReportData.components[component]) {
+                mechanicalReportData.components[component].condition = condition;
+            }
+            
+            updateAssessmentSummary();
+        });
+    });
+}
+
+function initializeForms() {
+    try {
+        // Initialize mechanical components first
+        console.log('Initializing mechanical components...');
+        InspectionCards.init({
+            formId: 'mechanicalReportForm',
+            containerId: 'mechanicalComponentsAssessments',
+            storageKey: 'mechanicalComponentsData',
+            hasOverlays: false,
+            
+            items: [
+                { id: 'final_drive_noise', category: 'Final drive operation (noise)', panelId: 'final-drive-noise' },
+                { id: 'instrument_control', category: 'Instrument/control function', panelId: 'instrument-control' },
+                { id: 'road_holding', category: 'Road holding/stability', panelId: 'road-holding' },
+                { id: 'gearbox_operation', category: 'Gearbox operation/noise', panelId: 'gearbox-operation' },
+                { id: 'clutch_operation', category: 'Clutch operation', panelId: 'clutch-operation' },
+                { id: 'general_steering', category: 'General steering/handling', panelId: 'general-steering' },
+                { id: 'engine_performance', category: 'Engine performance', panelId: 'engine-performance' },
+                { id: 'cooling_fan', category: 'Cooling fan operation', panelId: 'cooling-fan' },
+                { id: 'footbrake', category: 'Footbrake operation', panelId: 'footbrake' },
+                { id: 'engine_noise', category: 'Engine noise', panelId: 'engine-noise' },
+                { id: 'power_steering', category: 'Power steering', panelId: 'power-steering' },
+                { id: 'handbrake', category: 'Hand/park brake operation', panelId: 'handbrake' },
+                { id: 'excess_smoke', category: 'Excess smoke', panelId: 'excess-smoke' },
+                { id: 'warning_lights', category: 'Warning lights', panelId: 'warning-lights' },
+                { id: 'overheating', category: 'Overheating', panelId: 'overheating' },
+                { id: 'auto_changes', category: 'Auto changes/kick-down', panelId: 'auto-changes' },
+                { id: 'four_wd', category: '4WD Operation', panelId: 'four-wd' },
+                { id: 'cruise_control', category: 'Cruise control', panelId: 'cruise-control' },
+                { id: 'airconditioning', category: 'Airconditioning', panelId: 'airconditioning' },
+                { id: 'heating', category: 'Heating', panelId: 'heating' },
+                { id: 'air_suspension', category: 'Air suspension', panelId: 'air-suspension' },
+                { id: 'electric_windows', category: 'Electric windows', panelId: 'electric-windows' },
+                { id: 'sunroof', category: 'Sunroof', panelId: 'sunroof' },
+                { id: 'central_locking', category: 'Central locking', panelId: 'central-locking' },
+                { id: 'vented_seats', category: 'Vented/heated seats', panelId: 'vented-seats' },
+                { id: 'electronic_seats', category: 'Electronic seat adjustments', panelId: 'electronic-seats' },
+                { id: 'control_arm_noise', category: 'Control arm (noise)', panelId: 'control-arm-noise' },
+                { id: 'brake_noise', category: 'Brake (noise)', panelId: 'brake-noise' },
+                { id: 'suspension_noise', category: 'Suspension (noise)', panelId: 'suspension-noise' },
+                { id: 'oil_leaks', category: 'Oil leaks', panelId: 'oil-leaks' }
+            ],
+            
+            fields: {
+                condition: { enabled: true, label: 'Condition', options: ['Good', 'Average', 'Bad', 'N/A'] },
+                comments: { enabled: true, label: 'Comments', type: 'textarea' }
+            },
+            
+            onFormSubmit: function(data) {
+                sessionStorage.setItem('mechanicalComponentsData', JSON.stringify(data));
+            }
+        });
+        
+        console.log('Mechanical components initialized successfully');
+        
+        // Initialize braking system separately (InspectionCards doesn't support multiple instances well)
+        // For now, we'll use the legacy table for braking system
+        // TODO: Create a separate solution for braking system
+        console.log('Note: Braking system uses legacy table format for now');
+        
+    } catch (error) {
+        console.error('Error initializing mechanical components:', error);
+        // Show legacy tables if InspectionCards fails
+        document.querySelectorAll('.d-none').forEach(el => el.classList.remove('d-none'));
+    }
+}
+
+function updateConditionStyling(dropdown, condition) {
+    // Remove all condition classes
+    dropdown.classList.remove('condition-good', 'condition-average', 'condition-bad', 'condition-na');
+    
+    // Add appropriate class
+    if (condition === 'Good') {
+        dropdown.classList.add('condition-good');
+    } else if (condition === 'Average') {
+        dropdown.classList.add('condition-average');
+    } else if (condition === 'Bad') {
+        dropdown.classList.add('condition-bad');
+    } else if (condition === 'N/A') {
+        dropdown.classList.add('condition-na');
+    }
+}
+
+function highlightComments(row) {
+    const commentsField = row.querySelector('.component-comments');
+    if (commentsField) {
+        commentsField.classList.add('required');
+        commentsField.setAttribute('placeholder', 'Comments required for "Bad" condition...');
+    }
+}
+
+function updateAssessmentSummary() {
+    // This function can update assessment counters if needed
+    console.log('Assessment summary updated');
+}
+
+// Legacy function for old table structure
+function initializeConditionDropdownsOld() {
     const conditionDropdowns = document.querySelectorAll('.condition-dropdown');
     
     conditionDropdowns.forEach(dropdown => {
@@ -1715,62 +1798,6 @@ function initializeMechanicalComponents() {
 }
 
 // Function to initialize braking system with InspectionCards
-function initializeBrakingSystem() {
-    // Initialize the reusable InspectionCards system for braking system
-    InspectionCards.init({
-        // Required Configuration
-        formId: 'mechanicalReportForm',
-        containerId: 'brakingSystemAssessments',
-        storageKey: 'brakingSystemData',
-        
-        // Braking system specific configuration (no overlays)
-        hasOverlays: false,
-        
-        // Brake position items with camera
-        items: [
-            { id: 'brake_front_left', category: 'Front Left', panelId: 'front-left-brake' },
-            { id: 'brake_front_right', category: 'Front Right', panelId: 'front-right-brake' },
-            { id: 'brake_rear_left', category: 'Rear Left', panelId: 'rear-left-brake' },
-            { id: 'brake_rear_right', category: 'Rear Right', panelId: 'rear-right-brake' }
-        ],
-        
-        // Custom field configuration for braking system with labels
-        fields: {
-            pad_life: { 
-                enabled: true, 
-                label: 'Brake Pad Life', 
-                options: ['100%', '90%', '80%', '75%', '70%', '60%', '50%', '40%', '30%', '25%', '20%', '10%', '0%'] 
-            },
-            pad_condition: { 
-                enabled: true, 
-                label: 'Pad Condition', 
-                options: ['Good', 'Average', 'Bad', 'N/A'] 
-            },
-            disc_life: { 
-                enabled: true, 
-                label: 'Brake Disc Life', 
-                options: ['100%', '90%', '80%', '75%', '70%', '60%', '50%', '40%', '30%', '25%', '20%', '10%', '0%'] 
-            },
-            disc_condition: { 
-                enabled: true, 
-                label: 'Disc Condition', 
-                options: ['Good', 'Average', 'Bad', 'N/A'] 
-            },
-            comments: { 
-                enabled: true, 
-                label: 'Comments', 
-                type: 'textarea', 
-                placeholder: 'Add comments...'
-            }
-        },
-        
-        // Callback for form submission
-        onFormSubmit: function(data) {
-            // Store the braking system data
-            sessionStorage.setItem('brakingSystemData', JSON.stringify(data));
-        }
-    });
-}
 
 // Keep the old code below temporarily (can be removed later)
 function initializeBrakingSystemOld() {

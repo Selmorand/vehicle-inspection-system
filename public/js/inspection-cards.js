@@ -108,8 +108,8 @@ window.InspectionCards = (function() {
             const fieldLabel = field.label || fieldKey;
             const placeholder = field.placeholder || fieldLabel;
             
-            // Check if we should use field groups (for tyres layout) or simple layout (for panels/interior)
-            const useFieldGroups = !config.hasOverlays && config.containerId === 'tyresRimsAssessments';
+            // Check if we should use field groups (for tyres and mechanical layouts) or simple layout (for panels/interior)
+            const useFieldGroups = !config.hasOverlays && (config.containerId === 'tyresRimsAssessments' || config.containerId === 'mechanicalComponentsAssessments');
             
             if (field.options && Array.isArray(field.options)) {
                 // Select dropdown field
