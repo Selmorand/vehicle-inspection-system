@@ -874,23 +874,6 @@
                         object-fit: cover;
                         cursor: pointer;
                     }
-                    .image-delete {
-                        position: absolute;
-                        top: 5px;
-                        right: 5px;
-                        background: rgba(220, 53, 69, 0.9);
-                        color: white;
-                        border: none;
-                        border-radius: 50%;
-                        width: 24px;
-                        height: 24px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        cursor: pointer;
-                        font-size: 16px;
-                        line-height: 1;
-                    }
                     /* Standardized condition badges - mechanical system style */
                     .condition-Good, .condition-good {
                         background-color: #277020;
@@ -973,7 +956,6 @@
                                    data-title="{{ $panel['panel_name'] }}">
                                     <img src="{{ $image['thumbnail'] }}" alt="{{ $panel['panel_name'] }} image">
                                 </a>
-                                <span class="image-delete" title="Image from inspection">×</span>
                             </div>
                             @endforeach
                         </div>
@@ -1077,7 +1059,6 @@
                                    data-title="{{ $assessment['component_name'] ?? 'Interior Component' }}">
                                     <img src="{{ $image['thumbnail'] }}" alt="{{ $assessment['component_name'] ?? 'Interior Component' }} image">
                                 </a>
-                                <span class="image-delete" title="Image from inspection">×</span>
                             </div>
                             @endforeach
                         </div>
