@@ -1561,7 +1561,6 @@
                     <!-- Third Row: Images -->
                     @if(!empty($tyre['images']))
                     <div class="panel-images" style="padding: 15px 20px; border-top: 1px solid #e0e0e0;">
-                        <div class="images-label" style="font-weight: 500; margin-bottom: 10px;">Images ({{ count($tyre['images']) }} found):</div>
                         <div class="tyre-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
                             @foreach($tyre['images'] as $image)
                             <div class="tyre-image-card" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background: white;">
@@ -1574,11 +1573,6 @@
                             </div>
                             @endforeach
                         </div>
-                    </div>
-                    @else
-                    <!-- DEBUG: Show when no images -->
-                    <div class="panel-images" style="padding: 15px 20px; border-top: 1px solid #e0e0e0; color: #999;">
-                        <div class="images-label" style="font-weight: 500; margin-bottom: 10px;">Images: None found for {{ $tyre['component_name'] ?? 'unknown component' }}</div>
                     </div>
                     @endif
                 </div>
