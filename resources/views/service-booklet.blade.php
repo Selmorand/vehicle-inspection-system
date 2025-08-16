@@ -73,9 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Service booklet items - in order: Images first, then text sections
         items: [
-            { id: 'service_images', category: 'Service Booklet Images', panelId: null, hasCamera: true },
-            { id: 'service_comments', category: 'Service History Comments', panelId: null, hasCamera: false },
-            { id: 'service_recommendations', category: 'Service Recommendations', panelId: null, hasCamera: false }
+            { id: 'service_images', category: 'Service Booklet Images', panelId: null, hasPhoto: true, skipFields: ['comments'] },
+            { id: 'service_comments', category: 'Service History Comments', panelId: null, hasPhoto: false },
+            { id: 'service_recommendations', category: 'Service Recommendations', panelId: null, hasPhoto: false }
         ],
         
         // Custom field configuration for service booklet

@@ -104,6 +104,14 @@ window.InspectionCards = (function() {
             const field = config.fields[fieldKey];
             if (!field.enabled) return;
             
+            // Check if this item should have this specific field
+            if (item.hasFields && Array.isArray(item.hasFields) && !item.hasFields.includes(fieldKey)) {
+                return; // Skip this field for this item
+            }
+            if (item.skipFields && Array.isArray(item.skipFields) && item.skipFields.includes(fieldKey)) {
+                return; // Skip this field for this item
+            }
+            
             const fieldName = `${item.id}-${fieldKey}`;
             const fieldLabel = field.label || fieldKey;
             const placeholder = field.placeholder || fieldLabel;
@@ -176,20 +184,31 @@ window.InspectionCards = (function() {
             }
         });
         
+        // Determine if this item should have photo functionality
+        const hasPhoto = item.hasPhoto !== false; // Default to true unless explicitly set to false
+        
+        const photoHtml = hasPhoto ? `
+            <button type="button" class="photo-btn" data-panel="${item.panelId || item.id}">
+                <i class="bi bi-camera-fill"></i> Photo
+            </button>
+            <input type="file" accept="image/*" capture="environment" 
+                   class="d-none camera-input" id="camera-${item.panelId || item.id}">
+        ` : '';
+        
+        const imageGalleryHtml = hasPhoto ? `
+            <div class="image-gallery" id="gallery-${item.panelId || item.id}" style="display: none;">
+                <!-- Images will be added here -->
+            </div>
+        ` : '';
+        
         cardDiv.innerHTML = `
             <div class="panel-card" data-panel-card="${item.panelId || item.id}">
                 <div class="panel-card-title" data-panel-label="${item.panelId || item.id}">${item.category}</div>
                 <div class="panel-controls">
                     ${fieldsHtml}
-                    <button type="button" class="photo-btn" data-panel="${item.panelId || item.id}">
-                        <i class="bi bi-camera-fill"></i> Photo
-                    </button>
-                    <input type="file" accept="image/*" capture="environment" 
-                           class="d-none camera-input" id="camera-${item.panelId || item.id}">
+                    ${photoHtml}
                 </div>
-                <div class="image-gallery" id="gallery-${item.panelId || item.id}" style="display: none;">
-                    <!-- Images will be added here -->
-                </div>
+                ${imageGalleryHtml}
             </div>
         `;
         
