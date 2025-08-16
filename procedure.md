@@ -522,3 +522,4 @@ This procedure documents the complete process to add a new assessment section (T
   This procedure can be adapted for adding any new assessment section to the vehicle inspection
   system.
 
+ 

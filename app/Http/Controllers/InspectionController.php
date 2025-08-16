@@ -1039,55 +1039,92 @@ class InspectionController extends Controller
 
     public function savePhysicalHoistInspection(Request $request)
     {
-        $validated = $request->validate([
-            'suspension' => 'nullable|array',
-            'suspension.*.primary_condition' => 'nullable|in:Good,Average,Bad,N/A',
-            'suspension.*.secondary_condition' => 'nullable|in:Good,Average,Bad,N/A',
-            'suspension.*.comments' => 'nullable|string|max:1000',
-            'engine' => 'nullable|array',
-            'engine.*.primary_condition' => 'nullable|in:Good,Average,Bad,N/A',
-            'engine.*.secondary_condition' => 'nullable|in:Good,Average,Bad,N/A',
-            'engine.*.comments' => 'nullable|string|max:1000',
-            'drivetrain' => 'nullable|array',
-            'drivetrain.*.primary_condition' => 'nullable|in:Good,Average,Bad,N/A',
-            'drivetrain.*.secondary_condition' => 'nullable|in:Good,Average,Bad,N/A',
-            'drivetrain.*.comments' => 'nullable|string|max:1000',
+        \Log::info('Physical hoist save request received:', [
+            'all_data' => $request->all()
         ]);
-
-        DB::beginTransaction();
-
+        
         try {
-            // Create or find inspection record
-            $inspection = Inspection::firstOrCreate(
-                ['id' => session('current_inspection_id', 1)], // Use session or default for testing
-                [
-                    'client_id' => 1, // Default for testing
-                    'vehicle_id' => 1, // Default for testing
-                    'inspector_name' => 'Default Inspector',
-                    'status' => 'in_progress'
-                ]
-            );
+            $validated = $request->validate([
+                'inspection_id' => 'nullable|exists:inspections,id',
+                'components' => 'nullable|array',
+                'components.*.section' => 'nullable|string',
+                'components.*.component_name' => 'nullable|string',
+                'components.*.primary_condition' => 'nullable|string',
+                'components.*.secondary_condition' => 'nullable|string',
+                'components.*.comments' => 'nullable|string',
+                'images' => 'nullable|array'
+            ]);
+            
+            \Log::info('Physical hoist validation passed:', $validated);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Physical hoist validation failed:', $e->errors());
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        }
+        
+        DB::beginTransaction();
+        
+        try {
+            // Find inspection - use same approach as Engine Compartment
+            $inspection = Inspection::findOrFail($validated['inspection_id'] ?? 124);
+            
+            // Delete existing data for updates
+            \App\Models\PhysicalHoistInspection::where('inspection_id', $inspection->id)->delete();
 
-            // Store physical hoist inspection data
-            if (!empty($validated['suspension']) || !empty($validated['engine']) || !empty($validated['drivetrain'])) {
-                $hoistData = [
-                    'suspension' => $validated['suspension'] ?? [],
-                    'engine' => $validated['engine'] ?? [],
-                    'drivetrain' => $validated['drivetrain'] ?? []
-                ];
-                
-                $inspection->update([
-                    'physical_hoist_data' => json_encode($hoistData),
-                    'status' => 'completed', // Mark as completed since this is final section
-                    'completed_at' => now()
-                ]);
+            // Save component data
+            if (isset($validated['components'])) {
+                \Log::info('Physical hoist: Saving ' . count($validated['components']) . ' components for inspection ' . $inspection->id);
+                foreach ($validated['components'] as $component) {
+                    if (!empty($component['component_name'])) {
+                        \Log::info('Physical hoist: Creating component: ' . $component['component_name']);
+                        \App\Models\PhysicalHoistInspection::create([
+                            'inspection_id' => $inspection->id,
+                            'section' => $component['section'] ?? null,
+                            'component_name' => $component['component_name'],
+                            'primary_condition' => $component['primary_condition'] ?? null,
+                            'secondary_condition' => $component['secondary_condition'] ?? null,
+                            'comments' => $component['comments'] ?? null
+                        ]);
+                    }
+                }
+            } else {
+                \Log::warning('Physical hoist: No components data received in request');
+            }
+
+            // Process images in base64 format
+            if (isset($validated['images'])) {
+                // Delete existing physical hoist images
+                InspectionImage::where('inspection_id', $inspection->id)
+                    ->where('image_type', 'physical_hoist')
+                    ->delete();
+                    
+                foreach ($validated['images'] as $imageData) {
+                    if (!empty($imageData['image_data'])) {
+                        $filename = 'physical_hoist_' . ($imageData['component_type'] ?? 'component') . '_' . time() . '_' . Str::random(6) . '.jpg';
+                        $path = 'inspection_images/physical_hoist/' . $filename;
+                        
+                        // Decode base64 image
+                        $imageContent = base64_decode(preg_replace('#^data:image/[^;]+;base64,#', '', $imageData['image_data']));
+                        Storage::disk('public')->put($path, $imageContent);
+                        
+                        InspectionImage::create([
+                            'inspection_id' => $inspection->id,
+                            'image_type' => 'physical_hoist',
+                            'file_path' => $path,
+                            'area_name' => $imageData['component_type'] ?? 'physical_hoist',
+                            'original_name' => ($imageData['component_type'] ?? 'physical_hoist') . '_image.jpg'
+                        ]);
+                    }
+                }
             }
 
             DB::commit();
-
             return response()->json([
                 'success' => true,
-                'message' => 'Physical hoist inspection completed successfully',
+                'message' => 'Physical hoist inspection saved successfully',
                 'inspection_id' => $inspection->id
             ]);
 

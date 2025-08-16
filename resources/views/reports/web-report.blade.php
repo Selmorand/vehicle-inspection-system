@@ -1414,63 +1414,6 @@
             </div>
             @endif
 
-
-            <!-- Physical Hoist Inspection -->
-            @if(!empty($inspectionData['physical_hoist']))
-            <div class="section">
-                <h2 class="section-title">
-                    <i class="bi bi-wrench"></i>
-                    Physical Hoist Inspection (Undercarriage)
-                </h2>
-                
-                <div class="info-grid">
-                    <div class="info-card">
-                        <div class="info-label">Undercarriage Condition</div>
-                        <div class="info-value">
-                            <span class="condition-badge condition-{{ strtolower($inspectionData['physical_hoist']['undercarriage_condition'] ?? 'good') }}">
-                                {{ ucfirst($inspectionData['physical_hoist']['undercarriage_condition'] ?? 'Good') }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-label">Rust Present</div>
-                        <div class="info-value">{{ ucfirst($inspectionData['physical_hoist']['rust_present'] ?? 'No') }}</div>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-label">Exhaust Condition</div>
-                        <div class="info-value">
-                            <span class="condition-badge condition-{{ strtolower($inspectionData['physical_hoist']['exhaust_condition'] ?? 'good') }}">
-                                {{ ucfirst($inspectionData['physical_hoist']['exhaust_condition'] ?? 'Good') }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-label">Suspension Condition</div>
-                        <div class="info-value">
-                            <span class="condition-badge condition-{{ strtolower($inspectionData['physical_hoist']['suspension_condition'] ?? 'good') }}">
-                                {{ ucfirst($inspectionData['physical_hoist']['suspension_condition'] ?? 'Good') }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-label">Brake Lines</div>
-                        <div class="info-value">
-                            <span class="condition-badge condition-{{ strtolower($inspectionData['physical_hoist']['brake_lines'] ?? 'good') }}">
-                                {{ ucfirst($inspectionData['physical_hoist']['brake_lines'] ?? 'Good') }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                @if(!empty($inspectionData['physical_hoist']['notes']))
-                <h3 style="color: #4f959b; margin: 2rem 0 1rem;">Hoist Inspection Notes</h3>
-                <div class="info-card">
-                    <div class="info-value">{{ $inspectionData['physical_hoist']['notes'] }}</div>
-                </div>
-                @endif
-            </div>
-            @endif
-
             <!-- Service History -->
             @if(!empty($inspectionData['service']))
             <div class="section">
@@ -1935,6 +1878,83 @@
                         @endforeach
                     </ul>
                 </div>
+                @endif
+            </div>
+            @endif
+
+            <!-- Physical Hoist Inspection -->
+            @if(!empty($inspectionData['physical_hoist']))
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="bi bi-wrench-adjustable"></i>
+                    Physical Hoist Inspection
+                </h2>
+
+                @if(!empty($inspectionData['physical_hoist']['sections']))
+                    @foreach($inspectionData['physical_hoist']['sections'] as $sectionName => $components)
+                        @if(!empty($components))
+                        <h3 style="color: #4f959b; margin: 2rem 0 1rem; text-transform: capitalize;">{{ ucfirst($sectionName) }} Components</h3>
+                        
+                        @foreach($components as $component)
+                        <div class="panel-card" data-physical-hoist-card="{{ $component['component_name'] ?? '' }}">
+                            <!-- First Row: Component Name -->
+                            <div class="panel-header">
+                                <div class="panel-name" style="width: 100%; font-weight: 600; margin-bottom: 10px; font-size: 1.1rem;">
+                                    @php
+                                        $componentName = str_replace('_', ' ', $component['component_name'] ?? '');
+                                        $componentName = ucwords($componentName);
+                                    @endphp
+                                    {{ $componentName }}
+                                </div>
+                            </div>
+                            
+                            <!-- Second Row: Conditions and Comments -->
+                            <div class="panel-details" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 20px; flex-wrap: wrap; gap: 15px;">
+                                
+                                @if(!empty($component['primary_condition']))
+                                <div class="primary-condition" style="display: flex; align-items: center;">
+                                    <span style="font-weight: 500; margin-right: 10px;">Primary:</span>
+                                    <span class="condition-{{ strtolower($component['primary_condition']) }}">{{ $component['primary_condition'] }}</span>
+                                </div>
+                                @endif
+                                
+                                @if(!empty($component['secondary_condition']))
+                                <div class="secondary-condition" style="display: flex; align-items: center;">
+                                    <span style="font-weight: 500; margin-right: 10px;">Secondary:</span>
+                                    <span class="condition-{{ strtolower($component['secondary_condition']) }}">{{ $component['secondary_condition'] }}</span>
+                                </div>
+                                @endif
+                                
+                                @if(!empty($component['comments']))
+                                <div class="component-comments" style="display: flex; align-items: center; flex-grow: 1;">
+                                    <span style="font-weight: 500; margin-right: 10px;">Comments:</span>
+                                    <span style="font-style: italic;">{{ $component['comments'] }}</span>
+                                </div>
+                                @endif
+                            </div>
+                            
+                            <!-- Third Row: Images -->
+                            @if(!empty($component['images']))
+                            <div class="panel-images" style="padding: 15px 20px; border-top: 1px solid #e0e0e0;">
+                                <div class="images-label" style="font-weight: 500; margin-bottom: 10px;">Images:</div>
+                                <div class="component-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
+                                    @foreach($component['images'] as $image)
+                                    <div class="component-image-card" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background: white;">
+                                        <a href="{{ $image['url'] }}" data-lightbox="physical-hoist-{{ $component['component_name'] }}" data-title="{{ $componentName }}">
+                                            <img src="{{ $image['url'] }}" alt="{{ $componentName }}" style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
+                                        </a>
+                                        <div style="padding: 10px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+                                            {{ ucwords(str_replace(['_', '-'], ' ', $component['component_name'])) }}
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+                        @endif
+                    @endforeach
                 @endif
             </div>
             @endif

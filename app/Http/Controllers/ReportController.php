@@ -92,7 +92,8 @@ class ReportController extends Controller
                 'tyres_rims' => $this->formatTyresRimsForReport($inspection),
                 'mechanical_report' => $this->formatMechanicalReportForReport($inspection),
                 'braking_system' => $this->formatBrakingSystemForReport($inspection),
-                'engine_compartment' => $this->formatEngineCompartmentForReport($inspection)
+                'engine_compartment' => $this->formatEngineCompartmentForReport($inspection),
+                'physical_hoist' => $this->formatPhysicalHoistForReport($inspection)
             ];
             
             
@@ -476,8 +477,8 @@ class ReportController extends Controller
                     continue;
                 }
                 
-                // Skip tyres_rims, mechanical_report and engine_compartment images - they're handled separately
-                if ($image->image_type === 'tyres_rims' || $image->image_type === 'mechanical_report' || $image->image_type === 'engine_compartment') {
+                // Skip tyres_rims, mechanical_report, engine_compartment and physical_hoist images - they're handled separately
+                if ($image->image_type === 'tyres_rims' || $image->image_type === 'mechanical_report' || $image->image_type === 'engine_compartment' || $image->image_type === 'physical_hoist') {
                     continue;
                 }
                 
@@ -1175,6 +1176,82 @@ class ReportController extends Controller
         
         
         return $result;
+    }
+
+    private function formatPhysicalHoistForReport($inspection)
+    {
+        $physicalHoistData = [];
+        
+        // Get physical hoist component data from database
+        $components = \DB::table('physical_hoist_inspections')
+            ->where('inspection_id', $inspection->id)
+            ->get();
+        
+        foreach ($components as $component) {
+            // Get images for this physical hoist component
+            $componentImages = [];
+            
+            // Try both component_name and component_name with hyphens (as stored in frontend)
+            $componentNameUnderscore = $component->component_name;
+            $componentNameHyphen = str_replace('_', '-', $component->component_name);
+            
+            $images = $inspection->images()
+                ->where('image_type', 'physical_hoist')
+                ->where(function($query) use ($componentNameUnderscore, $componentNameHyphen) {
+                    $query->where('area_name', $componentNameUnderscore)
+                          ->orWhere('area_name', $componentNameHyphen);
+                })
+                ->get();
+                
+            foreach ($images as $image) {
+                $fullPath = storage_path('app/public/' . $image->file_path);
+                
+                if (file_exists($fullPath)) {
+                    $componentImages[] = [
+                        'path' => $image->file_path,
+                        'url' => asset('storage/' . $image->file_path),
+                        'caption' => $image->area_name ?? $component->component_name,
+                        'timestamp' => $image->created_at
+                    ];
+                }
+            }
+            
+            $physicalHoistData[] = [
+                'section' => $component->section,
+                'component_name' => $component->component_name,
+                'primary_condition' => $component->primary_condition,
+                'secondary_condition' => $component->secondary_condition,
+                'comments' => $component->comments,
+                'images' => $componentImages
+            ];
+        }
+        
+        // Group by section
+        $groupedData = [
+            'suspension' => [],
+            'engine' => [],
+            'drivetrain' => []
+        ];
+        
+        foreach ($physicalHoistData as $component) {
+            $section = $component['section'] ?? 'general';
+            if (isset($groupedData[$section])) {
+                $groupedData[$section][] = $component;
+            }
+        }
+        
+        // For overall condition calculation, we need to map primary_condition to condition field
+        $componentsForCalculation = [];
+        foreach ($physicalHoistData as $component) {
+            $componentsForCalculation[] = [
+                'condition' => $component['primary_condition'] ?? 'Good'
+            ];
+        }
+        
+        return [
+            'sections' => $groupedData,
+            'overall_condition' => $this->calculateOverallCondition($componentsForCalculation)
+        ];
     }
 
     private function calculateOverallCondition($components)
