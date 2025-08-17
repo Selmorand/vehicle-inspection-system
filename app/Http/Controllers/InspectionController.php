@@ -18,9 +18,22 @@ use Illuminate\Support\Str;
 
 class InspectionController extends Controller
 {
-    public function visualInspection()
+    public function visualInspection(Request $request)
     {
-        return view('visual-inspection');
+        $inspection = null;
+        
+        // Check if continuing an existing inspection
+        if ($request->has('continue')) {
+            $inspectionId = $request->get('continue');
+            $inspection = Inspection::with(['client', 'vehicle'])->find($inspectionId);
+            
+            // If inspection not found, redirect to dashboard with error
+            if (!$inspection) {
+                return redirect('/dashboard')->with('error', 'Inspection not found. Please start a new inspection.');
+            }
+        }
+        
+        return view('visual-inspection', compact('inspection'));
     }
 
     public function bodyPanelAssessment()
@@ -63,6 +76,7 @@ class InspectionController extends Controller
         // TESTING: All fields made optional for testing navigation
         // TODO: Restore required validations before production
         $validated = $request->validate([
+            'inspection_id' => 'nullable|string', // Add inspection_id for continuing drafts
             'inspection_datetime' => 'nullable|date',
             'inspector_name' => 'nullable|string|max:255',
             'client_name' => 'nullable|string|max:255',
@@ -90,47 +104,102 @@ class InspectionController extends Controller
         DB::beginTransaction();
 
         try {
-            // Create or update client (handle null values for testing)
-            $client = null;
-            if (!empty($validated['client_name'])) {
-                $client = Client::firstOrCreate(
-                    ['name' => $validated['client_name']]
-                );
+            // Check if we're continuing an existing inspection
+            $inspection = null;
+            if (!empty($validated['inspection_id'])) {
+                $inspection = Inspection::with(['client', 'vehicle'])->find($validated['inspection_id']);
+                if (!$inspection) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Inspection not found'
+                    ], 404);
+                }
+                
+                // Update existing inspection data
+                $client = $inspection->client;
+                $vehicle = $inspection->vehicle;
+                
+                // Update client if name changed
+                if (!empty($validated['client_name']) && $validated['client_name'] !== $client->name) {
+                    $client = Client::firstOrCreate(['name' => $validated['client_name']]);
+                }
+                
+                // Update vehicle data
+                if (!empty($validated['vin']) && $validated['vin'] !== $vehicle->vin) {
+                    $vin = $validated['vin'];
+                } else {
+                    $vin = $vehicle->vin;
+                }
+                
+                $vehicle->update([
+                    'vin' => $vin,
+                    'manufacturer' => $validated['manufacturer'] ?? $vehicle->manufacturer,
+                    'model' => $validated['model'] ?? $vehicle->model,
+                    'vehicle_type' => $validated['vehicle_type'] ?? $vehicle->vehicle_type,
+                    'colour' => $validated['colour'] ?? $vehicle->colour,
+                    'doors' => $validated['doors'] ?? $vehicle->doors,
+                    'fuel_type' => $validated['fuel_type'] ?? $vehicle->fuel_type,
+                    'transmission' => $validated['transmission'] ?? $vehicle->transmission,
+                    'engine_number' => $validated['engine_number'] ?? $vehicle->engine_number,
+                    'registration_number' => $validated['registration_number'] ?? $vehicle->registration_number,
+                    'year' => $validated['year_model'] ?? $vehicle->year,
+                    'mileage' => $validated['km_reading'] ?? $vehicle->mileage
+                ]);
+                
+                // Update inspection data
+                $inspection->update([
+                    'client_id' => $client->id,
+                    'vehicle_id' => $vehicle->id,
+                    'inspector_name' => $validated['inspector_name'] ?? $inspection->inspector_name,
+                    'inspection_date' => $validated['inspection_datetime'] ? \Carbon\Carbon::parse($validated['inspection_datetime']) : $inspection->inspection_date,
+                    'diagnostic_report' => $validated['diagnostic_report'] ?? $inspection->diagnostic_report,
+                    'status' => 'draft'
+                ]);
+                
             } else {
-                // Create a dummy client for testing
-                $client = Client::firstOrCreate(
-                    ['name' => 'Test Client']
+                // Create new inspection
+                // Create or update client (handle null values for testing)
+                $client = null;
+                if (!empty($validated['client_name'])) {
+                    $client = Client::firstOrCreate(
+                        ['name' => $validated['client_name']]
+                    );
+                } else {
+                    // Create a dummy client for testing
+                    $client = Client::firstOrCreate(
+                        ['name' => 'Test Client']
+                    );
+                }
+
+                // Create or update vehicle (handle null values for testing)
+                $vin = !empty($validated['vin']) ? $validated['vin'] : 'TEST-VIN-' . uniqid();
+                $vehicle = Vehicle::updateOrCreate(
+                    ['vin' => $vin],
+                    [
+                        'manufacturer' => $validated['manufacturer'] ?? 'Test Manufacturer',
+                        'model' => $validated['model'] ?? 'Test Model',
+                        'vehicle_type' => $validated['vehicle_type'] ?? 'passenger vehicle',
+                        'colour' => $validated['colour'] ?? null,
+                        'doors' => $validated['doors'] ?? null,
+                        'fuel_type' => $validated['fuel_type'] ?? null,
+                        'transmission' => $validated['transmission'] ?? null,
+                        'engine_number' => $validated['engine_number'] ?? null,
+                        'registration_number' => $validated['registration_number'] ?? null,
+                        'year' => $validated['year_model'] ?? null,
+                        'mileage' => $validated['km_reading'] ?? null
+                    ]
                 );
+
+                // Create inspection (handle null values for testing)
+                $inspection = Inspection::create([
+                    'client_id' => $client->id,
+                    'vehicle_id' => $vehicle->id,
+                    'inspector_name' => $validated['inspector_name'] ?? 'Test Inspector',
+                    'inspection_date' => $validated['inspection_datetime'] ? \Carbon\Carbon::parse($validated['inspection_datetime']) : now(),
+                    'diagnostic_report' => $validated['diagnostic_report'] ?? null,
+                    'status' => 'draft'
+                ]);
             }
-
-            // Create or update vehicle (handle null values for testing)
-            $vin = !empty($validated['vin']) ? $validated['vin'] : 'TEST-VIN-' . uniqid();
-            $vehicle = Vehicle::updateOrCreate(
-                ['vin' => $vin],
-                [
-                    'manufacturer' => $validated['manufacturer'] ?? 'Test Manufacturer',
-                    'model' => $validated['model'] ?? 'Test Model',
-                    'vehicle_type' => $validated['vehicle_type'] ?? 'passenger vehicle',
-                    'colour' => $validated['colour'] ?? null,
-                    'doors' => $validated['doors'] ?? null,
-                    'fuel_type' => $validated['fuel_type'] ?? null,
-                    'transmission' => $validated['transmission'] ?? null,
-                    'engine_number' => $validated['engine_number'] ?? null,
-                    'registration_number' => $validated['registration_number'] ?? null,
-                    'year' => $validated['year_model'] ?? null,
-                    'mileage' => $validated['km_reading'] ?? null
-                ]
-            );
-
-            // Create inspection (handle null values for testing)
-            $inspection = Inspection::create([
-                'client_id' => $client->id,
-                'vehicle_id' => $vehicle->id,
-                'inspector_name' => $validated['inspector_name'] ?? 'Test Inspector',
-                'inspection_date' => $validated['inspection_datetime'] ? \Carbon\Carbon::parse($validated['inspection_datetime']) : now(),
-                'diagnostic_report' => $validated['diagnostic_report'] ?? null,
-                'status' => 'draft'
-            ]);
 
             // Handle image data (base64 from JavaScript) 
             // Fix: The frontend sends different structure than expected

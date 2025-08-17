@@ -90,35 +90,43 @@
     <div class="recent-reports">
         <h2>Recent Inspections</h2>
         
-        <div class="report-item">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="report-info">
-                    <h6 class="mb-1">VIN: 1HGBH41JXMN109186</h6>
-                    <small class="text-muted">Client: John Smith | Date: June 14, 2025 | Inspector: Demo User</small>
+        @if($recentInspections->count() > 0)
+            @foreach($recentInspections as $inspection)
+            <div class="report-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="report-info">
+                        <h6 class="mb-1">VIN: {{ $inspection->vehicle->vin ?? 'N/A' }}</h6>
+                        <small class="text-muted">
+                            Client: {{ $inspection->client->name ?? 'N/A' }} | 
+                            Date: {{ $inspection->inspection_date ? $inspection->inspection_date->format('M d, Y') : 'N/A' }} | 
+                            Inspector: {{ $inspection->inspector_name ?? 'N/A' }}
+                        </small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        @if($inspection->status === 'completed')
+                            <a href="{{ route('reports.show', $inspection->id) }}" class="btn btn-sm btn-outline-primary" title="View Report">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <span class="badge report-status" style="background-color: #28a745; color: white;">Completed</span>
+                        @elseif($inspection->status === 'draft')
+                            <a href="{{ route('inspection.visual') }}?continue={{ $inspection->id }}" class="btn btn-sm btn-outline-primary" title="Continue Draft">
+                                <i class="bi bi-pencil"></i> Continue
+                            </a>
+                            <span class="badge report-status" style="background-color: #ffc107; color: #212529;">Draft</span>
+                        @else
+                            <span class="badge report-status" style="background-color: #dc3545; color: white;">{{ ucfirst($inspection->status) }}</span>
+                        @endif
+                    </div>
                 </div>
-                <span class="badge bg-success report-status">Completed</span>
             </div>
-        </div>
-
-        <div class="report-item">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="report-info">
-                    <h6 class="mb-1">VIN: 2T1BURHE0JC014242</h6>
-                    <small class="text-muted">Client: Sarah Johnson | Date: June 13, 2025 | Inspector: Demo User</small>
-                </div>
-                <span class="badge bg-success report-status">Completed</span>
+            @endforeach
+        @else
+            <div class="text-center py-4">
+                <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="mt-3 text-muted">No recent inspections found.</p>
+                <p class="text-muted">Start your first inspection above to see it appear here.</p>
             </div>
-        </div>
-
-        <div class="report-item">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="report-info">
-                    <h6 class="mb-1">VIN: 5YFBURHE0JP123456</h6>
-                    <small class="text-muted">Client: Mike Wilson | Date: June 12, 2025 | Inspector: Demo User</small>
-                </div>
-                <span class="badge bg-warning report-status">In Progress</span>
-            </div>
-        </div>
+        @endif
     </div>
 </div>
 @endsection

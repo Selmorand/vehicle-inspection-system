@@ -194,39 +194,7 @@
     filter: brightness(0) saturate(100%) invert(16%) sepia(90%) saturate(3122%) hue-rotate(348deg) brightness(93%) contrast(87%) !important;
 }
 
-/* Color select styling for interior */
-.color-select option[value="Red & Black"] {
-    background-color: #b30000;
-    color: white;
-}
-
-.color-select option[value="Black"] {
-    background-color: #000000;
-    color: white;
-}
-
-.color-select option[value="Grey"] {
-    background-color: #808080;
-    color: white;
-}
-
-.color-select option[value="Beige"] {
-    background-color: #f5f5dc;
-}
-
-.color-select option[value="Brown"] {
-    background-color: #8b4513;
-    color: white;
-}
-
-.color-select option[value="Blue"] {
-    background-color: #0000cd;
-    color: white;
-}
-
-.color-select option[value="Other"] {
-    background-color: #cccccc;
-}
+/* Color select styling for interior - removed background colors */
 
 /* Condition dropdown color coding - Applied via JavaScript */
 select.condition-good {

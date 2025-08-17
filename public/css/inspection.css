@@ -28,6 +28,27 @@
     --success-color: #28a745;
     --warning-color: #ffc107;
     --danger-color: #dc3545;
+    
+    /* Bootstrap Override */
+    --bs-primary: #4f959b;
+    --bs-primary-rgb: 79, 149, 155;
+    --bs-success: #4f959b;
+    --bs-success-rgb: 79, 149, 155;
+    --bs-btn-active-bg: #4f959b;
+    --bs-btn-active-border-color: #4f959b;
+}
+
+/* Ensure Bootstrap success buttons use our brand color */
+.btn-success {
+    background-color: #4f959b !important;
+    border-color: #4f959b !important;
+}
+
+.btn-success:hover,
+.btn-success:focus,
+.btn-success:active {
+    background-color: #3a7177 !important;
+    border-color: #3a7177 !important;
 }
 
 /* Dashboard specific styles */

@@ -42,30 +42,32 @@
     <!-- Search and Filter -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('reports.index') }}" class="row g-3">
-                <div class="col-md-4">
-                    <label for="search" class="form-label">Search</label>
-                    <input type="text" class="form-control" id="search" name="search" 
-                           placeholder="Client name, vehicle, VIN, report #..." 
-                           value="{{ request('search') }}">
-                </div>
-                <div class="col-md-3">
-                    <label for="from_date" class="form-label">From Date</label>
-                    <input type="date" class="form-control" id="from_date" name="from_date" 
-                           value="{{ request('from_date') }}">
-                </div>
-                <div class="col-md-3">
-                    <label for="to_date" class="form-label">To Date</label>
-                    <input type="date" class="form-control" id="to_date" name="to_date" 
-                           value="{{ request('to_date') }}">
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary me-2">
-                        <i class="bi bi-search"></i> Search
-                    </button>
-                    <a href="{{ route('reports.index') }}" class="btn btn-secondary">
-                        <i class="bi bi-x-circle"></i> Clear
-                    </a>
+            <form method="GET" action="{{ route('reports.index') }}">
+                <div class="d-flex flex-wrap gap-3 align-items-end">
+                    <div class="flex-fill" style="min-width: 200px;">
+                        <label for="search" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               placeholder="Vehicle, VIN, report #..." 
+                               value="{{ request('search') }}">
+                    </div>
+                    <div class="flex-shrink-0" style="min-width: 150px;">
+                        <label for="from_date" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="from_date" name="from_date" 
+                               value="{{ request('from_date') }}">
+                    </div>
+                    <div class="flex-shrink-0" style="min-width: 150px;">
+                        <label for="to_date" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="to_date" name="to_date" 
+                               value="{{ request('to_date') }}">
+                    </div>
+                    <div class="d-flex gap-2 flex-shrink-0">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                        <a href="{{ route('reports.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
@@ -90,66 +92,70 @@
         </div>
         <div class="card-body">
             @if($reports->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Report #</th>
-                                <th>Date</th>
-                                <th>Client</th>
-                                <th>Vehicle</th>
-                                <th>VIN</th>
-                                <th>Inspector</th>
-                                <th>Size</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($reports as $report)
-                            <tr>
-                                <td>
-                                    <span class="badge bg-primary">{{ $report->report_number }}</span>
-                                </td>
-                                <td>{{ is_string($report->inspection_date) ? $report->inspection_date : $report->inspection_date->format('Y-m-d') }}</td>
-                                <td>
-                                    {{ $report->client_name }}
-                                    @if($report->client_email)
-                                        <br><small class="text-muted">{{ $report->client_email }}</small>
-                                    @endif
-                                </td>
-                                <td>{{ ($report->vehicle_make ?? '') . ' ' . ($report->vehicle_model ?? '') . ' ' . ($report->vehicle_year ?? '') }}</td>
-                                <td>
-                                    <small>{{ $report->vin_number ?: 'N/A' }}</small>
-                                </td>
-                                <td>{{ $report->inspector_name ?: 'N/A' }}</td>
-                                <td>
-                                    <small class="text-muted">{{ $report->formatted_file_size ?? 'N/A' }}</small>
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('reports.show', $report->id) }}" 
-                                           class="btn btn-sm btn-primary" 
-                                           title="View Web Report">
-                                            <i class="bi bi-eye"></i> View
-                                        </a>
-                                        <form action="{{ route('reports.destroy', $report->id) }}" 
-                                              method="POST" 
-                                              class="d-inline"
-                                              onsubmit="return confirm('Are you sure you want to delete this report?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" 
-                                                    class="btn btn-sm btn-danger"
-                                                    title="Delete Report">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
+                <div class="reports-grid">
+                    @foreach($reports as $report)
+                    <div class="report-card mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <div class="report-heading">Report #</div>
+                                        <div class="report-data">
+                                            <span class="badge bg-primary">{{ $report->report_number }}</span>
+                                        </div>
                                     </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                    <div class="col-md-2">
+                                        <div class="report-heading">Date</div>
+                                        <div class="report-data">
+                                            {{ is_string($report->inspection_date) ? $report->inspection_date : $report->inspection_date->format('Y-m-d') }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="report-heading">Vehicle</div>
+                                        <div class="report-data">
+                                            {{ ($report->vehicle_make ?? '') . ' ' . ($report->vehicle_model ?? '') . ' ' . ($report->vehicle_year ?? '') }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="report-heading">VIN</div>
+                                        <div class="report-data">
+                                            {{ $report->vin_number ?: 'N/A' }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="report-heading">Inspector</div>
+                                        <div class="report-data">
+                                            {{ $report->inspector_name ?: 'N/A' }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="report-actions">
+                                            <div class="d-flex gap-1 justify-content-end">
+                                                <a href="{{ route('reports.show', $report->id) }}" 
+                                                   class="btn btn-sm btn-primary action-btn" 
+                                                   title="View Web Report">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <form action="{{ route('reports.destroy', $report->id) }}" 
+                                                      method="POST" 
+                                                      class="d-inline"
+                                                      onsubmit="return confirm('Are you sure you want to delete this report?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" 
+                                                            class="btn btn-sm btn-danger action-btn"
+                                                            title="Delete Report">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
 
                 <!-- Pagination -->
@@ -174,27 +180,100 @@
 
 @section('additional-css')
 <style>
-.table td {
-    vertical-align: middle;
+.report-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.report-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.report-card .card-body {
+    padding: 1rem;
+}
+
+.report-card .row > div {
+    margin-bottom: 0.5rem;
 }
 
 .btn-group .btn {
     padding: 0.25rem 0.5rem;
 }
 
-@media (max-width: 768px) {
-    .table-responsive {
-        font-size: 0.875rem;
-    }
-    
-    .btn-group {
-        display: flex;
+/* Card header styling */
+.card-header h5 {
+    color: #4f959b !important;
+}
+
+/* Report card layout styling */
+.report-heading {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #495057;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.report-data {
+    font-size: 0.9rem;
+    color: #212529;
+    margin-bottom: 0.5rem;
+}
+
+/* Ensure action buttons are consistent size */
+.action-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn i {
+    font-size: 0.875rem;
+}
+
+/* Search form responsive improvements */
+@media (max-width: 992px) {
+    .d-flex.flex-wrap.gap-3 {
         flex-direction: column;
-        gap: 2px;
+        align-items: stretch !important;
     }
     
-    .btn-group .btn {
-        width: 100%;
+    .d-flex.gap-2.flex-shrink-0 {
+        justify-content: stretch;
+    }
+    
+    .d-flex.gap-2.flex-shrink-0 .btn {
+        flex: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .report-card .row > div {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .report-actions .d-flex {
+        justify-content: center !important;
+    }
+    
+    .action-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 576px) {
+    .report-card .col-md-1,
+    .report-card .col-md-2,
+    .report-card .col-md-3 {
+        flex: 0 0 100%;
+        max-width: 100%;
     }
 }
 </style>

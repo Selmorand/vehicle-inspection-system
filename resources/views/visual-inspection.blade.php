@@ -199,31 +199,74 @@ let uploadedImages = [];
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if this is a new inspection (coming from dashboard or direct URL)
-    // Clear data only if not coming from within the inspection flow
-    const referrer = document.referrer;
-    const isFromInspectionFlow = referrer.includes('/inspection/');
-    const hasInspectionId = sessionStorage.getItem('currentInspectionId');
+    // Check if continuing an existing inspection from dashboard
+    const urlParams = new URLSearchParams(window.location.search);
+    const continueInspectionId = urlParams.get('continue');
     
-    // If not from inspection flow and no current inspection ID, start fresh
-    if (!isFromInspectionFlow && !hasInspectionId) {
-        // Starting a new inspection - clear all data
-        sessionStorage.removeItem('visualInspectionData');
-        sessionStorage.removeItem('visualInspectionImages');
-        sessionStorage.removeItem('bodyPanelAssessmentData');
-        sessionStorage.removeItem('bodyPanelAssessmentImages');
-        sessionStorage.removeItem('interiorAssessmentData');
-        sessionStorage.removeItem('interiorAssessmentImages');
-        sessionStorage.removeItem('serviceBookletData');
-        sessionStorage.removeItem('tyresRimsData');
-        sessionStorage.removeItem('tyresRimsAssessmentData');
-        sessionStorage.removeItem('mechanicalReportData');
-        sessionStorage.removeItem('engineCompartmentData');
-        sessionStorage.removeItem('physicalHoistData');
+    if (continueInspectionId) {
+        // Continuing existing inspection
+        console.log('Continuing inspection ID:', continueInspectionId);
+        sessionStorage.setItem('currentInspectionId', continueInspectionId);
         
-        // Set a new inspection ID
-        const newInspectionId = 'inspection_' + Date.now();
-        sessionStorage.setItem('currentInspectionId', newInspectionId);
+        @if(isset($inspection))
+        // Load inspection data from server
+        const inspectionData = @json($inspection);
+        console.log('Loading inspection data:', inspectionData);
+        
+        // Populate form fields
+        if (inspectionData.inspection_date) {
+            const date = new Date(inspectionData.inspection_date);
+            document.getElementById('inspection_datetime').value = date.toISOString().slice(0, 16);
+        }
+        if (inspectionData.inspector_name) {
+            document.getElementById('inspector_name').value = inspectionData.inspector_name;
+        }
+        if (inspectionData.client && inspectionData.client.name) {
+            document.getElementById('client_name').value = inspectionData.client.name;
+        }
+        if (inspectionData.vehicle) {
+            const vehicle = inspectionData.vehicle;
+            if (vehicle.vin) document.getElementById('vin').value = vehicle.vin;
+            if (vehicle.manufacturer) document.getElementById('manufacturer').value = vehicle.manufacturer;
+            if (vehicle.model) document.getElementById('model').value = vehicle.model;
+            if (vehicle.vehicle_type) document.getElementById('vehicle_type').value = vehicle.vehicle_type;
+            if (vehicle.colour) document.getElementById('colour').value = vehicle.colour;
+            if (vehicle.doors) document.getElementById('doors').value = vehicle.doors;
+            if (vehicle.fuel_type) document.getElementById('fuel_type').value = vehicle.fuel_type;
+            if (vehicle.transmission) document.getElementById('transmission').value = vehicle.transmission;
+            if (vehicle.engine_number) document.getElementById('engine_number').value = vehicle.engine_number;
+            if (vehicle.registration_number) document.getElementById('registration_number').value = vehicle.registration_number;
+            if (vehicle.year) document.getElementById('year_model').value = vehicle.year;
+            if (vehicle.mileage) document.getElementById('km_reading').value = vehicle.mileage;
+        }
+        @endif
+    } else {
+        // Check if this is a new inspection (coming from dashboard or direct URL)
+        // Clear data only if not coming from within the inspection flow
+        const referrer = document.referrer;
+        const isFromInspectionFlow = referrer.includes('/inspection/');
+        const hasInspectionId = sessionStorage.getItem('currentInspectionId');
+        
+        // If not from inspection flow and no current inspection ID, start fresh
+        if (!isFromInspectionFlow && !hasInspectionId) {
+            // Starting a new inspection - clear all data
+            sessionStorage.removeItem('visualInspectionData');
+            sessionStorage.removeItem('visualInspectionImages');
+            sessionStorage.removeItem('bodyPanelAssessmentData');
+            sessionStorage.removeItem('bodyPanelAssessmentImages');
+            sessionStorage.removeItem('interiorAssessmentData');
+            sessionStorage.removeItem('interiorAssessmentImages');
+            sessionStorage.removeItem('serviceBookletData');
+            sessionStorage.removeItem('tyresRimsData');
+            sessionStorage.removeItem('tyresRimsAssessmentData');
+            sessionStorage.removeItem('mechanicalReportData');
+            sessionStorage.removeItem('engineCompartmentData');
+            sessionStorage.removeItem('physicalHoistData');
+            
+            // Set a new inspection ID
+            const newInspectionId = 'inspection_' + Date.now();
+            sessionStorage.setItem('currentInspectionId', newInspectionId);
+        }
     }
     
     initializeImageGrid();
@@ -383,7 +426,7 @@ function setCurrentDateTime() {
 
 function saveDraft() {
     // Implement save draft functionality
-    alert('Draft saved successfully!');
+    notify.draft('Draft saved successfully!');
 }
 
 // Show notification function
@@ -450,7 +493,7 @@ function continueToNext() {
     });
     
     if (missingFields.length > 0) {
-        alert(`Please fill in the following required fields:\n• ${missingFields.join('\n• ')}`);
+        notify.warning(`Please fill in the following required fields:\n• ${missingFields.join('\n• ')}`, { duration: 8000 });
         return;
     }
     */
@@ -542,6 +585,19 @@ function continueToNext() {
                 images: processedImages
             };
             
+            // Add inspection_id if continuing an existing inspection
+            const currentInspectionId = sessionStorage.getItem('currentInspectionId');
+            if (currentInspectionId) {
+                // Check if it's a numeric ID (continuing from dashboard) or session-generated ID
+                if (!currentInspectionId.startsWith('inspection_')) {
+                    // This is a numeric database ID - we're continuing an existing inspection
+                    apiData.inspection_id = currentInspectionId;
+                    console.log('Continuing existing inspection with ID:', currentInspectionId);
+                } else {
+                    console.log('Creating new inspection with session ID:', currentInspectionId);
+                }
+            }
+            
             console.log('API Data being sent:', apiData);
             console.log('Images in API data:', apiData.images ? apiData.images.length : 'NO IMAGES ARRAY');
             console.log('uploadedImages array:', uploadedImages.length);
@@ -626,6 +682,18 @@ function continueToNext() {
         // Store basic data without images and continue
         sessionStorage.setItem('visualInspectionData', JSON.stringify(inspectionData));
         
+        // Prepare fallback data with inspection_id if continuing
+        const fallbackData = {
+            ...inspectionData,
+            images: []
+        };
+        
+        const currentInspectionId = sessionStorage.getItem('currentInspectionId');
+        if (currentInspectionId && !currentInspectionId.startsWith('inspection_')) {
+            // This is a numeric database ID - we're continuing an existing inspection
+            fallbackData.inspection_id = currentInspectionId;
+        }
+        
         // Try to save without images
         fetch('{{ url('/api/inspection/visual') }}', {
             method: 'POST',
@@ -634,10 +702,7 @@ function continueToNext() {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                ...inspectionData,
-                images: []
-            })
+            body: JSON.stringify(fallbackData)
         })
         .then(response => response.json())
         .then(result => {

@@ -57,6 +57,9 @@
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Vehicle Notification System -->
+    <script src="{{ asset('js/notifications.js') }}"></script>
+    
     @yield('additional-js')
 </body>
 </html>

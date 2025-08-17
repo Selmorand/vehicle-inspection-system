@@ -11,7 +11,15 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    // Get last 6 inspections (draft and completed) ordered by most recent
+    $recentInspections = App\Models\Inspection::with(['client', 'vehicle'])
+        ->whereIn('status', ['draft', 'completed'])
+        ->orderBy('inspection_date', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->limit(6)
+        ->get();
+    
+    return view('dashboard', compact('recentInspections'));
 });
 
 // Test page for visual report

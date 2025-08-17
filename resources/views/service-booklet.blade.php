@@ -141,7 +141,7 @@ function goBack() {
 
 function saveDraft() {
     InspectionCards.saveData();
-    alert('Service booklet draft saved successfully!');
+    notify.draft('Service booklet draft saved successfully!');
 }
 
 async function continueToFinalReport() {
@@ -228,7 +228,7 @@ async function continueToFinalReport() {
         }
     } catch (error) {
         console.error('Database save failed:', error);
-        alert('Warning: Data saved locally only. Database save failed: ' + error.message);
+        notify.error('Database save failed: ' + error.message + '. Data saved locally only.', { duration: 6000 });
         
         // Save to sessionStorage anyway and continue
         InspectionCards.saveData();

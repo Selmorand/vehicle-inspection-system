@@ -700,7 +700,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('saveDraftBtn').addEventListener('click', function() {
         InspectionCards.saveData();
-        alert('Draft saved successfully!');
+        notify.draft('Draft saved successfully!');
     });
     
     document.getElementById('nextBtn').addEventListener('click', async function(e) {
@@ -814,7 +814,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Database save failed:', error);
-            alert('Warning: Data saved locally only. Database save failed: ' + error.message);
+            notify.error('Database save failed: ' + error.message + '. Data saved locally only.', { duration: 6000 });
             
             // Save to sessionStorage anyway and continue
             InspectionCards.saveData();

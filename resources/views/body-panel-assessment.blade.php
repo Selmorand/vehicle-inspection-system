@@ -415,19 +415,26 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     // Handle navigation buttons
-    document.getElementById('backBtn').addEventListener('click', function() {
-        if (confirm('Are you sure you want to go back? Any unsaved data will be lost.')) {
+    document.getElementById('backBtn').addEventListener('click', async function() {
+        const confirmed = await notify.confirm(
+            'Any unsaved data will be lost. Do you want to continue?',
+            'Go Back to Visual Inspection'
+        );
+        
+        if (confirmed) {
             window.location.href = '/inspection/visual';
         }
     });
     
-    document.getElementById('saveDraftBtn').addEventListener('click', function() {
-        // Get current data for debugging
+    document.getElementById('saveDraftBtn').addEventListener('click', async function() {
+        console.log('Save Draft: Starting save...');
+        
+        // Get form data and images from InspectionCards
         let formData = {};
         let imageData = {};
         
         try {
-            if (window.InspectionCards) {
+            if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
                 formData = InspectionCards.getFormData();
                 imageData = InspectionCards.getImages();
                 console.log('Draft - Form Data:', formData);
@@ -437,8 +444,94 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.error('Error getting draft data:', e);
         }
         
-        InspectionCards.saveData();
-        alert('Draft saved successfully!');
+        // Get current inspection ID from session storage
+        const inspectionId = sessionStorage.getItem('currentInspectionId');
+        console.log('Draft - Current Inspection ID:', inspectionId);
+        
+        // Prepare API data
+        const apiData = {
+            inspection_id: inspectionId,
+            panels: [],
+            images: imageData
+        };
+        
+        // Extract panel data from form data
+        const panelMap = {};
+        for (const [key, value] of Object.entries(formData)) {
+            const match = key.match(/^([^-]+)-(.+)$/);
+            if (match) {
+                const panelId = match[1];
+                const fieldName = match[2];
+                
+                if (!panelMap[panelId]) {
+                    panelMap[panelId] = { panel_name: panelId };
+                }
+                
+                // Map field names to expected backend format
+                if (fieldName === 'condition') {
+                    panelMap[panelId].condition = value;
+                } else if (fieldName === 'comments') {
+                    // 'comments' dropdown maps to 'comment_type' in database
+                    panelMap[panelId].comment_type = value;
+                } else if (fieldName === 'additional_comments') {
+                    // 'additional_comments' text input maps to 'additional_comment' in database
+                    panelMap[panelId].additional_comment = value;
+                } else {
+                    panelMap[panelId][fieldName] = value;
+                }
+            }
+        }
+        
+        // Convert panel map to array
+        apiData.panels = Object.values(panelMap).filter(panel => 
+            panel.condition || panel.additional_comment || panel.comment_type || panel.other_notes
+        );
+        
+        console.log('Draft - API Data being sent:', apiData);
+        
+        try {
+            // Save to database via API
+            const response = await fetch('/api/inspection/body-panel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(apiData)
+            });
+            
+            console.log('Draft - API Response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Draft - API Error Response:', errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            const result = await response.json();
+            console.log('Draft - API Response:', result);
+            
+            if (result.success) {
+                console.log('✅ Draft saved successfully to database!');
+                
+                // Also save to sessionStorage for compatibility
+                InspectionCards.saveData();
+                
+                // Show success notification
+                notify.draft('Draft saved to database successfully!');
+            } else {
+                throw new Error(result.message || 'Failed to save draft');
+            }
+        } catch (error) {
+            console.error('Draft database save failed:', error);
+            
+            // Still save to sessionStorage as fallback
+            InspectionCards.saveData();
+            
+            // Show fallback notification
+            notify.warning('Draft saved locally only. Database save failed: ' + error.message, { duration: 6000 });
+        }
     });
     
     document.getElementById('nextBtn').addEventListener('click', async function(e) {
@@ -535,18 +628,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                 // Also save to sessionStorage for compatibility
                 InspectionCards.saveData();
                 
-                // Show success message
-                const notification = document.createElement('div');
-                notification.style.cssText = `
-                    position: fixed; top: 20px; right: 20px; padding: 15px 20px;
-                    background-color: #28a745; color: white; border-radius: 5px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 9999;
-                `;
-                notification.textContent = 'Body panel assessment saved to database successfully!';
-                document.body.appendChild(notification);
+                // Show success notification
+                notify.success('Body panel assessment saved successfully!');
                 
                 setTimeout(() => {
-                    notification.remove();
                     window.location.href = '/inspection/interior';
                 }, 1500);
             } else {
@@ -554,7 +639,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         } catch (error) {
             console.error('Database save failed:', error);
-            alert('Warning: Data saved locally only. Database save failed: ' + error.message);
+            notify.error('Database save failed: ' + error.message + '. Data saved locally only.', { duration: 6000 });
             
             // Save to sessionStorage anyway and continue
             InspectionCards.saveData();

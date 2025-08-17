@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('saveDraftBtn').addEventListener('click', function() {
         InspectionCards.saveData();
-        alert('Draft saved successfully!');
+        notify.draft('Draft saved successfully!');
     });
     
     document.getElementById('nextBtn').addEventListener('click', function() {
