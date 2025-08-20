@@ -1,0 +1,53 @@
+name: Deploy to Staging Server
+
+on:
+  push:
+    branches: [ staging ]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, filter, gd, iconv, json, mbstring, pdo
+        
+    - name: Copy environment file
+      run: cp .env.staging.template .env.staging
+      
+    - name: Deploy to staging server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.STAGING_HOST }}
+        username: ${{ secrets.STAGING_USER }}
+        key: ${{ secrets.STAGING_SSH_KEY }}
+        port: ${{ secrets.STAGING_PORT || 22 }}
+        script: |
+          cd ${{ secrets.STAGING_PATH }}
+          
+          echo "🔄 Pulling latest changes from staging branch..."
+          git fetch origin
+          git reset --hard origin/staging
+          
+          echo "📋 Copying environment template..."
+          cp .env.staging.template .env
+          
+          echo "⚙️ Updating environment with secrets..."
+          sed -i 's/your_db_user/${{ secrets.STAGING_DB_USER }}/g' .env
+          sed -i 's/your_db_password/${{ secrets.STAGING_DB_PASSWORD }}/g' .env
+          sed -i 's/vehicle_inspection_staging/${{ secrets.STAGING_DB_NAME }}/g' .env
+          sed -i 's|https://your-staging-domain.com|${{ secrets.STAGING_URL }}|g' .env
+          
+          echo "🚀 Running deployment script..."
+          chmod +x deploy-staging.sh
+          ./deploy-staging.sh
+          
+          echo "✅ Staging deployment completed successfully!"
