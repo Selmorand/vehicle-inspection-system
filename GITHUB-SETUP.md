@@ -17,9 +17,9 @@ STAGING_USER          = selproho
 STAGING_SSH_KEY       = your-private-ssh-key-content
 STAGING_PORT          = 22
 STAGING_PATH          = /public_html/staging.alphainspections.co.za
-STAGING_DB_USER       = selproho_staging
+STAGING_DB_USER       = alpha_staging
 STAGING_DB_PASSWORD   = your-database-password  
-STAGING_DB_NAME       = selproho_staging
+STAGING_DB_NAME       = alpha_staging
 STAGING_URL           = https://staging.alphainspections.co.za
 ```
 
