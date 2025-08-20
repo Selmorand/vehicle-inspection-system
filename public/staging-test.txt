@@ -1,0 +1,8 @@
+Staging Deployment Test
+=======================
+Date: 2025-08-20
+Time: Test deployment via GitHub Actions
+Server: aquains@169.239.218.62
+Branch: staging
+
+If you can see this file, the GitHub deployment is working!
