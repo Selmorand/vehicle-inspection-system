@@ -41,9 +41,9 @@ jobs:
           cp .env.staging.template .env
           
           echo "⚙️ Updating environment with secrets..."
-          sed -i 's/alpha_staging/${{ secrets.STAGING_DB_USER }}/g' .env
+          sed -i 's/alphains_staging/${{ secrets.STAGING_DB_USER }}/g' .env
           sed -i 's/your_db_password/${{ secrets.STAGING_DB_PASSWORD }}/g' .env
-          sed -i 's/alpha_staging/${{ secrets.STAGING_DB_NAME }}/g' .env
+          sed -i 's/alphains_staging/${{ secrets.STAGING_DB_NAME }}/g' .env
           sed -i 's|https://your-staging-domain.com|${{ secrets.STAGING_URL }}|g' .env
           
           echo "🚀 Running deployment script..."
