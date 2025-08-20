@@ -12,15 +12,15 @@ Go to: **Settings → Secrets and variables → Actions** in your GitHub repo
 Add these secrets for automated deployment:
 
 ```
-STAGING_HOST          = your-server-ip-or-domain.com
-STAGING_USER          = your-ssh-username  
+STAGING_HOST          = 169.239.218.62 
+STAGING_USER          = selproho  
 STAGING_SSH_KEY       = your-private-ssh-key-content
-STAGING_PORT          = 22 (or your SSH port)
-STAGING_PATH          = /path/to/your/staging/directory
-STAGING_DB_USER       = your-database-username
+STAGING_PORT          = 22
+STAGING_PATH          = /public_html/staging.alphainspections.co.za
+STAGING_DB_USER       = selproho_staging
 STAGING_DB_PASSWORD   = your-database-password  
-STAGING_DB_NAME       = vehicle_inspection_staging
-STAGING_URL           = https://your-staging-domain.com
+STAGING_DB_NAME       = selproho_staging
+STAGING_URL           = https://staging.alphainspections.co.za
 ```
 
 ## 3. SSH Key Setup
@@ -49,9 +49,9 @@ cat ~/.ssh/staging_deploy_key
 ### Option B: Manual Deployment  
 ```bash
 # On your staging server:
-cd /var/www  # or your web root
-git clone https://github.com/Selmorand/vehicle-inspection-system.git staging
-cd staging
+cd /public_html
+git clone https://github.com/Selmorand/vehicle-inspection-system.git staging.alphainspections.co.za
+cd staging.alphainspections.co.za
 git checkout staging
 chmod +x deploy-to-staging.sh
 ./deploy-to-staging.sh
@@ -62,8 +62,8 @@ chmod +x deploy-to-staging.sh
 ### Apache (.htaccess in /public already configured)
 ```apache
 <VirtualHost *:443>
-    ServerName your-staging-domain.com
-    DocumentRoot /path/to/staging/public
+    ServerName staging.alphainspections.co.za
+    DocumentRoot /public_html/staging.alphainspections.co.za/public
     
     # SSL configuration
     SSLEngine on
@@ -72,30 +72,12 @@ chmod +x deploy-to-staging.sh
 </VirtualHost>
 ```
 
-### Nginx
-```nginx
-server {
-    listen 443 ssl;
-    server_name your-staging-domain.com;
-    root /path/to/staging/public;
-    index index.php index.html;
-
-    ssl_certificate /path/to/certificate.crt;
-    ssl_certificate_key /path/to/private.key;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-        include fastcgi_params;
-        client_max_body_size 100M;
-    }
-}
-```
+### cPanel Subdomain Setup (Recommended for this host)
+1. **Login to cPanel**: https://cp62.domains.co.za:2083
+2. **Go to Subdomains**
+3. **Create Subdomain**: `staging` 
+4. **Document Root**: `/public_html/staging.alphainspections.co.za/public`
+5. **Domain**: `alphainspections.co.za`
 
 ## 6. Testing the Setup
 
