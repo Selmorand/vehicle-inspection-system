@@ -1,0 +1,67 @@
+[alphains@cp62 staging.alphainspections.co.za]$ curl -X POST https://staging.alphainspections.co.za/api/inspection/visual \
+    -H "Content-Type: application/json" \
+    -d '{"test":"data"}' \
+    -v
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 169.239.218.62:443...
+* Connected to staging.alphainspections.co.za (169.239.218.62) port 443 (#0)
+* ALPN, offering h2
+* ALPN, offering http/1.1
+*  CAfile: /etc/pki/tls/certs/ca-bundle.crt
+* TLSv1.0 (OUT), TLS header, Certificate Status (22):
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+* TLSv1.2 (IN), TLS header, Certificate Status (22):
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+* TLSv1.2 (IN), TLS header, Finished (20):
+* TLSv1.2 (IN), TLS header, Unknown (23):
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+* TLSv1.2 (OUT), TLS header, Finished (20):
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+* TLSv1.2 (OUT), TLS header, Unknown (23):
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+* ALPN, server accepted to use h2
+* Server certificate:
+*  subject: CN=www.staging.alphainspections.co.za
+*  start date: Aug 20 10:41:22 2025 GMT
+*  expire date: Nov 18 10:41:21 2025 GMT
+*  subjectAltName: host "staging.alphainspections.co.za" matched cert's "staging.alphainspections.co.za"
+*  issuer: C=US; O=Let's Encrypt; CN=R11
+*  SSL certificate verify ok.
+* Using HTTP2, server supports multi-use
+* Connection state changed (HTTP/2 confirmed)
+* Copying HTTP/2 data in stream buffer to connection buffer after upgrade: len=0
+* TLSv1.2 (OUT), TLS header, Unknown (23):
+* TLSv1.2 (OUT), TLS header, Unknown (23):
+* TLSv1.2 (OUT), TLS header, Unknown (23):
+* Using Stream ID: 1 (easy handle 0x562593dc67a0)
+* TLSv1.2 (OUT), TLS header, Unknown (23):
+> POST /api/inspection/visual HTTP/2
+> Host: staging.alphainspections.co.za
+> user-agent: curl/7.76.1
+> accept: */*
+> content-type: application/json
+> content-length: 15
+>
+* TLSv1.2 (IN), TLS header, Unknown (23):
+* TLSv1.2 (OUT), TLS header, Unknown (23):
+* TLSv1.2 (OUT), TLS header, Unknown (23):
+* We are completely uploaded and fine
+* TLSv1.2 (IN), TLS header, Unknown (23):
+< HTTP/2 500
+< cache-control: no-cache, private
+< content-type: application/json
+< access-control-allow-origin: *
+< set-cookie: XSRF-TOKEN=eyJpdiI6Inc4M3M0ODA2MHZZL0JXSmJQaWN2c1E9PSIsInZhbHVlIjoiejNjTURWaStwRWQwUWJoZkpLYlliRXZCSVdqc2RIeFdONktEblhVWVFhc2xncnFuOThDMnR2NW1oNWpxWE5IQjVkR1A0S2lsLzRNMzN6cHcwMGEzS3VNT1pzSEVxSElIZFZ5eE9CZWw5NTkwRmRMZ0dLd0NodWpNMEFjVGRvbTQiLCJtYWMiOiI3N2QyMmExNTc3N2NkYTc0Y2Q1ZWJmMDQ2NzNkZTc2NzE2YzAzZjRkNDA1Mjk5Mjk2YTM3NTYzMGVjMWEwYjc1IiwidGFnIjoiIn0%3D; expires=Thu, 21 Aug 2025 10:50:41 GMT; Max-Age=7200; path=/; secure; samesite=lax
+< set-cookie: vehicle_inspection_system_session=eyJpdiI6InlJT0ZpRmNCWXZtOXZBcDlTaE1ZUnc9PSIsInZhbHVlIjoiQW1GdmxXNlhMeHV5ZEF4a3laanZ6cEVHb3VkQlhERyt2Zkl3dEJxNzZoaXRQNW9zZlVzdmZQK0liZmNXVUQ4Q2ZXZ0l3ZWF0R3dXWENZV2ErQlcraHBUZjNHcTI1OVN5WDhMU3Q5aUQxdmpTYXl1dkZPV1Y2a2x4bjZCSEpZdHgiLCJtYWMiOiJkMzExOTIxMDUzMzVhNDBhOGQyOGYyODg0NWM3YjFmZGJkOWQ5ZGNiMWUzN2ZkMzAzMmY1Y2M3ZTg1NDA3ZTBjIiwidGFnIjoiIn0%3D; expires=Thu, 21 Aug 2025 10:50:41 GMT; Max-Age=7200; path=/;secure; httponly; samesite=lax
+< date: Thu, 21 Aug 2025 08:50:41 GMT
+< server: LiteSpeed
+< vary: User-Agent,User-Agent
+< x-xss-protection: 1; mode=block
+< alt-svc: h3=":443"; ma=2592000, h3-29=":443"; ma=2592000, h3-Q050=":443"; ma=2592000, h3-Q046=":443"; ma=2592000, h3-Q043=":443"; ma=2592000, quic=":443"; ma=2592000; v="43,46"
+<
+* Connection #0 to host staging.alphainspections.co.za left intact
+{"success":false,"message":"Error saving inspection: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'manufacturer' in 'INSERT INTO' (Connection: mysql, SQL: insert into `vehicles` (`vin`, `manufacturer`, `model`, `vehicle_type`, `colour`, `doors`, `fuel_type`, `transmission`, `engine_number`,`registration_number`, `year`, `mileage`, `updated_at`, `created_at`) values (TEST-VIN-68a6dde1dee1f, Test Manufacturer, Test Model, passenger vehicle, ?, ?, ?, ?, ?, ?, ?, ?, 2025-08-21 10:50:41, 2025-08-21 10:50:41))"}[alphains@cp62 staging.alphainspections.co.za]$

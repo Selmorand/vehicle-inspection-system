@@ -300,4 +300,34 @@ Laranvel Snappy for pdf
   initialize it with those parameters.
 
   Sleep well! 👍
-  
+  ✅ Fixed Image Loading in Web Report (LOCAL)
+
+  Changed in web-report.blade.php:
+
+  1. Visual Inspection Images (lines 485-487)
+  2. Specific Area Images (lines 986-988)
+  3. Interior Images (lines 1218-1220)
+
+  The Fix:
+  // OLD (session data only):
+  <img src="{{ $image['data_url'] }}" />
+
+  // NEW (file path with fallback):
+  <img src="{{ isset($image['file_path']) ? '/storage/' . $image['file_path'] : $image['data_url']       
+  }}" />
+
+  What this does:
+  - ✅ Tries to load from saved file first (/storage/file_path)
+  - ✅ Falls back to session data if file_path doesn't exist
+  - ✅ Works for both new captures (session) and saved inspections (files)
+
+  🧪 Now Test Locally:
+
+  1. Start your local server: php artisan serve
+  2. Go to: http://127.0.0.1:8000/dashboard
+  3. Start an inspection and take photos
+  4. Check if images persist when you go back to previous pages
+  5. Complete the inspection and view the report
+
+  Tell me how the testing goes! If it works locally, we'll push it to staging and run the deployment     
+   script.

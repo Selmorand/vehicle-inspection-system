@@ -1,0 +1,120 @@
+Short version:
+
+* **XAMPP 3.3.0 (the Control Panel version) ships with MariaDB, not Oracle MySQL.** XAMPP switched to MariaDB years ago and the official site still describes XAMPP as “Apache + **MariaDB** + PHP + Perl.” ([Apache Friends][1], [Wikipedia][2])
+* Your **staging server** is **MariaDB 11.4.8** with the server default charset shown as **cp1252 (latin1)**. That’s fine, but if your local XAMPP database/tables use **utf8mb4**, you must be explicit during export/import so text doesn’t get mangled. Also note there are some **feature/collation differences vs MySQL 8**, but MariaDB↔MariaDB moves are usually straightforward. ([MariaDB][3])
+
+---
+
+## How they differ (relevant bits)
+
+* **Engine/brand:** Both ends are MariaDB (good). XAMPP uses MariaDB; your host is MariaDB 11.4.8. ([Apache Friends][4])
+* **Charsets/Collations:** Your host’s **default** is latin1; many dev stacks default to **utf8mb4**. Mismatched defaults are the #1 cause of “funny characters.” Be explicit. ([DigitalOcean][5])
+* **Collation names:** Avoid MySQL‑8‑only collations like `utf8mb4_0900_ai_ci`; MariaDB doesn’t support those. Use `utf8mb4_unicode_ci`, `utf8mb4_general_ci`, or a MariaDB UCA collation. ([Database Administrators Stack Exchange][6], [MariaDB][7])
+
+---
+
+## Safe way to export from XAMPP and import to MariaDB (keep formats intact)
+
+> I’ll assume Windows with XAMPP in `C:\xampp`. Adjust paths as needed.
+
+### 1) Check what you currently use (local & server)
+
+Run these on **both** local and server to see actual defaults:
+
+```sql
+SHOW VARIABLES LIKE 'character_set_server';
+SHOW VARIABLES LIKE 'collation_server';
+SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME
+FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='your_db';
+```
+
+(If your app uses utf8mb4 locally but server defaults to latin1, we’ll override it during dump & import.) ([DigitalOcean][5])
+
+### 2) Export from XAMPP using `mysqldump` (PowerShell)
+
+Use options that preserve text, routines, and avoid MySQL‑8 quirks:
+
+```powershell
+# Dump all tables from one database with explicit UTF-8 and safe flags
+& "C:\xampp\mysql\bin\mysqldump.exe" `
+  -u root -p `
+  --databases your_db `
+  --default-character-set=utf8mb4 `
+  --single-transaction `
+  --routines --triggers --events `
+  --add-drop-table `
+  --hex-blob `
+  --no-tablespaces `
+  --set-gtid-purged=OFF `
+  > "C:\temp\your_db_utc.sql"
+```
+
+Why these flags:
+
+* `--default-character-set=utf8mb4` → prevents mojibake when your data contains emojis/accents.
+* `--single-transaction` → consistent dump without full table locks (InnoDB).
+* `--no-tablespaces`, `--set-gtid-purged=OFF` → avoid cross‑server noise.
+* `--routines --triggers --events` → keep everything. ([DigitalOcean][5], [MySQL][8])
+
+> If you **truly want latin1 end‑to‑end**, change `--default-character-set=utf8mb4` to `--default-character-set=latin1` and keep the target DB latin1 as well. Consistency is key. ([DigitalOcean][5])
+
+### 3) Create the target DB on the server with the **same** charset/collation
+
+Pick one **and stick to it**. Recommended today: **utf8mb4 + utf8mb4\_unicode\_ci** (or a MariaDB UCA collation). On the server:
+
+```sql
+CREATE DATABASE your_db
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+```
+
+(If you must mirror latin1, use `CHARACTER SET latin1 COLLATE latin1_swedish_ci` or your chosen latin1 collation.) ([MariaDB][9])
+
+### 4) Import on the server (PowerShell or SSH shell)
+
+```powershell
+# If you connect from your PC
+type "C:\temp\your_db_utc.sql" | mysql -h your.server.host -u alphains -p --default-character-set=utf8mb4
+```
+
+Or on the server shell:
+
+```bash
+mysql -u alphains -p --default-character-set=utf8mb4 your_db < your_db_utc.sql
+```
+
+Setting `--default-character-set` on **import** ensures the client sends the dump as utf8mb4 and the server stores it exactly as created. ([DigitalOcean][5])
+
+---
+
+## phpMyAdmin route (if you prefer GUI)
+
+* **Export (local):** phpMyAdmin → your DB → **Export** → “Custom” → **Add DROP TABLE**, **Include routines**, **Add triggers**; under **Format‑specific options**, set **Max length of created query** high; and in **Output**, ensure **Character set of the file = utf8mb4**.
+* **Import (server):** Create the DB with desired charset/collation first; then phpMyAdmin → **Import** → set **Character set of the file = utf8mb4** before uploading.
+
+(Behind the scenes it’s the same principle as the CLI method.) ([DigitalOcean][5])
+
+---
+
+## Quick checklist to avoid gotchas
+
+1. **Same charset/collation** on both ends (prefer utf8mb4). Don’t use MySQL‑8‑only collations on MariaDB. ([Database Administrators Stack Exchange][6])
+2. **Dump with explicit `--default-character-set`** and **import with the same**. ([DigitalOcean][5])
+3. **Skip MySQL‑specific options** that MariaDB ignores or rejects (e.g., tablespace/GTID noise). ([MySQL][8])
+4. **Keep everything InnoDB** (default in modern MariaDB/MySQL; easiest path). (General compatibility guidance.) ([MariaDB][3])
+5. If you ever move **from MySQL 8 → MariaDB**, watch for collation errors like `utf8mb4_0900_ai_ci` and replace with a MariaDB collation (e.g., `utf8mb4_unicode_ci`). ([Database Administrators Stack Exchange][6])
+
+---
+
+If you tell me your **local DB’s** current charset/collation (from step 1), I’ll give you the exact dump/import commands tailored to that pair so nothing gets lost in translation.
+
+[1]: https://www.apachefriends.org/faq_windows.html?utm_source=chatgpt.com "XAMPP FAQs for Windows"
+[2]: https://en.wikipedia.org/wiki/XAMPP?utm_source=chatgpt.com "XAMPP"
+[3]: https://mariadb.com/docs/release-notes/community-server/about/compatibility-and-differences/mariadb-vs-mysql-compatibility?utm_source=chatgpt.com "MariaDB versus MySQL - Compatibility"
+[4]: https://www.apachefriends.org/download.html?utm_source=chatgpt.com "Download XAMPP"
+[5]: https://www.digitalocean.com/community/tutorials/how-to-import-and-export-databases-in-mysql-or-mariadb?utm_source=chatgpt.com "How To Import and Export Databases in MySQL or MariaDB"
+[6]: https://dba.stackexchange.com/questions/248904/mysql-to-mariadb-unknown-collation-utf8mb4-0900-ai-ci?utm_source=chatgpt.com "mysql to mariadb: unknown collation utf8mb4_0900_ai_ci"
+[7]: https://mariadb.com/docs/release-notes/community-server/about/compatibility-and-differences/incompatibilities-and-feature-differences-between-mariadb-and-mysql-unmaint/incompatibilities-and-feature-differences-between-mariadb-10-4-and-mysql-8?utm_source=chatgpt.com "Incompatibilities and Feature Differences Between ... - MariaDB"
+[8]: https://dev.mysql.com/doc/en/mysqldump.html?utm_source=chatgpt.com "6.5.4 mysqldump — A Database Backup Program"
+[9]: https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/setting-character-sets-and-collations?utm_source=chatgpt.com "Setting Character Sets and Collations | MariaDB Documentation"
+ 

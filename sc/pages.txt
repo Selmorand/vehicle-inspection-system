@@ -1,7 +1,0 @@
-  - interior-assessment.blade.php
-  - body-panel-assessment.blade.php
-  - engine-compartment-assessment.blade.php
-  - physical-hoist-inspection.blade.php
-  - mechanical-report.blade.php
-  - tyres-rims-assessment.blade.php
-  - service-booklet.blade.php

@@ -1,0 +1,14 @@
+Direct Download Link for Staging Branch:
+=========================================
+
+1. Download the staging branch as ZIP:
+   https://github.com/Selmorand/vehicle-inspection-system/archive/refs/heads/staging.zip
+
+2. Upload this ZIP file to cPanel File Manager:
+   - Navigate to /public_html/
+   - Create folder: staging.alphainspections.co.za
+   - Upload the ZIP file
+   - Extract it
+   - Move files from vehicle-inspection-system-staging/* to staging.alphainspections.co.za/
+
+3. The files will be from the staging branch with all latest updates!

@@ -1,0 +1,74 @@
+Database Import Tool
+====================
+
+✅ Connected to database
+
+Dropping existing tables...
+  Dropped: body_panel_assessments
+  Dropped: cache
+  Dropped: cache_locks
+  Dropped: clients
+  Dropped: failed_jobs
+  Dropped: inspection_images
+  Dropped: inspection_reports
+  Dropped: inspections
+  Dropped: job_batches
+  Dropped: jobs
+  Dropped: migrations
+  Dropped: password_reset_tokens
+  Dropped: sessions
+  Dropped: users
+  Dropped: vehicles
+
+✅ Created table: migrations
+✅ Created table: users
+✅ Created table: password_reset_tokens
+✅ Created table: sessions
+✅ Created table: cache
+✅ Created table: cache_locks
+✅ Created table: jobs
+✅ Created table: job_batches
+✅ Created table: failed_jobs
+✅ Created table: clients
+✅ Created table: vehicles
+✅ Created table: inspections
+✅ Created table: body_panel_assessments
+✅ Created table: inspection_images
+✅ Created table: inspection_reports
+❌ Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'client_name' in 'INSERT INTO'
+   Query: INSERT INTO `inspection_reports` (`id`, `client_name`, `client_email`, `client_phone`, `vehicle_make...
+
+❌ Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'client_name' in 'INSERT INTO'
+   Query: INSERT INTO `inspection_reports` (`id`, `client_name`, `client_email`, `client_phone`, `vehicle_make...
+
+❌ Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'client_name' in 'INSERT INTO'
+   Query: INSERT INTO `inspection_reports` (`id`, `client_name`, `client_email`, `client_phone`, `vehicle_make...
+
+❌ Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'client_name' in 'INSERT INTO'
+   Query: INSERT INTO `inspection_reports` (`id`, `client_name`, `client_email`, `client_phone`, `vehicle_make...
+
+❌ Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'client_name' in 'INSERT INTO'
+   Query: INSERT INTO `inspection_reports` (`id`, `client_name`, `client_email`, `client_phone`, `vehicle_make...
+
+
+========================================
+Import Summary:
+  Successful queries: 47
+  Failed queries: 5
+
+Final tables in database:
+  - body_panel_assessments (0 records)
+  - cache (0 records)
+  - cache_locks (0 records)
+  - clients (0 records)
+  - failed_jobs (0 records)
+  - inspection_images (0 records)
+  - inspection_reports (0 records)
+  - inspections (0 records)
+  - job_batches (0 records)
+  - jobs (0 records)
+  - migrations (11 records)
+  - password_reset_tokens (0 records)
+  - sessions (4 records)
+  - users (0 records)
+  - vehicles (0 records)
