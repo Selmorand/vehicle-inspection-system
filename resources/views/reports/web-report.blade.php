@@ -325,6 +325,14 @@
         }
     }
     
+    /* Medium screens - adjust button sizes */
+    @media (max-width: 991px) {
+        .report-actions .btn {
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+        }
+    }
+    
     @media (max-width: 768px) {
         .report-content {
             padding: 1rem;
@@ -1770,6 +1778,7 @@
                     Engine Compartment Assessment
                 </h2>
                 
+                @if(!empty($inspectionData['engine_compartment']['components']) || isset($inspectionData['engine_compartment']['overall_condition']))
                 <div class="info-grid">
                     <div class="info-card">
                         <div class="info-label">Overall Condition</div>
@@ -1780,6 +1789,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
                 @if(!empty($inspectionData['engine_compartment']['components']))
                 <h3 style="color: #4f959b; margin: 2rem 0 1rem;">Component Assessments</h3>

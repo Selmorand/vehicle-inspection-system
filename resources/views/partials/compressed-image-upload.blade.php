@@ -58,7 +58,7 @@ async function processImageWithCompression(file) {
     } catch (error) {
         console.error('Image compression failed:', error);
         hideLoadingIndicator();
-        alert('Failed to process image. Please try again.');
+        notify.error('Failed to process image. Please try again.');
     }
 }
 

@@ -376,7 +376,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('saveDraftBtn').addEventListener('click', function() {
-        saveEngineCompartmentData();
+        InspectionCards.saveData();
+        
+        // Show success notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+            background: #ffc107; color: white; border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10000;
+            font-weight: 500;
+        `;
+        notification.textContent = 'Draft saved successfully!';
+        document.body.appendChild(notification);
+
+        setTimeout(() => notification.remove(), 3000);
     });
 
 });
@@ -563,19 +576,25 @@ async function saveEngineCompartmentData() {
             });
         });
 
-        // Get data from sessionStorage (saved by InspectionCards onFormSubmit)
-        const storedData = sessionStorage.getItem('engineComponentsData');
-        let componentData = {};
+        // Get form data and images from InspectionCards (EXACT WORKING PATTERN)
+        let formData = {};
+        let imageData = {};
         
-        if (storedData) {
-            componentData = JSON.parse(storedData);
-            console.log('Retrieved engine components data from sessionStorage:', componentData);
+        try {
+            if (window.InspectionCards && typeof InspectionCards.getFormData === 'function') {
+                formData = InspectionCards.getFormData();
+                imageData = InspectionCards.getImages();
+                console.log('Engine Form Data:', formData);
+                console.log('Engine Images:', imageData);
+            }
+        } catch (e) {
+            console.error('Error getting InspectionCards data:', e);
         }
         
-        // Build component map from stored data
+        // Build component map from InspectionCards data
         const componentMap = {};
         
-        for (let [key, value] of Object.entries(componentData)) {
+        for (let [key, value] of Object.entries(formData)) {
             // Skip non-string values and handle them properly
             if (key !== '_token' && value !== null && value !== undefined) {
                 // Convert value to string if it's not already
@@ -606,9 +625,20 @@ async function saveEngineCompartmentData() {
             }
         }
         
-        // Convert component map to array  
         apiData.components = Object.values(componentMap);
-        apiData.images = []; // No images for now
+        
+        // Add images from InspectionCards
+        for (let [componentId, images] of Object.entries(imageData)) {
+            if (images && images.length > 0) {
+                images.forEach(imageInfo => {
+                    apiData.images.push({
+                        component_type: componentId,
+                        image_data: imageInfo.data,
+                        original_name: imageInfo.name || `${componentId}_image.jpg`
+                    });
+                });
+            }
+        }
         
         console.log('Engine components data extracted:', apiData.components);
         console.log('Engine images data:', apiData.images);
@@ -671,8 +701,11 @@ async function saveEngineCompartmentData() {
             const inspectionType = sessionStorage.getItem('inspectionType');
             if (inspectionType === 'condition') {
                 // Complete condition report
-                alert('Condition Report completed successfully!');
-                window.location.href = '/dashboard';
+                notify.success('Condition Report completed successfully!', { duration: 2000 });
+                // Wait 2 seconds before navigating to dashboard
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 2000);
             } else {
                 // Continue to physical hoist inspection
                 window.location.href = '/inspection/physical-hoist';
@@ -687,7 +720,7 @@ async function saveEngineCompartmentData() {
         console.error('Error message:', error.message);
         console.error('Error stack:', error.stack);
         
-        alert('Failed to save engine compartment assessment: ' + error.message);
+        notify.error('Failed to save engine compartment assessment: ' + error.message);
     }
 }
 
@@ -722,11 +755,18 @@ function setupNavigationButtons() {
         nextStepBreadcrumb.innerHTML = '<i class="bi bi-check-circle"></i> Report Complete';
         
         // Update form submission to complete the condition report
-        completeConditionBtn.onclick = function() {
-            saveCurrentProgress();
-            alert('Condition Report completed successfully!');
-            // Could redirect to a completion page or back to dashboard
-            window.location.href = '/dashboard';
+        completeConditionBtn.onclick = async function() {
+            try {
+                await saveEngineCompartmentData();
+                // Success notification is handled in saveEngineCompartmentData()
+                // Redirect to dashboard after successful save
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1500);
+            } catch (error) {
+                console.error('Error completing condition report:', error);
+                notify.error('Error saving condition report. Please try again.');
+            }
         };
         
     } else if (inspectionType === 'technical') {
@@ -884,7 +924,7 @@ function setupNavigationButtons() {
                 
             } catch (error) {
                 console.error('Failed to save engine compartment assessment:', error);
-                alert('Failed to save engine compartment assessment: ' + error.message);
+                notify.error('Failed to save engine compartment assessment: ' + error.message);
             }
         };
         
@@ -1042,7 +1082,7 @@ function setupNavigationButtons() {
                 
             } catch (error) {
                 console.error('Failed to save engine compartment assessment:', error);
-                alert('Failed to save engine compartment assessment: ' + error.message);
+                notify.error('Failed to save engine compartment assessment: ' + error.message);
             }
         };
         
@@ -1050,3 +1090,4 @@ function setupNavigationButtons() {
     }
 }
 </script>
+@endsection

@@ -356,13 +356,13 @@ document.getElementById('emailForm').addEventListener('submit', async function(e
         const result = await response.json();
         
         if (result.success) {
-            alert('Report sent successfully!');
+            notify.success('Report sent successfully!');
             bootstrap.Modal.getInstance(document.getElementById('emailModal')).hide();
         } else {
-            alert('Failed to send report: ' + result.message);
+            notify.error('Failed to send report: ' + result.message);
         }
     } catch (error) {
-        alert('Error sending report: ' + error.message);
+        notify.error('Error sending report: ' + error.message);
     } finally {
         const submitBtn = this.querySelector('button[type="submit"]');
         submitBtn.disabled = false;

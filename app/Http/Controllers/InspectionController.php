@@ -1037,9 +1037,11 @@ class InspectionController extends Controller
             if (isset($validated['components'])) {
                 foreach ($validated['components'] as $component) {
                     if (!empty($component['component_type'])) {
+                        // Ensure consistent naming format (underscores) for both components and images
+                        $cleanComponentType = str_replace('-', '_', $component['component_type']);
                         EngineCompartment::create([
                             'inspection_id' => $inspection->id,
-                            'component_type' => $component['component_type'],
+                            'component_type' => $cleanComponentType,
                             'condition' => $component['condition'] ?? null,
                             'comments' => $component['comments'] ?? null
                         ]);
@@ -1070,7 +1072,9 @@ class InspectionController extends Controller
 
                 foreach ($validated['images'] as $imageData) {
                     if (!empty($imageData['image_data'])) {
-                        $filename = 'engine_compartment_' . $imageData['component_type'] . '_' . time() . '_' . Str::random(6) . '.jpg';
+                        // Ensure consistent naming format (underscores) for both components and images
+                        $cleanComponentType = str_replace('-', '_', $imageData['component_type']);
+                        $filename = 'engine_compartment_' . $cleanComponentType . '_' . time() . '_' . Str::random(6) . '.jpg';
                         $path = 'inspection_images/engine_compartment/' . $filename;
                         
                         // Decode base64 image
@@ -1081,8 +1085,8 @@ class InspectionController extends Controller
                             'inspection_id' => $inspection->id,
                             'image_type' => 'engine_compartment',
                             'file_path' => $path,
-                            'area_name' => $imageData['component_type'] ?? 'engine_compartment',
-                            'original_name' => $imageData['component_type'] . '_image.jpg'
+                            'area_name' => $cleanComponentType,
+                            'original_name' => $cleanComponentType . '_image.jpg'
                         ]);
                     }
                 }

@@ -1657,9 +1657,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.appendChild(notification);
 
             // Fallback navigation after delay
-            setTimeout(() => {
+            setTimeout(async () => {
                 notification.remove();
-                if (confirm('Save failed. Continue to next section anyway?')) {
+                const confirmed = await notify.confirm('Save failed. Continue to next section anyway?', 'Save Failed');
+                if (confirmed) {
                     window.location.href = '/inspection/engine-compartment';
                 }
             }, 3000);
@@ -1675,7 +1676,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('saveDraftBtn').addEventListener('click', function() {
         saveCurrentProgress();
-        alert('Mechanical report draft saved successfully!');
+        notify.draft('Mechanical report draft saved successfully!');
     });
 
     // Ensure brake camera buttons are recognized by InspectionCards system

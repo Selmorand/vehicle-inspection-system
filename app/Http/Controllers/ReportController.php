@@ -1133,6 +1133,15 @@ class ReportController extends Controller
                 ->where('area_name', $component->component_type)
                 ->get();
                 
+            \Log::info('Engine compartment image lookup:', [
+                'component_type' => $component->component_type,
+                'images_found' => $images->count(),
+                'all_engine_images' => $inspection->images()
+                    ->where('image_type', 'engine_compartment')
+                    ->pluck('area_name', 'id')
+                    ->toArray()
+            ]);
+                
             foreach ($images as $image) {
                 $fullPath = storage_path('app/public/' . $image->file_path);
                 
