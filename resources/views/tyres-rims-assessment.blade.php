@@ -112,9 +112,24 @@
     margin-bottom: 0;
 }
 
+/* Responsive grid adjustments for portrait tablets */
+@media (max-width: 1024px) {
+    #tyresRimsAssessments .panel-controls {
+        grid-template-columns: 1fr 1fr 1fr auto; /* 3 columns + camera button */
+        gap: 8px;
+    }
+}
+
+@media (max-width: 991px) {
+    #tyresRimsAssessments .panel-controls {
+        grid-template-columns: 1fr 1fr auto; /* 2 columns + camera button */
+        gap: 6px;
+    }
+}
+
 @media (max-width: 768px) {
     #tyresRimsAssessments .panel-controls {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Mobile - stack everything */
         gap: 15px;
     }
     

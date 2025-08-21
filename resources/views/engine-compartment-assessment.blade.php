@@ -150,17 +150,21 @@
 
         <!-- Action buttons -->
         <div class="row mt-4">
-            <div class="col-12 text-center">
-                <button type="button" class="btn btn-outline-secondary me-3" id="backBtn">
-                    <i class="bi bi-arrow-left me-1"></i>Back to Mechanical Report
-                </button>
-                <button type="button" class="btn btn-secondary me-3" id="saveDraftBtn">Save Draft</button>
-                <button type="button" class="btn btn-success" id="completeConditionBtn" style="display: none;">
-                    <i class="bi bi-check-circle me-1"></i>Complete Condition Report
-                </button>
-                <button type="button" class="btn btn-primary" id="continueTechnicalBtn" style="display: none;">
-                    Continue to Physical Hoist Inspection <i class="bi bi-arrow-right ms-1"></i>
-                </button>
+            <div class="col-12">
+                <div class="mt-4 d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary" id="backBtn">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Mechanical Report
+                    </button>
+                    <div class="button-group-responsive">
+                        <button type="button" class="btn btn-secondary me-2 mb-2" id="saveDraftBtn">Save Draft</button>
+                        <button type="button" class="btn btn-success mb-2" id="completeConditionBtn" style="display: none;">
+                            <i class="bi bi-check-circle me-1"></i>Complete Condition Report
+                        </button>
+                        <button type="button" class="btn btn-primary mb-2" id="continueTechnicalBtn" style="display: none;">
+                            Continue to Physical Hoist Inspection <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </form>
@@ -245,6 +249,24 @@ select[name$="-condition"][value="n/a"] {
     
     #engineComponentAssessments .form-control {
         text-align: left;
+    }
+    
+    /* Button responsive layout for tablets */
+    .button-group-responsive {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .button-group-responsive .btn {
+        width: 100%;
+        margin-right: 0 !important;
+    }
+    
+    .mt-4.d-flex.justify-content-between {
+        flex-direction: column !important;
+        gap: 10px;
     }
 }
 

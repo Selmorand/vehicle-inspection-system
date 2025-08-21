@@ -52,8 +52,10 @@
     transition: all 0.2s;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 5px;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .photo-btn:hover {
@@ -217,21 +219,45 @@ select.condition-na {
     color: white !important;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments for portrait tablets */
+@media (max-width: 991px) {
+    .panel-controls {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .panel-controls select,
+    .panel-controls input,
+    .panel-controls textarea {
+        min-width: 140px;
+        flex: 1;
+    }
+    
+    .photo-btn {
+        flex-shrink: 0;
+        min-width: 120px;
+        white-space: nowrap;
+    }
+}
+
+/* Mobile responsive adjustments */
 @media (max-width: 768px) {
     .panel-controls {
         flex-direction: column;
+        gap: 12px;
     }
 
     .panel-controls select,
     .panel-controls input,
     .panel-controls textarea {
         width: 100%;
+        min-width: unset;
     }
 
     .photo-btn {
         width: 100%;
         justify-content: center;
+        min-width: unset;
     }
 
     .image-thumbnail-container {

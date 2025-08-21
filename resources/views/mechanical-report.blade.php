@@ -951,14 +951,18 @@
 
         <!-- Action buttons -->
         <div class="row mt-4">
-            <div class="col-12 text-center">
-                <button type="button" class="btn btn-outline-secondary me-3" id="backBtn">
-                    <i class="bi bi-arrow-left me-1"></i>Back to Tyres & Rims
-                </button>
-                <button type="button" class="btn btn-secondary me-3" id="saveDraftBtn">Save Draft</button>
-                <button type="submit" class="btn btn-primary" id="nextBtn" form="mechanicalReportForm">
-                    Continue to Engine Compartment <i class="bi bi-arrow-right ms-1"></i>
-                </button>
+            <div class="col-12">
+                <div class="mt-4 d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary" id="backBtn">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Tyres & Rims
+                    </button>
+                    <div class="button-group-responsive">
+                        <button type="button" class="btn btn-secondary me-2 mb-2" id="saveDraftBtn">Save Draft</button>
+                        <button type="submit" class="btn btn-primary mb-2" id="nextBtn" form="mechanicalReportForm">
+                            Continue to Engine Compartment <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </form>
@@ -1358,6 +1362,29 @@ select.condition-na {
     color: #856404;
 }
 
+/* Responsive grid adjustments for portrait tablets */
+@media (max-width: 1024px) {
+    /* Braking system - stack into fewer columns on portrait tablets */
+    #brakingSystemAssessments .panel-controls {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+    }
+    
+    /* Mechanical components - keep 3 columns but adjust gaps */
+    #mechanicalComponentsAssessments .panel-controls {
+        grid-template-columns: 1fr 1.5fr auto;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 991px) {
+    /* Braking system - further reduce to 2 columns + camera */
+    #brakingSystemAssessments .panel-controls {
+        grid-template-columns: 1fr 1fr auto;
+        gap: 6px;
+    }
+}
+
 /* Responsive adjustments */
 @media (max-width: 991px) {
     #brakingAssessmentTable {
@@ -1371,6 +1398,13 @@ select.condition-na {
 }
 
 @media (max-width: 768px) {
+    /* Mobile - stack all fields vertically */
+    #brakingSystemAssessments .panel-controls,
+    #mechanicalComponentsAssessments .panel-controls {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
     #brakingAssessmentTable th {
         font-size: 12px;
         padding: 6px 4px;
@@ -1382,6 +1416,24 @@ select.condition-na {
     
     .brake-comments {
         font-size: 12px;
+    }
+    
+    /* Button responsive layout for tablets */
+    .button-group-responsive {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .button-group-responsive .btn {
+        width: 100%;
+        margin-right: 0 !important;
+    }
+    
+    .mt-4.d-flex.justify-content-between {
+        flex-direction: column !important;
+        gap: 10px;
     }
 }
 </style>

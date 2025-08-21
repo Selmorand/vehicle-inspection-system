@@ -4,6 +4,27 @@
 
 @section('additional-css')
 <link rel="stylesheet" href="{{ asset('css/panel-cards.css') }}">
+<style>
+/* Button responsive layout for tablets */
+@media (max-width: 768px) {
+    .button-group-responsive {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .button-group-responsive .btn {
+        width: 100%;
+        margin-right: 0 !important;
+    }
+    
+    .mt-4.d-flex.justify-content-between {
+        flex-direction: column !important;
+        gap: 10px;
+    }
+}
+</style>
 @endsection
 
 @section('content')
@@ -92,20 +113,19 @@
         <!-- Navigation Buttons -->
         <div class="row mt-5">
             <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="mt-4 d-flex justify-content-between">
                     <button type="button" class="btn btn-secondary" onclick="window.location.href='/inspection/engine-compartment'">
                         <i class="bi bi-arrow-left"></i> Back
                     </button>
                     
-                    <div class="text-center">
-                        <button type="button" class="btn btn-outline-primary me-2" id="saveDraftBtn">
+                    <div class="button-group-responsive">
+                        <button type="button" class="btn btn-outline-primary me-2 mb-2" id="saveDraftBtn">
                             <i class="bi bi-save"></i> Save Draft
                         </button>
+                        <button type="button" class="btn btn-success mb-2" id="completeInspectionBtn">
+                            Complete Inspection <i class="bi bi-check-circle"></i>
+                        </button>
                     </div>
-                    
-                    <button type="button" class="btn btn-success" id="completeInspectionBtn">
-                        Complete Inspection <i class="bi bi-check-circle"></i>
-                    </button>
                 </div>
             </div>
         </div>

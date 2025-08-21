@@ -80,7 +80,7 @@ class ReportController extends Controller
                 'inspection' => [
                     'inspector' => $inspection->inspector_name ?? 'Not specified',
                     'date' => $inspection->inspection_date ?? $inspection->created_at->format('Y-m-d H:i'),
-                    'diagnostic_report' => $inspection->diagnostic_report ?? 'No diagnostic report provided',
+                    'diagnostic_report' => $inspection->diagnostic_report ?? null,
                     'diagnostic_file' => $this->getDiagnosticFileData($inspection)
                 ],
                 'images' => $this->organizeImagesForReport($inspection->images),

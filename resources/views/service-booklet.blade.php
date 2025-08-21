@@ -37,16 +37,16 @@
         </div>
 
         <!-- Action buttons -->
-        <div class="text-center mb-4">
-            <button type="button" class="btn btn-outline-secondary me-3" onclick="goBack()">
+        <div class="mt-4 d-flex justify-content-between">
+            <button type="button" class="btn btn-outline-secondary" onclick="goBack()">
                 <i class="bi bi-arrow-left me-1"></i>Back to Interior Assessment
             </button>
-            <button type="button" class="btn btn-secondary me-3" onclick="saveDraft()">
-                Save Draft
-            </button>
-            <button type="button" class="btn btn-primary" onclick="continueToFinalReport()">
-                Continue to Tyres & Rims Assessment <i class="bi bi-arrow-right ms-1"></i>
-            </button>
+            <div class="button-group-responsive">
+                <button type="button" class="btn btn-secondary me-2 mb-2" onclick="saveDraft()">Save Draft</button>
+                <button type="button" class="btn btn-primary mb-2" onclick="continueToFinalReport()">
+                    Continue to Tyres & Rims Assessment <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </div>
         </div>
     </form>
 </div>
@@ -54,6 +54,27 @@
 
 @section('additional-css')
 <link rel="stylesheet" href="{{ asset('css/panel-cards.css') }}">
+<style>
+/* Button responsive layout for tablets */
+@media (max-width: 768px) {
+    .button-group-responsive {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .button-group-responsive .btn {
+        width: 100%;
+        margin-right: 0 !important;
+    }
+    
+    .mt-4.d-flex.justify-content-between {
+        flex-direction: column !important;
+        gap: 10px;
+    }
+}
+</style>
 @endsection
 
 @section('additional-js')

@@ -178,16 +178,35 @@
         </div>
 
         <!-- Action buttons -->
-        <div class="text-center mb-4">
-            <button type="button" class="btn btn-secondary me-3" onclick="saveDraft()">
+        <div class="button-group-responsive text-center mb-4">
+            <button type="button" class="btn btn-secondary me-2 mb-2" onclick="saveDraft()">
                 Save Draft
             </button>
-            <button type="button" class="btn btn-primary" onclick="continueToNext()">
+            <button type="button" class="btn btn-primary mb-2" onclick="continueToNext()">
                 Continue to Next Section
             </button>
         </div>
     </form>
 </div>
+@endsection
+
+@section('additional-css')
+<style>
+/* Button responsive layout for tablets */
+@media (max-width: 768px) {
+    .button-group-responsive {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .button-group-responsive .btn {
+        width: 100%;
+        margin-right: 0 !important;
+    }
+}
+</style>
 @endsection
 
 @section('additional-js')

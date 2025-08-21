@@ -75,15 +75,6 @@
             </div>
         </div>
 
-        <div class="col-lg-4 col-md-6">
-            <div class="card action-card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Inspection Statistics</h5>
-                    <p class="card-text">View inspection completion rates, average times, and performance metrics.</p>
-                    <a href="#" class="btn btn-secondary">View Stats</a>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Recent Reports -->
