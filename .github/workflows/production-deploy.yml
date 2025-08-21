@@ -1,0 +1,64 @@
+name: Deploy to Production Server
+
+on:
+  push:
+    branches: [ production ]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, filter, gd, iconv, json, mbstring, pdo
+        
+    - name: Deploy to production server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: alphainspections.co.za
+        username: alphains
+        key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        port: 22000
+        script: |
+          cd /home/alphains/public_html
+          
+          echo "🔄 Backing up current production..."
+          if [ -d .git ]; then
+            timestamp=$(date +%Y%m%d_%H%M%S)
+            cp .env .env.backup.$timestamp
+          fi
+          
+          echo "🔄 Initializing git repository if needed..."
+          if [ ! -d .git ]; then
+            git init
+            git remote add origin https://github.com/Selmorand/vehicle-inspection-system.git
+          fi
+          
+          echo "🔄 Pulling latest changes from production branch..."
+          git fetch origin production
+          git reset --hard origin/production
+          
+          echo "📋 Setting up environment..."
+          if [ ! -f .env ]; then
+            cp .env.production.template .env
+          fi
+          
+          echo "⚙️ Updating environment with production secrets..."
+          sed -i 's/your_production_db_password/${{ secrets.PRODUCTION_DB_PASSWORD }}/g' .env
+          sed -i 's|APP_URL=.*|APP_URL=https://alphainspections.co.za|g' .env
+          sed -i 's/APP_ENV=.*/APP_ENV=production/g' .env
+          sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/g' .env
+          
+          echo "🚀 Running deployment script..."
+          chmod +x deploy-production.sh
+          ./deploy-production.sh
+          
+          echo "✅ Production deployment completed successfully!"
