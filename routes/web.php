@@ -7,7 +7,13 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
-    return view('welcome');
+    // Get last 6 inspections (draft and completed) ordered by most recent
+    $recentInspections = App\Models\Inspection::with(['client', 'vehicle'])
+        ->orderBy('updated_at', 'desc')
+        ->limit(6)
+        ->get();
+
+    return view('dashboard', compact('recentInspections'));
 });
 
 Route::get('/dashboard', function () {
