@@ -398,6 +398,12 @@ document.addEventListener('DOMContentLoaded', async function() {
                     type: 'select',
                     options: ['Scratch', 'Dent', 'Scuffed', 'Chipmark', 'Paintwork', 'Structural damage'] 
                 },
+                comments2: { 
+                    enabled: true, 
+                    label: 'Comments', 
+                    type: 'select',
+                    options: ['Scratch', 'Dent', 'Scuffed', 'Chipmark', 'Paintwork', 'Structural damage'] 
+                },
                 additional_comments: { 
                     enabled: true, 
                     label: 'Additional Comments', 
@@ -473,6 +479,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 } else if (fieldName === 'comments') {
                     // 'comments' dropdown maps to 'comment_type' in database
                     panelMap[panelId].comment_type = value;
+                } else if (fieldName === 'comments2') {
+                    // 'comments2' dropdown maps to 'comment_type2' in database
+                    panelMap[panelId].comment_type2 = value;
                 } else if (fieldName === 'additional_comments') {
                     // 'additional_comments' text input maps to 'additional_comment' in database
                     panelMap[panelId].additional_comment = value;
@@ -484,7 +493,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Convert panel map to array
         apiData.panels = Object.values(panelMap).filter(panel => 
-            panel.condition || panel.additional_comment || panel.comment_type || panel.other_notes
+            panel.condition || panel.additional_comment || panel.comment_type || panel.comment_type2 || panel.other_notes
         );
         
         console.log('Draft - API Data being sent:', apiData);
@@ -583,6 +592,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 } else if (fieldName === 'comments') {
                     // 'comments' dropdown maps to 'comment_type' in database
                     panelMap[panelId].comment_type = value;
+                } else if (fieldName === 'comments2') {
+                    // 'comments2' dropdown maps to 'comment_type2' in database
+                    panelMap[panelId].comment_type2 = value;
                 } else if (fieldName === 'additional_comments') {
                     // 'additional_comments' text input maps to 'additional_comment' in database
                     panelMap[panelId].additional_comment = value;
@@ -594,7 +606,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Convert panel map to array
         apiData.panels = Object.values(panelMap).filter(panel => 
-            panel.condition || panel.additional_comment || panel.comment_type || panel.other_notes
+            panel.condition || panel.additional_comment || panel.comment_type || panel.comment_type2 || panel.other_notes
         );
         
         console.log('API Data being sent:', apiData);

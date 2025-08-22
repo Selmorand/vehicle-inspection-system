@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('vehicles', function (Blueprint $table) {
-            $table->string('colour')->nullable()->after('vehicle_type');
-            $table->string('doors')->nullable()->after('colour');  
-            $table->string('fuel_type')->nullable()->after('doors');
+            if (!Schema::hasColumn('vehicles', 'colour')) {
+                $table->string('colour')->nullable();
+            }
+            if (!Schema::hasColumn('vehicles', 'doors')) {
+                $table->string('doors')->nullable();
+            }
+            if (!Schema::hasColumn('vehicles', 'fuel_type')) {
+                $table->string('fuel_type')->nullable();
+            }
         });
     }
 

@@ -36,15 +36,21 @@
         <!-- Vehicle Images Section -->
         <div class="form-section">
             <h3>Vehicle Images</h3>
-            <p class="text-muted mb-3">Take photos of the vehicle using your tablet camera. Photos are automatically cropped to square format.</p>
+            <p class="text-muted mb-3">Take photos of the vehicle using your tablet camera.</p>
             
-            <!-- Image upload grid optimized for tablets -->
-            <div class="image-upload-grid" id="imageGrid">
-                <!-- Initial placeholder will be created by JavaScript -->
+            <!-- Camera button without any wrapper boxes -->
+            <div class="mb-3">
+                <button type="button" class="photo-btn btn btn-outline-primary" data-panel="visual">
+                    <i class="bi bi-camera-fill"></i> Take Photo
+                </button>
+                <input type="file" accept="image/*" capture="environment" 
+                       class="d-none camera-input" id="camera-visual">
             </div>
             
-            <!-- Hidden file input optimized for tablet camera -->
-            <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
+            <!-- Image gallery for captured photos -->
+            <div class="image-gallery" id="gallery-visual" style="display: none;">
+                <!-- Images will be added here -->
+            </div>
         </div>
 
         <!-- Vehicle Details Section -->
@@ -206,10 +212,74 @@
         margin-right: 0 !important;
     }
 }
+
+/* Consistent Image Modal Styles */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.9);
+}
+
+.image-modal-content {
+    margin: auto;
+    display: block;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90%;
+    object-fit: contain;
+    animation: zoom 0.6s;
+}
+
+.image-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.image-modal-close:hover,
+.image-modal-close:focus {
+    color: #bbb;
+}
+
+@keyframes zoom {
+    from { transform: scale(0) }
+    to { transform: scale(1) }
+}
+
+/* Gallery styles */
+.image-gallery {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.captured-image {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.captured-image:hover {
+    transform: translateY(-2px);
+}
 </style>
 @endsection
 
 @section('additional-js')
+<!-- Include consistent camera technology -->
+<script src="/js/inspection-cards.js"></script>
 <script>
 // Image management
 const maxImages = 20; // Maximum number of images allowed
@@ -289,141 +359,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     initializeImageGrid();
+    initializeConsistentCamera(); // Add consistent camera functionality
     setCurrentDateTime();
 });
 
 function initializeImageGrid() {
-    const grid = document.getElementById('imageGrid');
-    // Create initial placeholder
-    createImageSlot(grid);
+    // Image grid now handled by consistent camera technology only
+    // No need to create placeholder slots
 }
 
-function createImageSlot(container) {
-    const slot = document.createElement('div');
-    slot.className = 'image-upload-slot';
-    slot.innerHTML = `
-        <div class="upload-placeholder">
-            <i class="bi bi-camera"></i>
-            <small>Tap to capture photo</small>
-        </div>
-    `;
-    
-    // Optimized for tablet touch - larger touch area and immediate camera trigger
-    slot.addEventListener('click', function() {
-        if (!this.classList.contains('has-image')) {
-            triggerCamera();
-        }
-    });
-    
-    // Also handle touch events for better tablet responsiveness
-    slot.addEventListener('touchstart', function(e) {
-        e.preventDefault(); // Prevent double-tap zoom
-        if (!this.classList.contains('has-image')) {
-            triggerCamera();
-        }
-    });
-    
-    container.appendChild(slot);
-}
-
-function triggerCamera() {
-    const input = document.getElementById('cameraInput');
-    input.click();
-}
-
-// Handle camera input
-document.getElementById('cameraInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    
-    if (file && file.type.startsWith('image/')) {
-        processImage(file);
-    }
-    
-    // Clear the input to allow taking the same photo again if needed
-    this.value = '';
-});
-
-function processImage(file) {
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        // Create a canvas to crop the image to square
-        const img = new Image();
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Make it square by using the smaller dimension
-            const size = Math.min(img.width, img.height);
-            canvas.width = 300; // Fixed output size
-            canvas.height = 300;
-            
-            // Calculate crop area (center crop)
-            const startX = (img.width - size) / 2;
-            const startY = (img.height - size) / 2;
-            
-            // Draw cropped image
-            ctx.drawImage(img, startX, startY, size, size, 0, 0, 300, 300);
-            
-            // Convert to blob and add to interface
-            canvas.toBlob(function(blob) {
-                addImageToGrid(URL.createObjectURL(blob), blob);
-            }, 'image/jpeg', 0.8);
-        };
-        img.src = e.target.result;
-    };
-    
-    reader.readAsDataURL(file);
-}
-
-function addImageToGrid(imageSrc, blob) {
-    const grid = document.getElementById('imageGrid');
-    const emptySlot = grid.querySelector('.image-upload-slot:not(.has-image)');
-    
-    if (emptySlot) {
-        emptySlot.innerHTML = `
-            <img src="${imageSrc}" alt="Vehicle image">
-            <button type="button" class="remove-image" onclick="removeImage(this)">
-                <i class="bi bi-x"></i>
-            </button>
-        `;
-        emptySlot.classList.add('has-image');
-        
-        // Store the image data
-        uploadedImages.push({
-            slot: emptySlot,
-            blob: blob,
-            src: imageSrc
-        });
-        
-        console.log('✅ IMAGE CAPTURED! Total images now:', uploadedImages.length);
-        
-        // Always add a new placeholder after adding an image (if under max limit)
-        if (grid.children.length < maxImages) {
-            createImageSlot(grid);
-        }
-    }
-}
-
-function removeImage(button) {
-    const slot = button.closest('.image-upload-slot');
-    const imageIndex = uploadedImages.findIndex(img => img.slot === slot);
-    
-    if (imageIndex > -1) {
-        // Revoke the object URL to free memory
-        URL.revokeObjectURL(uploadedImages[imageIndex].src);
-        uploadedImages.splice(imageIndex, 1);
-    }
-    
-    // Remove the slot entirely instead of converting back to placeholder
-    slot.remove();
-    
-    // Ensure there's always at least one placeholder available
-    const grid = document.getElementById('imageGrid');
-    if (grid.querySelectorAll('.image-upload-slot:not(.has-image)').length === 0) {
-        createImageSlot(grid);
-    }
-}
+// Old camera functions removed - now using consistent camera technology
 
 function setCurrentDateTime() {
     // Get current time in South African timezone
@@ -441,6 +386,159 @@ function setCurrentDateTime() {
     
     document.getElementById('inspection_datetime').value = saTimeString;
     console.log('✅ Current South African time set:', saTimeString);
+}
+
+// Initialize consistent camera functionality like other pages
+function initializeConsistentCamera() {
+    // Create modal if it doesn't exist (from inspection-cards.js)
+    if (!document.getElementById('imageModal')) {
+        const modal = document.createElement('div');
+        modal.id = 'imageModal';
+        modal.className = 'image-modal';
+        modal.innerHTML = `
+            <span class="image-modal-close">&times;</span>
+            <img class="image-modal-content" id="modalImage">
+        `;
+        document.body.appendChild(modal);
+        
+        // Modal close handlers
+        modal.querySelector('.image-modal-close').onclick = function() {
+            modal.style.display = 'none';
+        };
+        
+        window.onclick = function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    }
+    
+    // Photo button click handler - consistent with other pages
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.photo-btn')) {
+            const btn = e.target.closest('.photo-btn');
+            const panelId = btn.dataset.panel;
+            const fileInput = document.getElementById(`camera-${panelId}`);
+            if (fileInput) {
+                console.log('📷 Triggering camera for panel:', panelId);
+                fileInput.click();
+            }
+        }
+    });
+    
+    // File input change handler - consistent with other pages
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('camera-input')) {
+            const file = e.target.files[0];
+            if (file) {
+                const panelId = e.target.id.replace('camera-', '');
+                console.log('📸 Processing image for panel:', panelId);
+                processConsistentImage(file, panelId);
+            }
+            // Clear input for reuse
+            e.target.value = '';
+        }
+    });
+}
+
+// Process images using consistent approach
+function processConsistentImage(file, panelId) {
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const imageData = e.target.result;
+        const imageId = `${panelId}-${Date.now()}`;
+        
+        const imageInfo = {
+            id: imageId,
+            data: imageData,
+            blob: file,
+            src: imageData,
+            slot: null, // For compatibility with existing code
+            timestamp: new Date().toISOString(),
+            area_name: 'Visual Inspection'
+        };
+        
+        uploadedImages.push(imageInfo); // For compatibility with existing code
+        
+        // Display the image in gallery
+        displayConsistentImage(imageInfo, panelId);
+        
+        console.log('✅ CONSISTENT CAMERA IMAGE CAPTURED! Total images now:', uploadedImages.length);
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+// Display images consistently
+function displayConsistentImage(imageInfo, panelId) {
+    const gallery = document.getElementById(`gallery-${panelId}`);
+    
+    if (gallery) {
+        gallery.style.display = 'block';
+        
+        const imageContainer = document.createElement('div');
+        imageContainer.className = 'captured-image';
+        imageContainer.dataset.imageId = imageInfo.id;
+        imageContainer.style.cssText = `
+            display: inline-block;
+            margin: 10px;
+            position: relative;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        `;
+        
+        imageContainer.innerHTML = `
+            <img src="${imageInfo.data}" alt="Visual inspection image" 
+                 onclick="openImageModal('${imageInfo.data}')"
+                 style="width: 150px; height: 150px; object-fit: cover; cursor: pointer; display: block;">
+            <button type="button" class="remove-image-btn" onclick="removeConsistentImage('${imageInfo.id}', '${panelId}')"
+                    style="position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-x"></i>
+            </button>
+            <div class="image-timestamp" style="padding: 5px; font-size: 10px; text-align: center; background: #f8f9fa;">
+                ${new Date(imageInfo.timestamp).toLocaleString()}
+            </div>
+        `;
+        
+        gallery.appendChild(imageContainer);
+        
+        // Images captured - main photo button remains available for more photos
+    }
+}
+
+// Function removed - single photo button handles all captures
+
+// Remove images consistently
+function removeConsistentImage(imageId, panelId) {
+    // Remove from data arrays
+    uploadedImages = uploadedImages.filter(img => img.id !== imageId);
+    
+    // Remove from DOM
+    const imageContainer = document.querySelector(`[data-image-id="${imageId}"]`);
+    if (imageContainer) {
+        imageContainer.remove();
+    }
+    
+    // Hide gallery if no images
+    const gallery = document.getElementById(`gallery-${panelId}`);
+    if (gallery && gallery.children.length === 0) {
+        gallery.style.display = 'none';
+    }
+    
+    console.log('🗑️ CONSISTENT CAMERA IMAGE REMOVED! Total images now:', uploadedImages.length);
+}
+
+// Modal functionality
+function openImageModal(imageSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    if (modal && modalImg) {
+        modal.style.display = 'block';
+        modalImg.src = imageSrc;
+    }
 }
 
 function saveDraft() {
