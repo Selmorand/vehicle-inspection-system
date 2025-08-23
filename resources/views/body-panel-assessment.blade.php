@@ -156,7 +156,7 @@
 <script src="{{ asset('js/inspection-cards.js') }}"></script>
 <script src="{{ asset('js/test-report-handler.js') }}"></script>
 <script>
-// Load CSV data from panelimages2.csv with corrected coordinates
+// Load CSV data from panelimages2.csv with pixel coordinates
 async function loadBodyPanelData() {
     try {
         const response = await fetch('/panelimages2.csv');
@@ -217,6 +217,8 @@ async function loadBodyPanelData() {
                 if (id === 'lr-taillight') name = 'Left Rear Taillight';
                 if (id === 'rr-door') name = 'Right Rear Door';
                 if (id === 'rr-taillight') name = 'Right Rear Taillight';
+                if (id === 'left-skirting') name = 'Left Skirting';
+                if (id === 'right-skirting') name = 'Right Skirting';
                 
                 panels.push({
                     id: id,
@@ -230,6 +232,9 @@ async function loadBodyPanelData() {
                 });
                 
                 console.log(`Panel ${i}: ${name} (${imageName}) - ${x},${y},${w},${h}`);
+                if (name.includes('Skirting')) {
+                    console.log('🔍 Skirting panel detected:', name, {id, imageName, x, y, w, h});
+                }
             }
         }
         
@@ -246,7 +251,9 @@ async function loadBodyPanelData() {
             // 4. Front components
             'front-bumper', 'lf-headlight', 'fr-headlight', 'fr-mirror', 'lf-mirror',
             // 5. Rear components
-            'lr-taillight', 'rr-taillight', 'rear-bumper'
+            'lr-taillight', 'rr-taillight', 'rear-bumper',
+            // 6. Skirting and Other
+            'left-skirting', 'right-skirting'
         ];
         
         const orderedPanels = [];
@@ -254,8 +261,13 @@ async function loadBodyPanelData() {
             const panel = panels.find(p => p.id === panelId);
             if (panel) {
                 orderedPanels.push(panel);
+            } else {
+                console.log('Panel not found in CSV:', panelId);
             }
         });
+        
+        console.log('All available panels from CSV:', panels.map(p => p.id));
+        console.log('Skirting panels specifically:', panels.filter(p => p.id.includes('skirting')));
         
         console.log('Panel order:', orderedPanels.map(p => p.name));
         return orderedPanels;
@@ -294,9 +306,9 @@ function generatePanelOverlays(panels) {
         img.setAttribute('data-panel', panel.id);
         img.style.position = 'absolute';
         
-        // Check if coordinates are already percentages or need conversion from pixels
+        // Check if coordinates are pixels and need conversion to percentages
         if (panel.x !== undefined && panel.y !== undefined) {
-            // Convert from pixels to percentages using new CSV format
+            // Convert from pixels to percentages using CSV format
             const converted = convertPixelsToPercentages(panel.x, panel.y, panel.w, panel.h);
             img.style.left = converted.left;
             img.style.top = converted.top;
@@ -304,6 +316,12 @@ function generatePanelOverlays(panels) {
             img.style.height = converted.height;
             
             console.log(`${panel.name}: ${panel.x}px,${panel.y}px,${panel.w}px,${panel.h}px → ${converted.left},${converted.top},${converted.width},${converted.height}`);
+            if (panel.name.includes('Skirting')) {
+                console.log('🎯 Skirting panel positioned:', panel.name, {
+                    pixels: {x: panel.x, y: panel.y, w: panel.w, h: panel.h},
+                    percentages: converted
+                });
+            }
         } else if (typeof panel.position_left === 'string' && panel.position_left.includes('%')) {
             // Already percentages (fallback data)
             img.style.left = panel.position_left;
@@ -324,11 +342,20 @@ function generatePanelOverlays(panels) {
 
 // Function to convert CSV data to InspectionCards format
 function convertToInspectionCardsFormat(panels) {
-    return panels.map(panel => ({
+    const mappedPanels = panels.map(panel => ({
         id: `body_panel_${panel.id.replace('-', '_')}`,
         category: panel.name,
         panelId: panel.id
     }));
+    
+    // Add "Other" panel that doesn't have a visual overlay
+    mappedPanels.push({
+        id: 'body_panel_other',
+        category: 'Other',
+        panelId: 'other'
+    });
+    
+    return mappedPanels;
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
