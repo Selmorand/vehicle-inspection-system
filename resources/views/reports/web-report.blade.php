@@ -1612,7 +1612,38 @@
                     Mechanical Report
                 </h2>
                 
-                @foreach($inspectionData['mechanical_report'] as $component)
+                <!-- Road Test Information -->
+                @php
+                    $roadTest = $inspectionData['mechanical_report']['road_test'] ?? null;
+                    // Debug: Show what data we have
+                    if (config('app.debug')) {
+                        echo "<!-- Debug Road Test Data: " . json_encode($roadTest) . " -->";
+                    }
+                @endphp
+                @if($roadTest && ($roadTest['distance'] || $roadTest['speed']))
+                <div class="road-test-section" style="margin: 20px 0; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; background-color: #f8f9fa;">
+                    <h4 style="color: #495057; margin-bottom: 15px; font-weight: 600;">
+                        <i class="bi bi-speedometer2"></i> Road Test Information
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        @if(!empty($roadTest['distance']))
+                        <div style="padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #28a745;">
+                            <span style="font-weight: 500; color: #495057;">Test Distance:</span>
+                            <span style="margin-left: 10px; color: #28a745; font-weight: 600;">{{ $roadTest['distance'] }}</span>
+                        </div>
+                        @endif
+                        
+                        @if(!empty($roadTest['speed']))
+                        <div style="padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #007bff;">
+                            <span style="font-weight: 500; color: #495057;">Speed Achieved Up To:</span>
+                            <span style="margin-left: 10px; color: #007bff; font-weight: 600;">{{ $roadTest['speed'] }}</span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
+                
+                @foreach($inspectionData['mechanical_report']['components'] ?? [] as $component)
                 <div class="panel-card" data-mechanical-card="{{ $component['component_name'] ?? '' }}">
                     <!-- First Row: Component Name -->
                     <div class="panel-header">

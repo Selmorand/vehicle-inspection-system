@@ -45,13 +45,23 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label fw-bold">Test Distance:</label>
-                                    <input type="text" class="form-control" name="road_test_distance" placeholder="e.g., 0-5 Km">
+                                    <select class="form-control" name="road_test_distance">
+                                        <option value="">Select test distance</option>
+                                        <option value="3km">3km</option>
+                                        <option value="5km">5km</option>
+                                        <option value="7km">7km</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label fw-bold">Speed achieved up to:</label>
-                                    <input type="text" class="form-control" name="road_test_speed" placeholder="e.g., 100 km/h">
+                                    <select class="form-control" name="road_test_speed">
+                                        <option value="">Select speed achieved</option>
+                                        <option value="80km/h">80km/h</option>
+                                        <option value="100km/h">100km/h</option>
+                                        <option value="120km/h">120km/h</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -1522,11 +1532,15 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error getting InspectionCards data:', e);
         }
 
-        // Also collect data from regular form inputs (braking system table)
+        // Also collect data from regular form inputs (braking system table and road test)
         const form = document.getElementById('mechanicalReportForm');
         const formElements = new FormData(form);
         for (let [key, value] of formElements.entries()) {
             if (key.startsWith('brake_')) {
+                formData[key] = value;
+            }
+            // Also collect road test data
+            if (key === 'road_test_distance' || key === 'road_test_speed') {
                 formData[key] = value;
             }
         }
@@ -1601,6 +1615,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         apiData.braking_system = brakingSystemData;
+        
+        // Add road test data to apiData
+        apiData.road_test_distance = formData.road_test_distance || null;
+        apiData.road_test_speed = formData.road_test_speed || null;
+        
+        // Debug: Log what we're sending
+        console.log('Road Test Data being sent:', {
+            distance: apiData.road_test_distance,
+            speed: apiData.road_test_speed
+        });
+        console.log('Full API Data:', apiData);
 
         try {
             // Save to database via API

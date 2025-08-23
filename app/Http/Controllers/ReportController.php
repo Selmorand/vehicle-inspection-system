@@ -196,12 +196,12 @@ class ReportController extends Controller
         
         // Mechanical Report
         if (isset($data['mechanical'])) {
-            $transformedData['mechanical'] = array_merge(
-                $data['mechanical']['road_test'] ?? [],
-                $data['mechanical']['assessments'] ?? []
-            );
+            $transformedData['mechanical_report'] = [
+                'components' => $data['mechanical']['assessments'] ?? [],
+                'road_test' => $data['mechanical']['road_test'] ?? null
+            ];
             if (isset($data['mechanical']['braking'])) {
-                $transformedData['mechanical']['braking'] = $data['mechanical']['braking'];
+                $transformedData['mechanical_report']['braking'] = $data['mechanical']['braking'];
             }
         }
         
@@ -1047,7 +1047,37 @@ class ReportController extends Controller
             ];
         }
         
-        return $mechanicalData;
+        // Get road test data
+        $roadTestData = null;
+        $roadTestRecord = \DB::table('road_test')
+            ->where('inspection_id', $inspection->id)
+            ->first();
+        
+        \Log::info('Road Test Database Query:', [
+            'inspection_id' => $inspection->id,
+            'record_found' => $roadTestRecord ? 'yes' : 'no',
+            'data' => $roadTestRecord
+        ]);
+        
+        if ($roadTestRecord) {
+            $roadTestData = [
+                'distance' => $roadTestRecord->distance,
+                'speed' => $roadTestRecord->speed
+            ];
+        }
+        
+        $result = [
+            'components' => $mechanicalData,
+            'road_test' => $roadTestData
+        ];
+        
+        \Log::info('Mechanical Report Data Structure:', [
+            'has_components' => count($mechanicalData),
+            'has_road_test' => $roadTestData ? 'yes' : 'no',
+            'road_test_data' => $roadTestData
+        ]);
+        
+        return $result;
     }
 
     private function formatBrakingSystemForReport($inspection)

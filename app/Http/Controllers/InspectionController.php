@@ -905,6 +905,8 @@ class InspectionController extends Controller
             'braking_system.*.disc_life' => 'nullable|string',
             'braking_system.*.disc_condition' => 'nullable|string',
             'braking_system.*.comments' => 'nullable|string',
+            'road_test_distance' => 'nullable|string',
+            'road_test_speed' => 'nullable|string',
             'images' => 'nullable|array'
         ]);
 
@@ -915,6 +917,7 @@ class InspectionController extends Controller
 
             // Delete existing data for updates
             DB::table('mechanical_reports')->where('inspection_id', $inspection->id)->delete();
+            DB::table('road_test')->where('inspection_id', $inspection->id)->delete();
 
             // Save component data
             if (isset($validated['components'])) {
@@ -930,6 +933,27 @@ class InspectionController extends Controller
                         ]);
                     }
                 }
+            }
+
+            // Save road test data
+            \Log::info('Road Test Data Received:', [
+                'inspection_id' => $inspection->id,
+                'distance' => $validated['road_test_distance'] ?? 'not set',
+                'speed' => $validated['road_test_speed'] ?? 'not set'
+            ]);
+            
+            if (isset($validated['road_test_distance']) || isset($validated['road_test_speed'])) {
+                $result = DB::table('road_test')->updateOrInsert(
+                    ['inspection_id' => $inspection->id],
+                    [
+                        'distance' => $validated['road_test_distance'] ?? null,
+                        'speed' => $validated['road_test_speed'] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]
+                );
+                
+                \Log::info('Road Test Save Result:', ['success' => $result]);
             }
 
             // Save braking system data
