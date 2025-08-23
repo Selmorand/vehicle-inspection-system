@@ -141,13 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const commonFields = {
         primary_condition: {
             enabled: true,
-            label: 'Primary Condition',
-            type: 'select',
-            options: ['Good', 'Average', 'Bad', 'N/A']
-        },
-        secondary_condition: {
-            enabled: true,
-            label: 'Secondary Condition',
+            label: 'Condition',
             type: 'select',
             options: ['Good', 'Average', 'Bad', 'N/A']
         },
@@ -176,26 +170,40 @@ document.addEventListener('DOMContentLoaded', function() {
         hasOverlays: false,
         items: [
             // Suspension items
-            { id: 'front_suspension', category: 'Front Suspension', panelId: 'front-suspension' },
-            { id: 'rear_suspension', category: 'Rear Suspension', panelId: 'rear-suspension' },
-            { id: 'shock_absorbers', category: 'Shock Absorbers', panelId: 'shock-absorbers' },
-            { id: 'springs', category: 'Springs', panelId: 'springs' },
+            { id: 'lf_shock_leaks', category: 'LF Shock leaks', panelId: 'lf-shock-leaks' },
+            { id: 'rf_shock_leaks', category: 'RF Shock leaks', panelId: 'rf-shock-leaks' },
+            { id: 'lr_shock_leaks', category: 'LR Shock leaks', panelId: 'lr-shock-leaks' },
+            { id: 'rr_shock_leaks', category: 'RR Shock leaks', panelId: 'rr-shock-leaks' },
+            { id: 'lf_shock_mounts', category: 'LF Shock mounts', panelId: 'lf-shock-mounts' },
+            { id: 'rf_shock_mounts', category: 'RF Shock mounts', panelId: 'rf-shock-mounts' },
+            { id: 'lr_shock_mounts', category: 'LR Shock mounts', panelId: 'lr-shock-mounts' },
+            { id: 'rr_shock_mounts', category: 'RR Shock mounts', panelId: 'rr-shock-mounts' },
+            { id: 'lf_control_arm_cracks', category: 'LF Control arm cracks', panelId: 'lf-control-arm-cracks' },
+            { id: 'rf_control_arm_cracks', category: 'RF Control arm cracks', panelId: 'rf-control-arm-cracks' },
+            { id: 'lf_control_arm_play', category: 'LF control arm play', panelId: 'lf-control-arm-play' },
+            { id: 'rf_control_arm_play', category: 'RF control arm play', panelId: 'rf-control-arm-play' },
             { id: 'suspension_bushes', category: 'Suspension Bushes', panelId: 'suspension-bushes' },
-            { id: 'ball_joints', category: 'Ball Joints', panelId: 'ball-joints' },
+            { id: 'springs', category: 'Springs', panelId: 'springs' },
             // Engine items  
-            { id: 'oil_pan', category: 'Oil Pan', panelId: 'oil-pan' },
-            { id: 'transmission', category: 'Transmission', panelId: 'transmission' },
-            { id: 'exhaust_system', category: 'Exhaust System', panelId: 'exhaust-system' },
-            { id: 'engine_mounts', category: 'Engine Mounts', panelId: 'engine-mounts' },
+            { id: 'engine_mountings', category: 'Engine mountings', panelId: 'engine-mountings' },
+            { id: 'engine_oil_viscosity', category: 'Engine oil viscosity', panelId: 'engine-oil-viscosity' },
+            { id: 'engine_oil_level', category: 'Engine oil level', panelId: 'engine-oil-level' },
+            { id: 'gearbox_mountings', category: 'Gearbox mountings', panelId: 'gearbox-mountings' },
+            { id: 'timing_cover', category: 'Timing cover', panelId: 'timing-cover' },
+            { id: 'sump', category: 'Sump', panelId: 'sump' },
+            { id: 'side_shafts', category: 'Side shafts', panelId: 'side-shafts' },
+            { id: 'front_main_seal', category: 'Front main seal', panelId: 'front-main-seal' },
+            { id: 'rear_main_seal', category: 'Rear main seal', panelId: 'rear-main-seal' },
+            { id: 'coolant_lines', category: 'Coolant lines', panelId: 'coolant-lines' },
             { id: 'fuel_lines', category: 'Fuel Lines', panelId: 'fuel-lines' },
-            { id: 'coolant_lines', category: 'Coolant Lines', panelId: 'coolant-lines' },
+            { id: 'exhaust_system', category: 'Exhaust system', panelId: 'exhaust-system' },
             // Drivetrain items
-            { id: 'drive_shafts', category: 'Drive Shafts', panelId: 'drive-shafts' },
-            { id: 'cv_joints', category: 'CV Joints', panelId: 'cv-joints' },
-            { id: 'differential', category: 'Differential', panelId: 'differential' },
+            { id: 'lf_cv_joint', category: 'LF CV joint', panelId: 'lf-cv-joint' },
+            { id: 'rf_cv_joint', category: 'RF CV joint', panelId: 'rf-cv-joint' },
             { id: 'propshaft', category: 'Propshaft', panelId: 'propshaft' },
-            { id: 'transfer_case', category: 'Transfer Case', panelId: 'transfer-case' },
-            { id: 'axles', category: 'Axles', panelId: 'axles' }
+            { id: 'centre_bearing', category: 'Centre Bearing', panelId: 'centre-bearing' },
+            { id: 'differential_mounting', category: 'Differental mounting', panelId: 'differential-mounting' },
+            { id: 'transfer_case', category: 'Transfer Case', panelId: 'transfer-case' }
         ],
         fields: commonFields
     });
@@ -205,7 +213,9 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Moving cards to proper containers...');
         
         // Move engine cards
-        ['oil-pan', 'transmission', 'exhaust-system', 'engine-mounts', 'fuel-lines', 'coolant-lines'].forEach(panelId => {
+        ['engine-mountings', 'engine-oil-viscosity', 'engine-oil-level', 'gearbox-mountings', 
+         'timing-cover', 'sump', 'side-shafts', 'front-main-seal', 'rear-main-seal', 
+         'coolant-lines', 'fuel-lines', 'exhaust-system'].forEach(panelId => {
             const card = document.querySelector(`[data-panel-card="${panelId}"]`);
             if (card && engineContainer) {
                 console.log(`Moving engine card: ${panelId}`);
@@ -216,7 +226,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Move drivetrain cards
-        ['drive-shafts', 'cv-joints', 'differential', 'propshaft', 'transfer-case', 'axles'].forEach(panelId => {
+        ['lf-cv-joint', 'rf-cv-joint', 'propshaft', 'centre-bearing', 
+         'differential-mounting', 'transfer-case'].forEach(panelId => {
             const card = document.querySelector(`[data-panel-card="${panelId}"]`);
             if (card && drivetrainContainer) {
                 console.log(`Moving drivetrain card: ${panelId}`);
@@ -252,14 +263,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Process all form fields
         for (let [name, value] of formData.entries()) {
-            if (name.includes('-primary_condition') || name.includes('-secondary_condition') || name.includes('-comments')) {
+            if (name.includes('-primary_condition') || name.includes('-comments')) {
                 const [componentId, fieldType] = name.split('-');
                 
                 // Determine section based on component
                 let section = 'general';
-                const suspensionComponents = ['front_suspension', 'rear_suspension', 'shock_absorbers', 'springs', 'suspension_bushes', 'ball_joints'];
-                const engineComponents = ['oil_pan', 'transmission', 'exhaust_system', 'engine_mounts', 'fuel_lines', 'coolant_lines'];
-                const drivetrainComponents = ['drive_shafts', 'cv_joints', 'differential', 'propshaft', 'transfer_case', 'axles'];
+                const suspensionComponents = ['lf_shock_leaks', 'rf_shock_leaks', 'lr_shock_leaks', 'rr_shock_leaks',
+                    'lf_shock_mounts', 'rf_shock_mounts', 'lr_shock_mounts', 'rr_shock_mounts',
+                    'lf_control_arm_cracks', 'rf_control_arm_cracks', 'lf_control_arm_play', 'rf_control_arm_play',
+                    'suspension_bushes', 'springs'];
+                const engineComponents = ['engine_mountings', 'engine_oil_viscosity', 'engine_oil_level', 'gearbox_mountings',
+                    'timing_cover', 'sump', 'side_shafts', 'front_main_seal', 'rear_main_seal',
+                    'coolant_lines', 'fuel_lines', 'exhaust_system'];
+                const drivetrainComponents = ['lf_cv_joint', 'rf_cv_joint', 'propshaft', 'centre_bearing',
+                    'differential_mounting', 'transfer_case'];
                 
                 if (suspensionComponents.includes(componentId)) {
                     section = 'suspension';
@@ -276,7 +293,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         section: section,
                         component_name: componentId,
                         primary_condition: null,
-                        secondary_condition: null,
                         comments: null
                     };
                     apiData.components.push(component);
@@ -285,8 +301,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Set the field value
                 if (fieldType === 'primary_condition') {
                     component.primary_condition = value || null;
-                } else if (fieldType === 'secondary_condition') {
-                    component.secondary_condition = value || null;
                 } else if (fieldType === 'comments') {
                     component.comments = value || null;
                 }
@@ -295,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Remove components with no data
         apiData.components = apiData.components.filter(component => 
-            component.primary_condition || component.secondary_condition || component.comments
+            component.primary_condition || component.comments
         );
 
         // Collect images using InspectionCards.getImages() like Engine Compartment does
@@ -418,14 +432,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Process all form fields
         for (let [name, value] of formData.entries()) {
-            if (name.includes('-primary_condition') || name.includes('-secondary_condition') || name.includes('-comments')) {
+            if (name.includes('-primary_condition') || name.includes('-comments')) {
                 const [componentId, fieldType] = name.split('-');
                 
                 // Determine section based on component
                 let section = 'general';
-                const suspensionComponents = ['front_suspension', 'rear_suspension', 'shock_absorbers', 'springs', 'suspension_bushes', 'ball_joints'];
-                const engineComponents = ['oil_pan', 'transmission', 'exhaust_system', 'engine_mounts', 'fuel_lines', 'coolant_lines'];
-                const drivetrainComponents = ['drive_shafts', 'cv_joints', 'differential', 'propshaft', 'transfer_case', 'axles'];
+                const suspensionComponents = ['lf_shock_leaks', 'rf_shock_leaks', 'lr_shock_leaks', 'rr_shock_leaks',
+                    'lf_shock_mounts', 'rf_shock_mounts', 'lr_shock_mounts', 'rr_shock_mounts',
+                    'lf_control_arm_cracks', 'rf_control_arm_cracks', 'lf_control_arm_play', 'rf_control_arm_play',
+                    'suspension_bushes', 'springs'];
+                const engineComponents = ['engine_mountings', 'engine_oil_viscosity', 'engine_oil_level', 'gearbox_mountings',
+                    'timing_cover', 'sump', 'side_shafts', 'front_main_seal', 'rear_main_seal',
+                    'coolant_lines', 'fuel_lines', 'exhaust_system'];
+                const drivetrainComponents = ['lf_cv_joint', 'rf_cv_joint', 'propshaft', 'centre_bearing',
+                    'differential_mounting', 'transfer_case'];
                 
                 if (suspensionComponents.includes(componentId)) {
                     section = 'suspension';
@@ -442,7 +462,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         section: section,
                         component_name: componentId,
                         primary_condition: null,
-                        secondary_condition: null,
                         comments: null
                     };
                     apiData.components.push(component);
@@ -451,8 +470,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Set the field value
                 if (fieldType === 'primary_condition') {
                     component.primary_condition = value || null;
-                } else if (fieldType === 'secondary_condition') {
-                    component.secondary_condition = value || null;
                 } else if (fieldType === 'comments') {
                     component.comments = value || null;
                 }
@@ -461,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Remove components with no data
         apiData.components = apiData.components.filter(component => 
-            component.primary_condition || component.secondary_condition || component.comments
+            component.primary_condition || component.comments
         );
 
         // Collect images using InspectionCards.getImages()

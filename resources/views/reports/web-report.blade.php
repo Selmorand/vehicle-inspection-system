@@ -1979,15 +1979,8 @@
                                 
                                 @if(!empty($component['primary_condition']))
                                 <div class="primary-condition" style="display: flex; align-items: center;">
-                                    <span style="font-weight: 500; margin-right: 10px;">Primary:</span>
+                                    <span style="font-weight: 500; margin-right: 10px;">Condition:</span>
                                     <span class="condition-{{ strtolower($component['primary_condition']) }}">{{ $component['primary_condition'] }}</span>
-                                </div>
-                                @endif
-                                
-                                @if(!empty($component['secondary_condition']))
-                                <div class="secondary-condition" style="display: flex; align-items: center;">
-                                    <span style="font-weight: 500; margin-right: 10px;">Secondary:</span>
-                                    <span class="condition-{{ strtolower($component['secondary_condition']) }}">{{ $component['secondary_condition'] }}</span>
                                 </div>
                                 @endif
                                 

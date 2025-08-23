@@ -1159,7 +1159,6 @@ class InspectionController extends Controller
                 'components.*.section' => 'nullable|string',
                 'components.*.component_name' => 'nullable|string',
                 'components.*.primary_condition' => 'nullable|string',
-                'components.*.secondary_condition' => 'nullable|string',
                 'components.*.comments' => 'nullable|string',
                 'images' => 'nullable|array'
             ]);
@@ -1194,7 +1193,7 @@ class InspectionController extends Controller
                             'section' => $component['section'] ?? null,
                             'component_name' => $component['component_name'],
                             'primary_condition' => $component['primary_condition'] ?? null,
-                            'secondary_condition' => $component['secondary_condition'] ?? null,
+                            'secondary_condition' => null,
                             'comments' => $component['comments'] ?? null
                         ]);
                     }
