@@ -1511,6 +1511,16 @@
                 </h2>
                 
                 @foreach($inspectionData['tyres_rims'] as $tyre)
+                @php
+                    // Check if tyre has any meaningful data
+                    $hasData = !empty($tyre['size']) || 
+                               !empty($tyre['manufacture']) || 
+                               !empty($tyre['model']) ||
+                               !empty($tyre['tread_depth']) ||
+                               !empty($tyre['damages']) ||
+                               !empty($tyre['images']);
+                @endphp
+                @if($hasData)
                 <div class="panel-card" data-tyre-card="{{ $tyre['component_name'] ?? '' }}">
                     <!-- First Row: Tyre Name only -->
                     <div class="panel-header">
@@ -1584,6 +1594,7 @@
                     </div>
                     @endif
                 </div>
+                @endif
                 @endforeach
                 
                 <!-- Tyre Safety Disclaimer -->
@@ -1644,6 +1655,13 @@
                 @endif
                 
                 @foreach($inspectionData['mechanical_report']['components'] ?? [] as $component)
+                @php
+                    // Check if component has any meaningful data
+                    $hasData = !empty($component['condition']) || 
+                               !empty($component['comments']) || 
+                               !empty($component['images']);
+                @endphp
+                @if($hasData)
                 <div class="panel-card" data-mechanical-card="{{ $component['component_name'] ?? '' }}">
                     <!-- First Row: Component Name -->
                     <div class="panel-header">
@@ -1694,6 +1712,7 @@
                     </div>
                     @endif
                 </div>
+                @endif
                 @endforeach
                 
                 <!-- Mechanical Disclaimer -->
@@ -1825,6 +1844,13 @@
                 @if(!empty($inspectionData['engine_compartment']['components']))
                 <h3 style="color: #4f959b; margin: 2rem 0 1rem;">Component Assessments</h3>
                 @foreach($inspectionData['engine_compartment']['components'] as $component)
+                @php
+                    // Check if component has any meaningful data
+                    $hasData = !empty($component['condition']) || 
+                               !empty($component['comments']) || 
+                               !empty($component['images']);
+                @endphp
+                @if($hasData)
                 <div class="panel-card" data-engine-card="{{ $component['component_type'] ?? '' }}">
                     <!-- First Row: Component Name -->
                     <div class="panel-header">
@@ -1878,6 +1904,7 @@
                     </div>
                     @endif
                 </div>
+                @endif
                 @endforeach
                 @else
                 <div class="info-card" style="text-align: center; color: #666; font-style: italic;">
@@ -1949,7 +1976,25 @@
             @endif
 
             <!-- Physical Hoist Inspection -->
-            @if(!empty($inspectionData['physical_hoist']))
+            @php
+                // Check if physical hoist has any actual component data
+                $hasPhysicalHoistData = false;
+                if (!empty($inspectionData['physical_hoist']['sections'])) {
+                    foreach ($inspectionData['physical_hoist']['sections'] as $section => $components) {
+                        if (!empty($components)) {
+                            foreach ($components as $component) {
+                                if (!empty($component['primary_condition']) || 
+                                    !empty($component['comments']) || 
+                                    !empty($component['images'])) {
+                                    $hasPhysicalHoistData = true;
+                                    break 2;
+                                }
+                            }
+                        }
+                    }
+                }
+            @endphp
+            @if($hasPhysicalHoistData)
             <div class="section">
                 <h2 class="section-title">
                     <i class="bi bi-wrench-adjustable"></i>
@@ -1962,6 +2007,13 @@
                         <h3 style="color: #4f959b; margin: 2rem 0 1rem; text-transform: capitalize;">{{ ucfirst($sectionName) }} Components</h3>
                         
                         @foreach($components as $component)
+                        @php
+                            // Check if component has any meaningful data
+                            $hasComponentData = !empty($component['primary_condition']) || 
+                                               !empty($component['comments']) || 
+                                               !empty($component['images']);
+                        @endphp
+                        @if($hasComponentData)
                         <div class="panel-card" data-physical-hoist-card="{{ $component['component_name'] ?? '' }}">
                             <!-- First Row: Component Name -->
                             <div class="panel-header">
@@ -2011,6 +2063,7 @@
                             </div>
                             @endif
                         </div>
+                        @endif
                         @endforeach
                         @endif
                     @endforeach

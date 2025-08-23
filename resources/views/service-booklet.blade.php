@@ -13,7 +13,6 @@
                     <li class="breadcrumb-item"><a href="/inspection/body-panel" style="color: var(--primary-color);">Body Panel Assessment</a></li>
                     <li class="breadcrumb-item"><a href="/inspection/specific-areas" style="color: var(--primary-color);">Specific Area Images</a></li>
                     <li class="breadcrumb-item"><a href="/inspection/interior" style="color: var(--primary-color);">Interior Assessment</a></li>
-                    <li class="breadcrumb-item"><a href="/inspection/interior-images" style="color: var(--primary-color);">Interior Specific Images</a></li>
                     <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Service Booklet</li>
                     <li class="breadcrumb-item text-muted">Final Report</li>
                 </ol>
