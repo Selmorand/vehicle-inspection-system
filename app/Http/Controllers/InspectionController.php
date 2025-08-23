@@ -10,6 +10,7 @@ use App\Models\InteriorAssessment;
 use App\Models\InspectionImage;
 use App\Models\EngineCompartment;
 use App\Models\EngineCompartmentFinding;
+use App\Models\EngineVerification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -1011,7 +1012,8 @@ class InspectionController extends Controller
                 'components.*.component_type' => 'nullable|string',
                 'components.*.condition' => 'nullable|string',
                 'components.*.comments' => 'nullable|string',
-                'images' => 'nullable|array'
+                'images' => 'nullable|array',
+                'engine_number_verification' => 'nullable|string'
             ]);
             
             \Log::info('Engine compartment validation passed:', $validated);
@@ -1032,6 +1034,7 @@ class InspectionController extends Controller
             // Delete existing data for updates
             EngineCompartment::where('inspection_id', $inspection->id)->delete();
             EngineCompartmentFinding::where('inspection_id', $inspection->id)->delete();
+            EngineVerification::where('inspection_id', $inspection->id)->delete();
 
             // Save component data
             if (isset($validated['components'])) {
@@ -1063,6 +1066,14 @@ class InspectionController extends Controller
                 }
             }
 
+            // Save engine number verification
+            if (isset($validated['engine_number_verification']) && !empty($validated['engine_number_verification'])) {
+                EngineVerification::create([
+                    'inspection_id' => $inspection->id,
+                    'verification_notes' => $validated['engine_number_verification']
+                ]);
+            }
+
             // Process images in base64 format
             if (isset($validated['images'])) {
                 // Delete existing engine compartment images
@@ -1086,6 +1097,7 @@ class InspectionController extends Controller
                             'image_type' => 'engine_compartment',
                             'file_path' => $path,
                             'area_name' => $cleanComponentType,
+                            'caption' => $imageData['caption'] ?? null,
                             'original_name' => $cleanComponentType . '_image.jpg'
                         ]);
                     }

@@ -11,6 +11,7 @@ class InspectionImage extends Model
         'inspection_id',
         'image_type',
         'area_name',
+        'caption',
         'file_path',
         'original_name',
         'latitude',

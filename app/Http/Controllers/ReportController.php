@@ -1149,7 +1149,7 @@ class ReportController extends Controller
                     $componentImages[] = [
                         'path' => $image->file_path,
                         'url' => asset('storage/' . $image->file_path),
-                        'caption' => $image->area_name ?? $component->component_type,
+                        'caption' => $image->caption ?? $image->area_name ?? $component->component_type,
                         'timestamp' => $image->created_at
                     ];
                 }
@@ -1177,9 +1177,35 @@ class ReportController extends Controller
             ];
         }
         
+        // Get additional images (not tied to components)
+        $additionalImages = $inspection->images()
+            ->where('image_type', 'engine_compartment')
+            ->where('area_name', 'additional')
+            ->get();
+        
+        $additionalImagesData = [];
+        foreach ($additionalImages as $image) {
+            $fullPath = storage_path('app/public/' . $image->file_path);
+            if (file_exists($fullPath)) {
+                $additionalImagesData[] = [
+                    'path' => $image->file_path,
+                    'url' => asset('storage/' . $image->file_path),
+                    'caption' => $image->caption ?? 'Additional engine compartment image',
+                    'timestamp' => $image->created_at
+                ];
+            }
+        }
+        
+        // Get engine verification data
+        $engineVerification = \DB::table('engine_verification')
+            ->where('inspection_id', $inspection->id)
+            ->first();
+
         $result = [
             'components' => $engineCompartmentData,
             'findings' => $findingsData,
+            'additional_images' => $additionalImagesData,
+            'engine_verification' => $engineVerification ? $engineVerification->verification_notes : null,
             'overall_condition' => $this->calculateOverallCondition($engineCompartmentData)
         ];
         

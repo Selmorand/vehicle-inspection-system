@@ -1834,7 +1834,12 @@
                                     <img src="{{ $image['url'] }}" alt="{{ ucwords(str_replace('_', ' ', $component['component_type'])) }}" style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
                                 </a>
                                 <div style="padding: 10px; text-align: center; font-size: 0.9rem; color: #6c757d;">
-                                    {{ ucwords(str_replace(['_', '-'], ' ', $component['component_type'])) }}
+                                    @if(!empty($image['caption']) && $image['caption'] !== $component['component_type'])
+                                        <strong>{{ $image['caption'] }}</strong><br>
+                                        <small>{{ ucwords(str_replace(['_', '-'], ' ', $component['component_type'])) }}</small>
+                                    @else
+                                        {{ ucwords(str_replace(['_', '-'], ' ', $component['component_type'])) }}
+                                    @endif
                                 </div>
                             </div>
                             @endforeach
@@ -1851,17 +1856,62 @@
 
                 @if(!empty($inspectionData['engine_compartment']['findings']))
                 <h3 style="color: #4f959b; margin: 2rem 0 1rem;">Inspection Findings</h3>
-                <div class="info-card">
+                
+                @php
+                    // Find engine number first
+                    $engineNumberVerification = null;
+                    foreach ($inspectionData['engine_compartment']['findings'] as $finding) {
+                        if ($finding['finding_type'] === 'engine_number_input') {
+                            $engineNumberVerification = $finding['notes'];
+                            break;
+                        }
+                    }
+                @endphp
+                
+                @if($engineNumberVerification)
+                <div class="info-card" style="margin-bottom: 1rem;">
+                    <h6 class="fw-bold text-primary mb-3">Engine Number</h6>
+                    <p style="margin: 0; color: #495057;">{{ $engineNumberVerification }}</p>
+                </div>
+                @endif
+                
+                <div class="info-card" style="margin-bottom: 1rem;">
+                    <h6 class="fw-bold text-primary mb-3">General Engine Compartment Inspection</h6>
                     <ul style="margin: 0; padding-left: 20px;">
                         @foreach($inspectionData['engine_compartment']['findings'] as $finding)
-                        <li>
-                            <strong>{{ ucwords(str_replace('_', ' ', $finding['finding_type'])) }}</strong>
-                            @if(!empty($finding['notes']))
-                            <br><span style="color: #666; font-style: italic;">{{ $finding['notes'] }}</span>
+                            @if($finding['finding_type'] !== 'engine_number_input')
+                            <li>
+                                <strong>{{ ucwords(str_replace('_', ' ', $finding['finding_type'])) }}</strong>
+                                @if(!empty($finding['notes']))
+                                <br><span style="color: #666; font-style: italic;">{{ $finding['notes'] }}</span>
+                                @endif
+                            </li>
                             @endif
-                        </li>
                         @endforeach
                     </ul>
+                </div>
+                
+                <div class="info-card">
+                    <h6 class="fw-bold text-primary mb-3">Component Presence Assessment</h6>
+                    <p style="margin: 0; color: #666; font-style: italic;">Component assessments are shown above in the Component Assessments section.</p>
+                </div>
+                @endif
+
+                @if(!empty($inspectionData['engine_compartment']['additional_images']))
+                <h3 style="color: #4f959b; margin: 2rem 0 1rem;">Additional Engine Compartment Images</h3>
+                <div class="engine-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
+                    @foreach($inspectionData['engine_compartment']['additional_images'] as $image)
+                    <div class="engine-image-card" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background: white;">
+                        <a href="{{ $image['url'] }}" data-lightbox="engine-additional" data-title="{{ $image['caption'] }}">
+                            <img src="{{ $image['url'] }}" alt="Additional engine compartment image" style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
+                        </a>
+                        @if(!empty($image['caption']))
+                        <div style="padding: 12px; text-align: center; font-size: 0.9rem; color: #495057; background: #f8f9fa; border-top: 1px solid #dee2e6;">
+                            <strong>Caption:</strong> {{ $image['caption'] }}
+                        </div>
+                        @endif
+                    </div>
+                    @endforeach
                 </div>
                 @endif
             </div>

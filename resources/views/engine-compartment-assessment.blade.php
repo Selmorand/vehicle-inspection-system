@@ -45,16 +45,15 @@
                         <!-- Engine Number Verification -->
                         <div class="finding-section mb-4">
                             <h6 class="fw-bold text-primary mb-3">Engine Number Verification</h6>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input finding-checkbox" type="checkbox" 
-                                       id="engineNumberNotVisible" name="findings[engine_number_not_visible]" value="1">
-                                <label class="form-check-label" for="engineNumberNotVisible">
-                                    Engine number verification: "not possible to verify engine number (not visible without dismantling)"
+                            <div class="mb-2">
+                                <label class="form-label" for="engineNumberInput">
+                                    Engine number verification (enter notes below):
                                 </label>
-                            </div>
-                            <div class="additional-notes-container" id="engineNumberNotes" style="display: none;">
-                                <textarea class="form-control mt-2" name="findings[engine_number_notes]" rows="2" 
-                                          placeholder="Additional notes regarding engine number verification..."></textarea>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="engineNumberInput" 
+                                       name="findings[engine_number_input]" 
+                                       placeholder="Enter engine number verification details...">
                             </div>
                         </div>
 
@@ -122,6 +121,26 @@
                             <div class="additional-notes-container" id="componentPresenceNotes" style="display: none;">
                                 <textarea class="form-control mt-2" name="findings[component_presence_notes]" rows="2" 
                                           placeholder="Additional observations regarding component presence..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Additional Engine Compartment Images -->
+                        <div class="finding-section mb-4">
+                            <h6 class="fw-bold text-primary mb-3">Additional Engine Compartment Images</h6>
+                            <p class="text-muted mb-3">Capture additional photos of the engine compartment with captions.</p>
+                            
+                            <!-- Camera button without any wrapper boxes -->
+                            <div class="mb-3">
+                                <button type="button" class="additional-photo-btn btn btn-outline-primary" data-panel="engine-additional">
+                                    <i class="bi bi-camera-fill"></i> Take Photo
+                                </button>
+                                <input type="file" accept="image/*" capture="environment" 
+                                       class="d-none additional-camera-input" id="camera-engine-additional">
+                            </div>
+                            
+                            <!-- Image gallery for captured photos -->
+                            <div class="image-gallery" id="gallery-engine-additional" style="display: none;">
+                                <!-- Images will be added here -->
                             </div>
                         </div>
                     </div>
@@ -331,6 +350,114 @@ select[name$="-condition"][value="n/a"] {
     border-color: var(--primary-color);
     color: var(--text-color);
 }
+
+/* Additional Engine Compartment Images Gallery Styles */
+.image-gallery {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f8f9fa;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.captured-image {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    width: 200px;
+}
+
+.captured-image:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.captured-image img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    cursor: pointer;
+    display: block;
+}
+
+.image-caption-input {
+    padding: 8px;
+    border: none;
+    border-top: 1px solid #ddd;
+    width: 100%;
+    font-size: 12px;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.remove-image-btn:hover {
+    background: rgba(220, 53, 69, 1);
+}
+
+/* Image Modal Styles */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.9);
+}
+
+.image-modal-content {
+    margin: auto;
+    display: block;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90%;
+    object-fit: contain;
+    animation: zoom 0.6s;
+}
+
+.image-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.image-modal-close:hover,
+.image-modal-close:focus {
+    color: #bbb;
+}
+
+@keyframes zoom {
+    from { transform: scale(0) }
+    to { transform: scale(1) }
+}
 </style>
 @endsection
 
@@ -345,6 +472,9 @@ let engineCompartmentData = {
 
 let totalFindings = 7;
 
+// Store additional images with captions
+let additionalEngineImages = [];
+
 document.addEventListener('DOMContentLoaded', function() {
     // Load previous inspection data if available
     loadPreviousData();
@@ -354,6 +484,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize engine component assessments using InspectionCards
     initializeEngineComponents();
+    
+    // Initialize additional images capture functionality
+    initializeAdditionalImages();
     
     // Show appropriate navigation button based on inspection type
     setupNavigationButtons();
@@ -395,6 +528,198 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Function to initialize engine components with InspectionCards
+// Initialize additional images capture functionality
+function initializeAdditionalImages() {
+    // Create modal if it doesn't exist
+    if (!document.getElementById('imageModal')) {
+        const modal = document.createElement('div');
+        modal.id = 'imageModal';
+        modal.className = 'image-modal';
+        modal.innerHTML = `
+            <span class="image-modal-close">&times;</span>
+            <img class="image-modal-content" id="modalImage">
+        `;
+        document.body.appendChild(modal);
+        
+        // Modal close handlers
+        modal.querySelector('.image-modal-close').onclick = function() {
+            modal.style.display = 'none';
+        };
+        
+        window.onclick = function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    }
+    
+    // Photo button click handler for additional images only
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.additional-photo-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const fileInput = document.getElementById('camera-engine-additional');
+            if (fileInput) {
+                console.log('Triggering camera for additional engine images');
+                fileInput.click();
+            }
+        }
+    });
+    
+    // File input change handler
+    const fileInput = document.getElementById('camera-engine-additional');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file.');
+                    e.target.value = '';
+                    return;
+                }
+                // Validate file size (max 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Image file is too large. Maximum size is 10MB.');
+                    e.target.value = '';
+                    return;
+                }
+                processAdditionalImage(file);
+                // Clear input AFTER processing to allow reuse
+                setTimeout(() => {
+                    e.target.value = '';
+                }, 100);
+            }
+        });
+    }
+}
+
+// Process additional images
+function processAdditionalImage(file) {
+    try {
+        console.log('Processing additional engine image:', file.name, file.size);
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            try {
+                const imageData = e.target.result;
+                const imageId = `engine-additional-${Date.now()}`;
+                
+                const imageInfo = {
+                    id: imageId,
+                    data: imageData,
+                    caption: '', // Will be filled by user
+                    timestamp: new Date().toISOString()
+                };
+                
+                additionalEngineImages.push(imageInfo);
+                console.log('Image processed, displaying:', imageId);
+                displayAdditionalImage(imageInfo);
+            } catch (error) {
+                console.error('Error processing image data:', error);
+                if (typeof notify !== 'undefined' && notify.error) {
+                    notify.error('Error processing image. Please try again.');
+                } else {
+                    console.error('Error processing image:', error);
+                }
+            }
+        };
+        
+        reader.onerror = function(error) {
+            console.error('FileReader error:', error);
+            if (typeof notify !== 'undefined' && notify.error) {
+                notify.error('Error reading image file. Please try again.');
+            }
+        };
+        
+        reader.readAsDataURL(file);
+    } catch (error) {
+        console.error('Error in processAdditionalImage:', error);
+        if (typeof notify !== 'undefined' && notify.error) {
+            notify.error('Error processing image: ' + error.message);
+        }
+    }
+}
+
+// Display additional images with caption input
+function displayAdditionalImage(imageInfo) {
+    const gallery = document.getElementById('gallery-engine-additional');
+    
+    if (gallery) {
+        gallery.style.display = 'flex';
+        
+        const imageContainer = document.createElement('div');
+        imageContainer.className = 'captured-image';
+        imageContainer.dataset.imageId = imageInfo.id;
+        imageContainer.style.position = 'relative';
+        
+        // Create elements programmatically to avoid quote escaping issues
+        const img = document.createElement('img');
+        img.src = imageInfo.data;
+        img.alt = 'Engine compartment image';
+        img.title = 'Click to view full size';
+        img.onclick = function() { openImageModal(imageInfo.data); };
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-image-btn';
+        removeBtn.title = 'Remove image';
+        removeBtn.onclick = function() { removeAdditionalImage(imageInfo.id); };
+        removeBtn.innerHTML = '<i class="bi bi-x"></i>';
+        
+        const captionInput = document.createElement('input');
+        captionInput.type = 'text';
+        captionInput.className = 'image-caption-input';
+        captionInput.placeholder = 'Enter image caption...';
+        captionInput.dataset.imageId = imageInfo.id;
+        captionInput.value = imageInfo.caption || '';
+        captionInput.onchange = function() { updateImageCaption(imageInfo.id, this.value); };
+        
+        imageContainer.appendChild(img);
+        imageContainer.appendChild(removeBtn);
+        imageContainer.appendChild(captionInput);
+        
+        gallery.appendChild(imageContainer);
+    }
+}
+
+// Update image caption
+function updateImageCaption(imageId, caption) {
+    const image = additionalEngineImages.find(img => img.id === imageId);
+    if (image) {
+        image.caption = caption;
+        console.log('Caption updated for image:', imageId, 'Caption:', caption);
+    }
+}
+
+// Remove additional image
+function removeAdditionalImage(imageId) {
+    // Remove from data array
+    additionalEngineImages = additionalEngineImages.filter(img => img.id !== imageId);
+    
+    // Remove from DOM
+    const imageContainer = document.querySelector(`[data-image-id="${imageId}"]`);
+    if (imageContainer) {
+        imageContainer.remove();
+    }
+    
+    // Hide gallery if no images
+    const gallery = document.getElementById('gallery-engine-additional');
+    if (gallery && gallery.children.length === 0) {
+        gallery.style.display = 'none';
+    }
+}
+
+// Modal functionality
+function openImageModal(imageSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    if (modal && modalImg) {
+        modal.style.display = 'block';
+        modalImg.src = imageSrc;
+    }
+}
+
 function initializeEngineComponents() {
     // Initialize the reusable InspectionCards system for engine components
     InspectionCards.init({
@@ -575,6 +900,21 @@ async function saveEngineCompartmentData() {
                 notes: notesInput ? notesInput.value : null
             });
         });
+        
+        // Add engine number verification text input
+        const engineNumberInput = document.getElementById('engineNumberInput');
+        console.log('Engine number input element:', engineNumberInput);
+        console.log('Engine number input value:', engineNumberInput ? engineNumberInput.value : 'not found');
+        if (engineNumberInput && engineNumberInput.value.trim()) {
+            console.log('Adding engine number finding:', engineNumberInput.value.trim());
+            apiData.findings.push({
+                finding_type: 'engine_number_input',
+                is_checked: true,
+                notes: engineNumberInput.value.trim()
+            });
+        } else {
+            console.log('Engine number input is empty or not found');
+        }
 
         // Get form data and images from InspectionCards (EXACT WORKING PATTERN)
         let formData = {};
@@ -638,6 +978,19 @@ async function saveEngineCompartmentData() {
                     });
                 });
             }
+        }
+        
+        // Add additional images with captions
+        if (additionalEngineImages && additionalEngineImages.length > 0) {
+            additionalEngineImages.forEach(img => {
+                apiData.images.push({
+                    component_type: 'additional',
+                    image_data: img.data,
+                    caption: img.caption || '',
+                    original_name: `additional_engine_${img.id}.jpg`
+                });
+            });
+            console.log('Additional engine images with captions:', additionalEngineImages.length);
         }
         
         console.log('Engine components data extracted:', apiData.components);
@@ -835,6 +1188,19 @@ function setupNavigationButtons() {
             
             console.log('Final transformed images for API:', apiData.images);
             
+            // Add additional images with captions
+            if (additionalEngineImages && additionalEngineImages.length > 0) {
+                additionalEngineImages.forEach(img => {
+                    apiData.images.push({
+                        component_type: 'additional',
+                        image_data: img.data,
+                        caption: img.caption || '',
+                        original_name: `additional_engine_${img.id}.jpg`
+                    });
+                });
+                console.log('Additional engine images with captions added:', additionalEngineImages.length);
+            }
+            
             // Extract findings from checkboxes
             const checkboxes = document.querySelectorAll('.finding-checkbox:checked');
             checkboxes.forEach(checkbox => {
@@ -847,6 +1213,16 @@ function setupNavigationButtons() {
                     notes: notesInput ? notesInput.value : null
                 });
             });
+            
+            // Add engine number verification text input
+            const engineNumberInput = document.getElementById('engineNumberInput');
+            if (engineNumberInput && engineNumberInput.value.trim()) {
+                apiData.findings.push({
+                    finding_type: 'engine_number_input',
+                    is_checked: true,
+                    notes: engineNumberInput.value.trim()
+                });
+            }
             
             // Extract component data from form data (map engine fields) 
             const componentMap = {};
@@ -993,6 +1369,19 @@ function setupNavigationButtons() {
             
             console.log('Final transformed images for API:', apiData.images);
             
+            // Add additional images with captions
+            if (additionalEngineImages && additionalEngineImages.length > 0) {
+                additionalEngineImages.forEach(img => {
+                    apiData.images.push({
+                        component_type: 'additional',
+                        image_data: img.data,
+                        caption: img.caption || '',
+                        original_name: `additional_engine_${img.id}.jpg`
+                    });
+                });
+                console.log('Additional engine images with captions added:', additionalEngineImages.length);
+            }
+            
             // Extract findings from checkboxes
             const checkboxes = document.querySelectorAll('.finding-checkbox:checked');
             checkboxes.forEach(checkbox => {
@@ -1005,6 +1394,16 @@ function setupNavigationButtons() {
                     notes: notesInput ? notesInput.value : null
                 });
             });
+            
+            // Add engine number verification text input
+            const engineNumberInput = document.getElementById('engineNumberInput');
+            if (engineNumberInput && engineNumberInput.value.trim()) {
+                apiData.findings.push({
+                    finding_type: 'engine_number_input',
+                    is_checked: true,
+                    notes: engineNumberInput.value.trim()
+                });
+            }
             
             // Extract component data from form data (map engine fields) 
             const componentMap = {};
