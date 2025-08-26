@@ -635,11 +635,15 @@
         $validBrakePositions = [];
         if (!empty($inspectionData['braking_system']) && is_array($inspectionData['braking_system'])) {
             foreach ($inspectionData['braking_system'] as $brake) {
-                $hasData = !empty($brake['pad_life']) || !empty($brake['pad_condition']) || 
-                          !empty($brake['disc_life']) || !empty($brake['disc_condition']) || !empty($brake['comments']);
+                // Check each field individually - be more permissive with data checking
+                $hasPadLife = isset($brake['pad_life']) && $brake['pad_life'] !== '' && $brake['pad_life'] !== null;
+                $hasPadCondition = isset($brake['pad_condition']) && $brake['pad_condition'] !== '' && $brake['pad_condition'] !== null && $brake['pad_condition'] !== 'not_assessed';
+                $hasDiscLife = isset($brake['disc_life']) && $brake['disc_life'] !== '' && $brake['disc_life'] !== null;
+                $hasDiscCondition = isset($brake['disc_condition']) && $brake['disc_condition'] !== '' && $brake['disc_condition'] !== null && $brake['disc_condition'] !== 'not_assessed';
+                $hasComments = isset($brake['comments']) && $brake['comments'] !== '' && $brake['comments'] !== null;
                 $hasImages = !empty($brake['images']) && is_array($brake['images']) && count($brake['images']) > 0;
                 
-                if ($hasData || $hasImages) {
+                if ($hasPadLife || $hasPadCondition || $hasDiscLife || $hasDiscCondition || $hasComments || $hasImages) {
                     $validBrakePositions[] = $brake;
                 }
             }

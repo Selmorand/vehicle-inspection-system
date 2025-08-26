@@ -15,7 +15,7 @@ Add these secrets for automated deployment:
 STAGING_HOST          = 169.239.218.62 
 STAGING_USER          = selproho  
 STAGING_SSH_KEY       = your-private-ssh-key-content
-STAGING_PORT          = 22
+STAGING_PORT          = 22000
 STAGING_PATH          = /public_html/staging.alphainspections.co.za
 STAGING_DB_USER       = alphains_staging
 STAGING_DB_PASSWORD   = ~cMS4%Xn!g1c  

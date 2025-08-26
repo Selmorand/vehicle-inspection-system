@@ -136,6 +136,12 @@
                                                    title="View Web Report">
                                                     <i class="bi bi-eye"></i>
                                                 </a>
+                                                <a href="{{ route('reports.pdf', $report->id) }}" 
+                                                   class="btn btn-sm btn-secondary action-btn" 
+                                                   title="Download PDF Report"
+                                                   target="_blank">
+                                                    <i class="bi bi-file-pdf"></i>
+                                                </a>
                                                 <form action="{{ route('reports.destroy', $report->id) }}" 
                                                       method="POST" 
                                                       class="d-inline"

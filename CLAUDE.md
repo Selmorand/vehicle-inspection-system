@@ -122,4 +122,5 @@ REQUIREMENTS:
 2. ...
 ```
 
-- never use tables in this project
+- never use tables in this project 
+- work local only never update git without without explicit instructions are given
