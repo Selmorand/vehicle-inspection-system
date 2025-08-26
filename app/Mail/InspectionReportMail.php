@@ -15,7 +15,7 @@ class InspectionReportMail extends Mailable
     use Queueable, SerializesModels;
 
     public $inspectionData;
-    public $pdfContent;
+    public $pdfPath;
     public $pdfFilename;
     public $customSubject;
     public $customMessage;
@@ -23,10 +23,10 @@ class InspectionReportMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($inspectionData, $pdfContent, $pdfFilename, $customSubject = null, $customMessage = null)
+    public function __construct($inspectionData, $pdfPath, $pdfFilename, $customSubject = null, $customMessage = null)
     {
         $this->inspectionData = $inspectionData;
-        $this->pdfContent = $pdfContent;
+        $this->pdfPath = $pdfPath; // Path to saved PDF file
         $this->pdfFilename = $pdfFilename;
         $this->customSubject = $customSubject;
         $this->customMessage = $customMessage;
@@ -65,8 +65,14 @@ class InspectionReportMail extends Mailable
      */
     public function attachments(): array
     {
+        // Check if pdfPath is a full path or relative path
+        $fullPath = file_exists($this->pdfPath) 
+            ? $this->pdfPath 
+            : storage_path('app/public/' . $this->pdfPath);
+            
         return [
-            Attachment::fromData(fn () => $this->pdfContent, $this->pdfFilename)
+            Attachment::fromPath($fullPath)
+                ->as($this->pdfFilename)
                 ->withMime('application/pdf')
         ];
     }

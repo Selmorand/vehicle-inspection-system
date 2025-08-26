@@ -1426,4 +1426,162 @@ class ReportController extends Controller
             return 'Good';
         }
     }
+
+    /**
+     * Email a report to a specified address
+     */
+    public function emailReport($id, Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'message' => 'nullable|string|max:1000'
+            ]);
+
+            // Find the inspection
+            $inspection = \App\Models\Inspection::with(['client', 'vehicle', 'images', 'bodyPanelAssessments', 'interiorAssessments'])->find($id);
+            
+            if (!$inspection) {
+                return response()->json(['error' => 'Inspection not found'], 404);
+            }
+
+            // Build inspection data for email template
+            $inspectionData = [
+                'client' => [
+                    'name' => $inspection->client->name ?? 'Not specified',
+                    'contact' => $inspection->client->phone ?? null,
+                    'email' => $inspection->client->email ?? null
+                ],
+                'vehicle' => [
+                    'make' => $inspection->vehicle->manufacturer ?? 'Not specified',
+                    'model' => $inspection->vehicle->model ?? 'Not specified',
+                    'year' => $inspection->vehicle->year ?? 'Not specified',
+                    'vin' => $inspection->vehicle->vin ?? 'Not specified',
+                    'license_plate' => $inspection->vehicle->registration_number ?? 'Not specified',
+                    'mileage' => $inspection->vehicle->mileage ?? 'Not specified'
+                ],
+                'inspection' => [
+                    'inspector' => $inspection->inspector_name ?? 'Not specified',
+                    'date' => $inspection->inspection_date ?? $inspection->created_at->format('Y-m-d H:i')
+                ],
+                'generated_at' => now()->format('Y-m-d H:i:s')
+            ];
+
+            // Create report object
+            $report = (object)[
+                'id' => $inspection->id,
+                'report_number' => 'INS-' . str_pad($inspection->id, 6, '0', STR_PAD_LEFT),
+            ];
+
+            // Generate HTML for PDF (simplified for email endpoint)
+            $baseUrl = config('app.url', request()->getSchemeAndHttpHost());
+            $html = view('pdf.simple-report', [
+                'report' => $report,
+                'inspectionData' => [
+                    'client' => $inspectionData['client'],
+                    'vehicle' => $inspectionData['vehicle'],
+                    'inspection' => [
+                        'inspector' => $inspectionData['inspection']['inspector'],
+                        'date' => $inspectionData['inspection']['date'],
+                        'diagnostic_report' => $inspection->diagnostic_report ?? null,
+                        'diagnostic_file' => $this->getDiagnosticFileData($inspection)
+                    ],
+                    'images' => $this->organizeImagesForReport($inspection->images),
+                    'body_panels' => $this->formatBodyPanelsForReport($inspection),
+                    'interior' => [
+                        'assessments' => $this->formatInteriorAssessmentsForReport($inspection)
+                    ],
+                    'service_booklet' => $this->formatServiceBookletForReport($inspection),
+                    'tyres_rims' => $this->formatTyresRimsForReport($inspection),
+                    'mechanical_report' => $this->formatMechanicalReportForReport($inspection),
+                    'braking_system' => $this->formatBrakingSystemForReport($inspection),
+                    'engine_compartment' => $this->formatEngineCompartmentForReport($inspection),
+                    'physical_hoist' => $this->formatPhysicalHoistForReport($inspection)
+                ],
+                'baseUrl' => $baseUrl
+            ])->render();
+
+            // Save PDF to disk (skip diagram processing for email to avoid Chrome/JS issues)
+            $pdfService = new \App\Services\PdfService();
+            
+            // Generate PDF directly without processVehicleDiagrams to avoid Chrome/DOM errors in email context
+            try {
+                // Generate PDF with basic HTML processing only
+                $mpdf = new \Mpdf\Mpdf([
+                    'mode' => 'utf-8',
+                    'format' => 'A4',
+                    'default_font_size' => 10,
+                    'margin_left' => 15,
+                    'margin_right' => 15,
+                    'margin_top' => 16,
+                    'margin_bottom' => 16,
+                    'tempDir' => storage_path('app/temp'),
+                    'allow_output_buffering' => true,
+                    'shrink_tables_to_fit' => 1,
+                    'use_kwt' => true,
+                    'packTableData' => true,
+                    'img_dpi' => 96,
+                    'showImageErrors' => false,
+                    'curlAllowUnsafeSslRequests' => true,
+                    'allow_charset_conversion' => true
+                ]);
+                
+                // Process images for PDF but skip vehicle diagram processing
+                $processedHtml = $pdfService->processImagesForPdf($html);
+                $mpdf->WriteHTML($processedHtml);
+                
+                // Generate unique filename
+                $timestamp = date('Y-m-d_H-i-s');
+                $filename = 'report_' . $report->report_number . '_' . $timestamp . '.pdf';
+                $fullPath = storage_path('app/public/reports/' . $filename);
+                
+                // Ensure directory exists
+                if (!file_exists(dirname($fullPath))) {
+                    mkdir(dirname($fullPath), 0755, true);
+                }
+                
+                $mpdf->Output($fullPath, 'F');
+                $savedPath = 'reports/' . $filename;
+                
+            } catch (\Exception $pdfException) {
+                \Log::error('PDF generation failed: ' . $pdfException->getMessage());
+                throw new \Exception('Failed to generate PDF: ' . $pdfException->getMessage());
+            }
+
+            if (!$savedPath) {
+                return response()->json(['error' => 'Failed to generate PDF'], 500);
+            }
+
+            // Send email with the saved PDF
+            $customSubject = 'Vehicle Inspection Report - ' . $report->report_number;
+            $customMessage = $request->input('message');
+
+            try {
+                \Mail::to($request->input('email'))->send(new \App\Mail\InspectionReportMail(
+                    $inspectionData,
+                    $savedPath,
+                    'report_' . $report->report_number . '.pdf',
+                    $customSubject,
+                    $customMessage
+                ));
+            } catch (\Exception $mailException) {
+                \Log::error('Mail sending failed: ' . $mailException->getMessage());
+                \Log::error('Mail stack trace: ' . $mailException->getTraceAsString());
+                throw new \Exception('Email sending failed: ' . $mailException->getMessage());
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Email sent successfully',
+                'recipient' => $request->input('email'),
+                'report_number' => $report->report_number
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Invalid input: ' . implode(', ', $e->validator->errors()->all())], 422);
+        } catch (\Exception $e) {
+            \Log::error('Email report error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
+        }
+    }
 }

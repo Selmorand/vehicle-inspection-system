@@ -142,6 +142,12 @@
                                                    target="_blank">
                                                     <i class="bi bi-file-pdf"></i>
                                                 </a>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-success action-btn" 
+                                                        title="Email Report"
+                                                        onclick="openEmailModal({{ $report->id }}, '{{ $report->report_number }}', '{{ $report->client_email ?? '' }}')">
+                                                    <i class="bi bi-envelope"></i>
+                                                </button>
                                                 <form action="{{ route('reports.destroy', $report->id) }}" 
                                                       method="POST" 
                                                       class="d-inline"
@@ -182,6 +188,59 @@
         </div>
     </div>
 </div>
+
+<!-- Email Modal -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color: #4f959b; color: white !important;">
+                <h5 class="modal-title" id="emailModalLabel" style="color: white !important;">
+                    <i class="bi bi-envelope"></i> Email Inspection Report
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="emailForm">
+                    <div class="mb-3">
+                        <label class="form-label">Report Number</label>
+                        <input type="text" class="form-control" id="reportNumber" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="recipientEmail" class="form-label">Recipient Email <span class="text-danger">*</span></label>
+                        <input type="email" 
+                               class="form-control" 
+                               id="recipientEmail" 
+                               placeholder="client@example.com"
+                               required>
+                        <div class="form-text">Enter the email address where the report should be sent</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customMessage" class="form-label">Custom Message (Optional)</label>
+                        <textarea class="form-control" 
+                                  id="customMessage" 
+                                  rows="3" 
+                                  placeholder="Add a personal message to include in the email..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="sendEmail()" id="sendEmailBtn">
+                    <i class="bi bi-send"></i> Send Email
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Alert (Hidden by default) -->
+<div class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" 
+     style="z-index: 9999; display: none;" 
+     id="successAlert">
+    <i class="bi bi-check-circle"></i> <span id="successMessage"></span>
+    <button type="button" class="btn-close" onclick="hideSuccessAlert()"></button>
+</div>
+
 @endsection
 
 @section('additional-css')
@@ -287,6 +346,8 @@
 
 @section('additional-js')
 <script>
+let currentReportId = null;
+
 // Auto-hide alerts after 5 seconds
 document.addEventListener('DOMContentLoaded', function() {
     const alerts = document.querySelectorAll('.alert-dismissible');
@@ -297,5 +358,141 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 });
+
+function openEmailModal(reportId, reportNumber, clientEmail = '') {
+    currentReportId = reportId;
+    document.getElementById('reportNumber').value = reportNumber;
+    document.getElementById('recipientEmail').value = clientEmail;
+    document.getElementById('customMessage').value = '';
+    
+    // Enable the send button
+    document.getElementById('sendEmailBtn').disabled = false;
+    document.getElementById('sendEmailBtn').innerHTML = '<i class="bi bi-send"></i> Send Email';
+    
+    // Show the modal
+    new bootstrap.Modal(document.getElementById('emailModal')).show();
+}
+
+async function sendEmail() {
+    const recipientEmail = document.getElementById('recipientEmail').value;
+    const customMessage = document.getElementById('customMessage').value;
+    const sendBtn = document.getElementById('sendEmailBtn');
+    
+    if (!recipientEmail) {
+        alert('Please enter a recipient email address');
+        return;
+    }
+    
+    // Disable button and show loading
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending...';
+    
+    try {
+        const response = await fetch(`/api/reports/email/${currentReportId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                email: recipientEmail,
+                message: customMessage
+            })
+        });
+        
+        let result;
+        try {
+            result = await response.json();
+        } catch (jsonError) {
+            throw new Error('Invalid server response');
+        }
+        
+        if (response.ok && result.success) {
+            // Hide modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('emailModal'));
+            if (modal) modal.hide();
+            
+            // Debug: Check if elements exist
+            console.log('Success alert element:', document.getElementById('successAlert'));
+            console.log('Success message element:', document.getElementById('successMessage'));
+            
+            // Show success alert
+            showSuccessAlert('Email sent successfully! The report has been delivered.');
+            
+            // Reset button
+            sendBtn.innerHTML = '<i class="bi bi-send"></i> Send Email';
+            sendBtn.className = 'btn btn-success';
+            sendBtn.disabled = false;
+            
+            return; // Exit the function successfully
+        } else {
+            throw new Error(result.error || 'Failed to send email');
+        }
+    } catch (error) {
+        console.error('Email error:', error);
+        
+        // Simple error display - change button to show error
+        sendBtn.innerHTML = '❌ Error: ' + error.message.substring(0, 20);
+        sendBtn.className = 'btn btn-danger';
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+            sendBtn.innerHTML = '<i class="bi bi-send"></i> Send Email';
+            sendBtn.className = 'btn btn-success';
+            sendBtn.disabled = false;
+        }, 3000);
+    }
+}
+
+function showSuccessAlert(message) {
+    console.log('showSuccessAlert called with message:', message);
+    
+    const alert = document.getElementById('successAlert');
+    const messageElement = document.getElementById('successMessage');
+    
+    console.log('Alert element found:', !!alert);
+    console.log('Message element found:', !!messageElement);
+    
+    if (!alert || !messageElement) {
+        console.error('Success alert elements not found - creating dynamic alert');
+        
+        // Create a dynamic success alert at the top of the page
+        const dynamicAlert = document.createElement('div');
+        dynamicAlert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        dynamicAlert.style.cssText = 'top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 500px;';
+        dynamicAlert.innerHTML = `
+            <i class="bi bi-check-circle"></i> ${message}
+            <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+        `;
+        
+        document.body.appendChild(dynamicAlert);
+        
+        // Auto-hide after 4 seconds
+        setTimeout(() => {
+            if (dynamicAlert && dynamicAlert.parentNode) {
+                dynamicAlert.remove();
+            }
+        }, 4000);
+        
+        return;
+    }
+    
+    messageElement.textContent = message;
+    alert.style.display = 'block';
+    alert.style.opacity = '1';
+    
+    // Auto-hide after 4 seconds minimum
+    setTimeout(() => {
+        hideSuccessAlert();
+    }, 4000);
+}
+
+function hideSuccessAlert() {
+    const alert = document.getElementById('successAlert');
+    if (alert) {
+        alert.style.display = 'none';
+        alert.style.opacity = '0';
+    }
+}
 </script>
 @endsection

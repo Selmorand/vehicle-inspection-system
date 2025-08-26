@@ -124,6 +124,107 @@ Route::get('/reports/{id}', [App\Http\Controllers\ReportController::class, 'show
 Route::delete('/reports/{id}', [App\Http\Controllers\ReportController::class, 'destroy'])->name('reports.destroy');
 Route::delete('/reports', [App\Http\Controllers\ReportController::class, 'destroyAll'])->name('reports.destroy-all');
 
+// Email report functionality
+Route::post('/api/reports/email/{id}', [App\Http\Controllers\ReportController::class, 'emailReport'])->name('api.reports.email');
+
+// Simple email test route
+Route::get('/test-simple-email', function() {
+    try {
+        // Test sending a very basic email
+        \Mail::raw('This is a simple test email with no templates or attachments.', function ($message) {
+            $message->to('george@beeza.co.za')
+                    ->subject('Simple Test Email')
+                    ->from('report@alphainspections.co.za', 'Alpha Inspections');
+        });
+        
+        return response()->json(['success' => true, 'message' => 'Simple email sent']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+// Test mailable class with simple PDF
+Route::get('/test-mailable', function() {
+    try {
+        // Create minimal test data
+        $inspectionData = [
+            'client' => ['name' => 'Test Client'],
+            'vehicle' => [
+                'make' => 'Test Make',
+                'model' => 'Test Model', 
+                'year' => '2020',
+                'vin' => 'TEST123',
+                'license_plate' => 'TEST123',
+                'mileage' => '50000'
+            ],
+            'inspection' => [
+                'inspector' => 'Test Inspector',
+                'date' => '2025-08-26'
+            ]
+        ];
+        
+        // Create a simple test PDF file
+        $testPdfContent = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\nxref\n0 4\n0000000000 65535 f\n0000000009 00000 n\n0000000058 00000 n\n0000000115 00000 n\ntrailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n178\n%%EOF";
+        $testPdfPath = storage_path('app/public/reports/test.pdf');
+        
+        // Ensure directory exists
+        if (!file_exists(dirname($testPdfPath))) {
+            mkdir(dirname($testPdfPath), 0755, true);
+        }
+        
+        file_put_contents($testPdfPath, $testPdfContent);
+        
+        // Test the mailable class
+        \Mail::to('george@beeza.co.za')->send(new App\Mail\InspectionReportMail(
+            $inspectionData,
+            'reports/test.pdf', // relative path
+            'test-report.pdf',
+            'Test Mailable Subject',
+            'This is a test message'
+        ));
+        
+        return response()->json(['success' => true, 'message' => 'Mailable test sent']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+// Test just the email template without PDF
+Route::get('/test-email-template', function() {
+    try {
+        // Create minimal test data
+        $inspectionData = [
+            'client' => ['name' => 'Test Client'],
+            'vehicle' => [
+                'make' => 'Test Make',
+                'model' => 'Test Model', 
+                'year' => '2020',
+                'vin' => 'TEST123',
+                'license_plate' => 'TEST123',
+                'mileage' => '50000'
+            ],
+            'inspection' => [
+                'inspector' => 'Test Inspector',
+                'date' => '2025-08-26'
+            ]
+        ];
+        
+        // Test sending template email without attachment
+        \Mail::send('emails.inspection-report', [
+            'inspectionData' => $inspectionData,
+            'customMessage' => 'This is a test message'
+        ], function ($message) {
+            $message->to('george@beeza.co.za')
+                    ->subject('Test Template Email')
+                    ->from('report@alphainspections.co.za', 'Alpha Inspections');
+        });
+        
+        return response()->json(['success' => true, 'message' => 'Template email sent']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
 // Test route to diagnose PDF issues
 Route::get('/test-pdf', function() {
     try {
@@ -220,6 +321,235 @@ Route::get('/test-temp', function() {
         
     } catch (\Exception $e) {
         return response()->json(['error' => 'Temp test failed: ' . $e->getMessage()], 500);
+    }
+});
+
+// Simple test to verify PDF saving works
+Route::get('/test-pdf-save', function() {
+    try {
+        // Create a simple test HTML
+        $html = '<h1>Test PDF</h1><p>This is a test PDF to verify saving functionality works.</p>';
+        $html .= '<p>Generated at: ' . now()->format('Y-m-d H:i:s') . '</p>';
+        
+        // Use PdfService to save PDF
+        $pdfService = new App\Services\PdfService();
+        $savedPath = $pdfService->generateAndSavePdf($html, 'test_pdf.pdf');
+        
+        if ($savedPath) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Test PDF saved successfully',
+                'path' => $savedPath,
+                'full_path' => storage_path('app/public/' . $savedPath),
+                'url' => asset('storage/' . $savedPath)
+            ]);
+        } else {
+            return response()->json(['error' => 'Failed to save PDF'], 500);
+        }
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error: ' . $e->getMessage()], 500);
+    }
+});
+
+// Test route to save PDF to disk
+Route::get('/test-save-pdf/{id}', function($id) {
+    try {
+        // Find the inspection
+        $inspection = App\Models\Inspection::with(['client', 'vehicle', 'images', 'bodyPanelAssessments', 'interiorAssessments'])->find($id);
+        
+        if (!$inspection) {
+            return response()->json(['error' => 'Inspection not found'], 404);
+        }
+        
+        // Get the ReportController to format data
+        $reportController = new App\Http\Controllers\ReportController();
+        
+        // Build inspection data using the same format as PDF generation
+        $inspectionData = [
+            'client' => [
+                'name' => $inspection->client->name ?? 'Not specified',
+                'contact' => $inspection->client->phone ?? null,
+                'email' => $inspection->client->email ?? null
+            ],
+            'vehicle' => [
+                'make' => $inspection->vehicle->manufacturer ?? 'Not specified',
+                'model' => $inspection->vehicle->model ?? 'Not specified',
+                'year' => $inspection->vehicle->year ?? 'Not specified',
+                'vin' => $inspection->vehicle->vin ?? 'Not specified',
+                'license_plate' => $inspection->vehicle->registration_number ?? 'Not specified',
+                'mileage' => $inspection->vehicle->mileage ?? 'Not specified',
+                'vehicle_type' => $inspection->vehicle->vehicle_type ?? 'Not specified',
+                'colour' => $inspection->vehicle->colour ?? 'Not specified',
+                'fuel_type' => $inspection->vehicle->fuel_type ?? 'Not specified',
+                'transmission' => $inspection->vehicle->transmission ?? 'Not specified',
+                'doors' => $inspection->vehicle->doors ?? 'Not specified',
+                'engine_number' => $inspection->vehicle->engine_number ?? 'Not specified'
+            ],
+            'inspection' => [
+                'inspector' => $inspection->inspector_name ?? 'Not specified',
+                'date' => $inspection->inspection_date ?? $inspection->created_at->format('Y-m-d H:i'),
+                'diagnostic_report' => $inspection->diagnostic_report ?? null,
+                'diagnostic_file' => $reportController->getDiagnosticFileData($inspection)
+            ],
+            'images' => $reportController->organizeImagesForReport($inspection->images),
+            'body_panels' => $reportController->formatBodyPanelsForReport($inspection),
+            'interior' => [
+                'assessments' => $reportController->formatInteriorAssessmentsForReport($inspection)
+            ],
+            'service_booklet' => $reportController->formatServiceBookletForReport($inspection),
+            'tyres_rims' => $reportController->formatTyresRimsForReport($inspection),
+            'mechanical_report' => $reportController->formatMechanicalReportForReport($inspection),
+            'braking_system' => $reportController->formatBrakingSystemForReport($inspection),
+            'engine_compartment' => $reportController->formatEngineCompartmentForReport($inspection),
+            'physical_hoist' => $reportController->formatPhysicalHoistForReport($inspection)
+        ];
+        
+        // Create report object
+        $report = (object)[
+            'id' => $inspection->id,
+            'report_number' => 'INS-' . str_pad($inspection->id, 6, '0', STR_PAD_LEFT),
+            'client_name' => $inspection->client->name ?? 'Not specified',
+            'vehicle_make' => $inspection->vehicle->manufacturer ?? 'Unknown Make',
+            'vehicle_model' => $inspection->vehicle->model ?? 'Unknown Model',
+            'inspection_date' => $inspection->inspection_date ?? $inspection->created_at->toDateString(),
+        ];
+        
+        // Generate HTML for PDF
+        $baseUrl = config('app.url', 'http://localhost/vehicle-inspection');
+        $html = view('pdf.simple-report', [
+            'report' => $report,
+            'inspectionData' => $inspectionData,
+            'baseUrl' => $baseUrl
+        ])->render();
+        
+        // Use PdfService to save PDF
+        $pdfService = new App\Services\PdfService();
+        $savedPath = $pdfService->generateAndSavePdf($html, 'report_' . $report->report_number . '.pdf');
+        
+        if ($savedPath) {
+            return response()->json([
+                'success' => true,
+                'message' => 'PDF saved successfully',
+                'path' => $savedPath,
+                'full_path' => storage_path('app/public/' . $savedPath),
+                'url' => asset('storage/' . $savedPath)
+            ]);
+        } else {
+            return response()->json(['error' => 'Failed to save PDF'], 500);
+        }
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error: ' . $e->getMessage()], 500);
+    }
+});
+
+// Test email sending with PDF attachment
+Route::get('/test-email-pdf/{id}', function($id) {
+    try {
+        // Find the inspection
+        $inspection = App\Models\Inspection::with(['client', 'vehicle', 'images', 'bodyPanelAssessments', 'interiorAssessments'])->find($id);
+        
+        if (!$inspection) {
+            return response()->json(['error' => 'Inspection not found'], 404);
+        }
+        
+        // Get the ReportController to format data
+        $reportController = new App\Http\Controllers\ReportController();
+        
+        // Build inspection data
+        $inspectionData = [
+            'client' => [
+                'name' => $inspection->client->name ?? 'Not specified',
+                'contact' => $inspection->client->phone ?? null,
+                'email' => $inspection->client->email ?? null
+            ],
+            'vehicle' => [
+                'make' => $inspection->vehicle->manufacturer ?? 'Not specified',
+                'model' => $inspection->vehicle->model ?? 'Not specified',
+                'year' => $inspection->vehicle->year ?? 'Not specified',
+                'vin' => $inspection->vehicle->vin ?? 'Not specified',
+                'license_plate' => $inspection->vehicle->registration_number ?? 'Not specified',
+                'mileage' => $inspection->vehicle->mileage ?? 'Not specified'
+            ],
+            'inspection' => [
+                'inspector' => $inspection->inspector_name ?? 'Not specified',
+                'date' => $inspection->inspection_date ?? $inspection->created_at->format('Y-m-d H:i')
+            ]
+        ];
+        
+        // Create report object
+        $report = (object)[
+            'id' => $inspection->id,
+            'report_number' => 'INS-' . str_pad($inspection->id, 6, '0', STR_PAD_LEFT)
+        ];
+        
+        // First, generate and save the PDF
+        $baseUrl = config('app.url', 'http://localhost/vehicle-inspection');
+        $html = view('pdf.simple-report', [
+            'report' => $report,
+            'inspectionData' => [
+                'client' => $inspectionData['client'],
+                'vehicle' => $inspectionData['vehicle'],
+                'inspection' => [
+                    'inspector' => $inspectionData['inspection']['inspector'],
+                    'date' => $inspectionData['inspection']['date'],
+                    'diagnostic_report' => $inspection->diagnostic_report ?? null,
+                    'diagnostic_file' => $reportController->getDiagnosticFileData($inspection)
+                ],
+                'images' => $reportController->organizeImagesForReport($inspection->images),
+                'body_panels' => $reportController->formatBodyPanelsForReport($inspection),
+                'interior' => [
+                    'assessments' => $reportController->formatInteriorAssessmentsForReport($inspection)
+                ],
+                'service_booklet' => $reportController->formatServiceBookletForReport($inspection),
+                'tyres_rims' => $reportController->formatTyresRimsForReport($inspection),
+                'mechanical_report' => $reportController->formatMechanicalReportForReport($inspection),
+                'braking_system' => $reportController->formatBrakingSystemForReport($inspection),
+                'engine_compartment' => $reportController->formatEngineCompartmentForReport($inspection),
+                'physical_hoist' => $reportController->formatPhysicalHoistForReport($inspection)
+            ],
+            'baseUrl' => $baseUrl
+        ])->render();
+        
+        // Save PDF to disk
+        $pdfService = new App\Services\PdfService();
+        $savedPath = $pdfService->generateAndSavePdf($html, 'report_' . $report->report_number . '.pdf');
+        
+        if (!$savedPath) {
+            return response()->json(['error' => 'Failed to generate PDF'], 500);
+        }
+        
+        // Send email with the saved PDF
+        $recipient = request('email', 'test@example.com'); // Default test email
+        
+        \Mail::to($recipient)->send(new App\Mail\InspectionReportMail(
+            $inspectionData,
+            $savedPath,
+            'report_' . $report->report_number . '.pdf',
+            'Vehicle Inspection Report - ' . $report->report_number,
+            'Please find attached the vehicle inspection report for your review.'
+        ));
+        
+        // Check if PDF file exists
+        $fullPdfPath = storage_path('app/public/' . $savedPath);
+        $pdfExists = file_exists($fullPdfPath);
+        $pdfSize = $pdfExists ? filesize($fullPdfPath) : 0;
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Email sent successfully (check logs if using log driver)',
+            'recipient' => $recipient,
+            'pdf_path' => $savedPath,
+            'pdf_exists' => $pdfExists,
+            'pdf_size' => round($pdfSize / 1024, 2) . ' KB',
+            'pdf_url' => asset('storage/' . $savedPath),
+            'mail_driver' => config('mail.default'),
+            'note' => 'With log driver, email is saved to storage/logs/laravel.log as base64 encoded content'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error: ' . $e->getMessage()], 500);
     }
 });
 

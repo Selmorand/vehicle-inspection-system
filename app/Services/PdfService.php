@@ -8,7 +8,7 @@ use Spatie\Browsershot\Browsershot;
 
 class PdfService
 {
-    public function generatePdf($html, $filename = 'report.pdf')
+    public function generatePdf($html, $filename = 'report.pdf', $outputMode = 'I')
     {
         // Pre-process HTML to convert asset URLs to file paths for images
         $html = $this->processImagesForPdf($html);
@@ -43,13 +43,43 @@ class PdfService
         
         $mpdf->WriteHTML($html);
         
-        return $mpdf->Output($filename, 'I'); // I = display inline
+        return $mpdf->Output($filename, $outputMode); // I = display inline, F = save to file, S = return as string
+    }
+    
+    /**
+     * Generate and save PDF to disk
+     * Returns the file path if successful, null otherwise
+     */
+    public function generateAndSavePdf($html, $filename = 'report.pdf', $directory = 'reports')
+    {
+        try {
+            // Ensure the directory exists
+            $fullDirectory = storage_path('app/public/' . $directory);
+            if (!file_exists($fullDirectory)) {
+                mkdir($fullDirectory, 0755, true);
+            }
+            
+            // Generate unique filename if needed
+            $timestamp = date('Y-m-d_H-i-s');
+            $uniqueFilename = pathinfo($filename, PATHINFO_FILENAME) . '_' . $timestamp . '.pdf';
+            $fullPath = $fullDirectory . '/' . $uniqueFilename;
+            
+            // Generate PDF and save to file
+            $this->generatePdf($html, $fullPath, 'F');
+            
+            // Return relative path for storage
+            return $directory . '/' . $uniqueFilename;
+            
+        } catch (\Exception $e) {
+            \Log::error('Failed to save PDF: ' . $e->getMessage());
+            return null;
+        }
     }
     
     /**
      * Process images in HTML to convert URLs to file paths and create thumbnails
      */
-    private function processImagesForPdf($html)
+    public function processImagesForPdf($html)
     {
         $imageService = new ImageService();
         
