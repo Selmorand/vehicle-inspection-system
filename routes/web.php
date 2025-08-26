@@ -124,6 +124,32 @@ Route::get('/reports/{id}', [App\Http\Controllers\ReportController::class, 'show
 Route::delete('/reports/{id}', [App\Http\Controllers\ReportController::class, 'destroy'])->name('reports.destroy');
 Route::delete('/reports', [App\Http\Controllers\ReportController::class, 'destroyAll'])->name('reports.destroy-all');
 
+// Test route to diagnose PDF issues
+Route::get('/test-pdf', function() {
+    try {
+        return response()->json(['status' => 'PDF route accessible', 'timestamp' => now()]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+// Minimal PDF test
+Route::get('/test-pdf-simple', function() {
+    try {
+        // Test if PdfService can be instantiated
+        $pdfService = new App\Services\PdfService();
+        
+        // Test minimal HTML
+        $html = '<html><body><h1>Test PDF</h1><p>This is a test.</p></body></html>';
+        
+        return $pdfService->generatePdf($html, 'test.pdf');
+        
+    } catch (\Exception $e) {
+        \Log::error('Simple PDF Test Error: ' . $e->getMessage());
+        return response()->json(['error' => 'Simple PDF test failed: ' . $e->getMessage()], 500);
+    }
+});
+
 // Simple PDF generation route
 Route::get('/reports/{id}/pdf', function($id) {
     try {
