@@ -39,7 +39,18 @@
             padding: 8px 12px;
             font-weight: bold;
             font-size: 14px;
-            margin: 20px 0 10px 0;
+            margin: 20px 0 15px 0;
+            /* Force section headers to start new pages when insufficient space */
+            page-break-before: auto;
+            break-before: auto;
+            /* Prevent any breaks within or immediately after headers */
+            page-break-after: avoid;
+            break-after: avoid;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            /* Require substantial following content or move entire section to next page */
+            orphans: 8;
+            widows: 8;
         }
         
         .info-grid {
@@ -59,6 +70,77 @@
             vertical-align: top;
         }
         
+        /* Compact two-column layout for vehicle information */
+        .compact-info {
+            display: table;
+            width: 100%;
+            margin-bottom: 10px;
+            border-collapse: collapse;
+        }
+        
+        .compact-row {
+            display: table-row;
+        }
+        
+        .compact-cell {
+            display: table-cell;
+            padding: 3px 8px 3px 0;
+            vertical-align: top;
+            width: 50%;
+            font-size: 10px;
+            line-height: 1.3;
+        }
+        
+        .compact-label {
+            font-weight: bold;
+            display: inline;
+        }
+        
+        .compact-value {
+            display: inline;
+            margin-left: 5px;
+        }
+        
+        /* Additional page break prevention */
+        .panel-body {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            orphans: 3;
+            widows: 3;
+        }
+        
+        /* Ensure sections have enough space - prevent orphaned headings */
+        .section-title + * {
+            page-break-before: avoid;
+            break-before: avoid;
+        }
+        
+        /* Aggressive orphan prevention - force sections to new pages when needed */
+        .section-title {
+            /* If less than 150px available after header, start new page */
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            /* mPDF specific: require minimum space or move to new page */
+            min-height: 100px;
+        }
+        
+        /* Ensure substantial content follows section headers */
+        .section-title + .panel-card,
+        .section-title + div {
+            page-break-before: avoid !important;
+            break-before: avoid !important;
+            /* Require this content to have adequate space too */
+            min-height: 80px;
+        }
+        
+        
+        
+        /* Better spacing for compact sections */
+        .compact-info {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
         .info-label {
             font-weight: bold;
             color: #666;
@@ -73,6 +155,8 @@
             border: 1px solid #ddd;
             margin-bottom: 10px;
             background: white;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
         
         .panel-header {
@@ -81,6 +165,8 @@
             font-weight: bold;
             font-size: 12px;
             border-bottom: 1px solid #ddd;
+            page-break-after: avoid;
+            break-after: avoid;
         }
         
         .panel-body {
@@ -100,6 +186,8 @@
         
         .image-grid {
             margin: 10px 0;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
         
         .image-container {
@@ -107,6 +195,7 @@
             margin: 5px;
             text-align: center;
             page-break-inside: avoid;
+            break-inside: avoid;
         }
         
         .image-container img {
@@ -143,55 +232,72 @@
 
     <!-- Basic Information -->
     <div class="section-title">Vehicle Information</div>
-    <div class="info-grid">
-        <div class="info-row">
-            <div class="info-cell info-label">Make/Model/Year:</div>
-            <div class="info-cell info-value">{{ ($inspectionData['vehicle']['make'] ?? 'N/A') . ' ' . ($inspectionData['vehicle']['model'] ?? '') . ' ' . ($inspectionData['vehicle']['year'] ?? '') }}</div>
+    <div class="compact-info">
+        <div class="compact-row">
+            <div class="compact-cell">
+                <span class="compact-label">Make/Model/Year:</span>
+                <span class="compact-value">{{ ($inspectionData['vehicle']['make'] ?? 'N/A') . ' ' . ($inspectionData['vehicle']['model'] ?? '') . ' ' . ($inspectionData['vehicle']['year'] ?? '') }}</span>
+            </div>
+            <div class="compact-cell">
+                <span class="compact-label">VIN:</span>
+                <span class="compact-value">{{ $inspectionData['vehicle']['vin'] ?? 'Not specified' }}</span>
+            </div>
         </div>
-        <div class="info-row">
-            <div class="info-cell info-label">VIN:</div>
-            <div class="info-cell info-value">{{ $inspectionData['vehicle']['vin'] ?? 'Not specified' }}</div>
+        <div class="compact-row">
+            <div class="compact-cell">
+                <span class="compact-label">License Plate:</span>
+                <span class="compact-value">{{ $inspectionData['vehicle']['license_plate'] ?? 'Not specified' }}</span>
+            </div>
+            <div class="compact-cell">
+                <span class="compact-label">Mileage:</span>
+                <span class="compact-value">{{ $inspectionData['vehicle']['mileage'] ?? 'Not specified' }} km</span>
+            </div>
         </div>
-        <div class="info-row">
-            <div class="info-cell info-label">License Plate:</div>
-            <div class="info-cell info-value">{{ $inspectionData['vehicle']['license_plate'] ?? 'Not specified' }}</div>
+        <div class="compact-row">
+            <div class="compact-cell">
+                <span class="compact-label">Vehicle Type:</span>
+                <span class="compact-value">{{ $inspectionData['vehicle']['vehicle_type'] ?? 'Not specified' }}</span>
+            </div>
+            <div class="compact-cell">
+                <span class="compact-label">Engine Number:</span>
+                <span class="compact-value">{{ $inspectionData['vehicle']['engine_number'] ?? 'Not specified' }}</span>
+            </div>
         </div>
-        <div class="info-row">
-            <div class="info-cell info-label">Mileage:</div>
-            <div class="info-cell info-value">{{ $inspectionData['vehicle']['mileage'] ?? 'Not specified' }} km</div>
+        <div class="compact-row">
+            <div class="compact-cell">
+                <span class="compact-label">Colour:</span>
+                <span class="compact-value">{{ $inspectionData['vehicle']['colour'] ?? 'Not specified' }}</span>
+            </div>
+            <div class="compact-cell">
+                <span class="compact-label">Fuel Type:</span>
+                <span class="compact-value">{{ $inspectionData['vehicle']['fuel_type'] ?? 'Not specified' }}</span>
+            </div>
         </div>
-        <div class="info-row">
-            <div class="info-cell info-label">Vehicle Type:</div>
-            <div class="info-cell info-value">{{ $inspectionData['vehicle']['vehicle_type'] ?? 'Not specified' }}</div>
+        <div class="compact-row">
+            <div class="compact-cell">
+                <span class="compact-label">Transmission:</span>
+                <span class="compact-value">{{ $inspectionData['vehicle']['transmission'] ?? 'Not specified' }}</span>
+            </div>
+            <div class="compact-cell">
+                <span class="compact-label">Doors:</span>
+                <span class="compact-value">{{ $inspectionData['vehicle']['doors'] ?? 'Not specified' }}</span>
+            </div>
         </div>
-        <div class="info-row">
-            <div class="info-cell info-label">Colour:</div>
-            <div class="info-cell info-value">{{ $inspectionData['vehicle']['colour'] ?? 'Not specified' }}</div>
-        </div>
-        <div class="info-row">
-            <div class="info-cell info-label">Fuel Type:</div>
-            <div class="info-cell info-value">{{ $inspectionData['vehicle']['fuel_type'] ?? 'Not specified' }}</div>
-        </div>
-        <div class="info-row">
-            <div class="info-cell info-label">Transmission:</div>
-            <div class="info-cell info-value">{{ $inspectionData['vehicle']['transmission'] ?? 'Not specified' }}</div>
-        </div>
-        <div class="info-row">
-            <div class="info-cell info-label">Doors:</div>
-            <div class="info-cell info-value">{{ $inspectionData['vehicle']['doors'] ?? 'Not specified' }}</div>
-        </div>
-        <div class="info-row">
-            <div class="info-cell info-label">Inspector:</div>
-            <div class="info-cell info-value">{{ $inspectionData['inspection']['inspector'] ?? 'Not specified' }}</div>
-        </div>
-        <div class="info-row">
-            <div class="info-cell info-label">Inspection Date:</div>
-            <div class="info-cell info-value">{{ $inspectionData['inspection']['date'] ?? 'Not specified' }}</div>
+        <div class="compact-row">
+            <div class="compact-cell">
+                <span class="compact-label">Inspector:</span>
+                <span class="compact-value">{{ $inspectionData['inspection']['inspector'] ?? 'Not specified' }}</span>
+            </div>
+            <div class="compact-cell">
+                <span class="compact-label">Inspection Date:</span>
+                <span class="compact-value">{{ $inspectionData['inspection']['date'] ?? 'Not specified' }}</span>
+            </div>
         </div>
     </div>
 
     <!-- Visual Inspection Images -->
     @if(!empty($inspectionData['images']['visual']) && count($inspectionData['images']['visual']) > 0)
+    <div style="page-break-before: auto;"></div>
     <div class="section-title">Visual Inspection</div>
     <div class="panel-body">
         <strong>Visual inspection completed with {{ count($inspectionData['images']['visual']) }} images captured</strong>
@@ -216,6 +322,7 @@
 
     <!-- Diagnostic Report -->
     @if(!empty($inspectionData['inspection']['diagnostic_report']) || !empty($inspectionData['inspection']['diagnostic_file']['name']))
+    <div style="page-break-before: auto;"></div>
     <div class="section-title">Diagnostic Report</div>
     <div class="panel-body">
         @if(!empty($inspectionData['inspection']['diagnostic_report']))
@@ -254,52 +361,16 @@
     @endphp
     
     @if(!empty($validBodyPanels))
+    <!-- Force page break before major sections that are likely to be long -->
+    @if(count($validBodyPanels) > 3)
+    <div style="page-break-before: always;"></div>
+    @endif
     <div class="section-title">Body Panel Assessment</div>
     
     <!-- Vehicle Diagram -->
     <div style="text-align: center; margin: 20px 0; page-break-inside: avoid;">
         <img src="{{ public_path('images/panels/FullVehicle.png') }}" alt="Vehicle Body Panels" style="max-width: 600px; width: 100%; height: auto; border: 1px solid #ddd;">
         
-        <!-- Condition Legend -->
-        @php
-            $panelConditions = [];
-            foreach ($validBodyPanels as $panel) {
-                if (!empty($panel['condition']) && $panel['condition'] !== 'not_assessed') {
-                    $panelConditions[strtolower($panel['condition'])][] = $panel['panel_name'];
-                }
-            }
-        @endphp
-        
-        @if(!empty($panelConditions))
-        <div style="margin: 15px 0; text-align: left; display: inline-block;">
-            <strong style="font-size: 11px;">Panel Conditions:</strong>
-            <div style="margin-top: 5px;">
-                @if(!empty($panelConditions['good']))
-                <div style="margin: 3px 0;">
-                    <span style="display: inline-block; width: 12px; height: 12px; background-color: #28a745; margin-right: 5px; vertical-align: middle;"></span>
-                    <strong style="color: #28a745; font-size: 10px;">Good:</strong>
-                    <span style="font-size: 9px;">{{ implode(', ', array_map(function($name) { return ucwords(str_replace(['_', '-'], ' ', $name)); }, $panelConditions['good'])) }}</span>
-                </div>
-                @endif
-                
-                @if(!empty($panelConditions['average']))
-                <div style="margin: 3px 0;">
-                    <span style="display: inline-block; width: 12px; height: 12px; background-color: #ffc107; margin-right: 5px; vertical-align: middle;"></span>
-                    <strong style="color: #ffc107; font-size: 10px;">Average:</strong>
-                    <span style="font-size: 9px;">{{ implode(', ', array_map(function($name) { return ucwords(str_replace(['_', '-'], ' ', $name)); }, $panelConditions['average'])) }}</span>
-                </div>
-                @endif
-                
-                @if(!empty($panelConditions['bad']))
-                <div style="margin: 3px 0;">
-                    <span style="display: inline-block; width: 12px; height: 12px; background-color: #dc3545; margin-right: 5px; vertical-align: middle;"></span>
-                    <strong style="color: #dc3545; font-size: 10px;">Poor:</strong>
-                    <span style="font-size: 9px;">{{ implode(', ', array_map(function($name) { return ucwords(str_replace(['_', '-'], ' ', $name)); }, $panelConditions['bad'])) }}</span>
-                </div>
-                @endif
-            </div>
-        </div>
-        @endif
     </div>
     @foreach($validBodyPanels as $panel)
     <div class="panel-card">
@@ -363,6 +434,9 @@
     @endphp
     
     @if(!empty($validInteriorComponents))
+    @if(count($validInteriorComponents) > 3)
+    <div style="page-break-before: always;"></div>
+    @endif
     <div class="section-title">Interior Assessment</div>
     
     <!-- Interior Diagram -->
@@ -370,45 +444,6 @@
         <img src="{{ public_path('images/interior/interiorMain.png') }}" alt="Vehicle Interior" style="max-width: 600px; width: 100%; height: auto; border: 1px solid #ddd;">
         
         <!-- Interior Condition Legend -->
-        @php
-            $interiorConditions = [];
-            foreach ($validInteriorComponents as $component) {
-                if (!empty($component['condition']) && $component['condition'] !== 'not_assessed') {
-                    $interiorConditions[strtolower($component['condition'])][] = $component['component_name'];
-                }
-            }
-        @endphp
-        
-        @if(!empty($interiorConditions))
-        <div style="margin: 15px 0; text-align: left; display: inline-block;">
-            <strong style="font-size: 11px;">Interior Component Conditions:</strong>
-            <div style="margin-top: 5px;">
-                @if(!empty($interiorConditions['good']))
-                <div style="margin: 3px 0;">
-                    <span style="display: inline-block; width: 12px; height: 12px; background-color: #28a745; margin-right: 5px; vertical-align: middle;"></span>
-                    <strong style="color: #28a745; font-size: 10px;">Good:</strong>
-                    <span style="font-size: 9px;">{{ implode(', ', array_map(function($name) { return ucwords(str_replace(['_', '-'], ' ', $name)); }, $interiorConditions['good'])) }}</span>
-                </div>
-                @endif
-                
-                @if(!empty($interiorConditions['average']))
-                <div style="margin: 3px 0;">
-                    <span style="display: inline-block; width: 12px; height: 12px; background-color: #ffc107; margin-right: 5px; vertical-align: middle;"></span>
-                    <strong style="color: #ffc107; font-size: 10px;">Average:</strong>
-                    <span style="font-size: 9px;">{{ implode(', ', array_map(function($name) { return ucwords(str_replace(['_', '-'], ' ', $name)); }, $interiorConditions['average'])) }}</span>
-                </div>
-                @endif
-                
-                @if(!empty($interiorConditions['bad']))
-                <div style="margin: 3px 0;">
-                    <span style="display: inline-block; width: 12px; height: 12px; background-color: #dc3545; margin-right: 5px; vertical-align: middle;"></span>
-                    <strong style="color: #dc3545; font-size: 10px;">Poor:</strong>
-                    <span style="font-size: 9px;">{{ implode(', ', array_map(function($name) { return ucwords(str_replace(['_', '-'], ' ', $name)); }, $interiorConditions['bad'])) }}</span>
-                </div>
-                @endif
-            </div>
-        </div>
-        @endif
     </div>
     @foreach($validInteriorComponents as $component)
     <div class="panel-card">
@@ -471,6 +506,9 @@
     @endphp
     
     @if(!empty($validMechanicalComponents))
+    @if(count($validMechanicalComponents) > 2)
+    <div style="page-break-before: always;"></div>
+    @endif
     <div class="section-title">Mechanical Assessment</div>
     @foreach($validMechanicalComponents as $component)
     <div class="panel-card">
@@ -512,8 +550,85 @@
     @endforeach
     @endif
 
+    <!-- Braking System Assessment -->
+    @php
+        $validBrakePositions = [];
+        if (!empty($inspectionData['braking_system']) && is_array($inspectionData['braking_system'])) {
+            foreach ($inspectionData['braking_system'] as $brake) {
+                // Check each field individually - be more permissive with data checking
+                $hasPadLife = isset($brake['pad_life']) && $brake['pad_life'] !== '' && $brake['pad_life'] !== null;
+                $hasPadCondition = isset($brake['pad_condition']) && $brake['pad_condition'] !== '' && $brake['pad_condition'] !== null && $brake['pad_condition'] !== 'not_assessed';
+                $hasDiscLife = isset($brake['disc_life']) && $brake['disc_life'] !== '' && $brake['disc_life'] !== null;
+                $hasDiscCondition = isset($brake['disc_condition']) && $brake['disc_condition'] !== '' && $brake['disc_condition'] !== null && $brake['disc_condition'] !== 'not_assessed';
+                $hasComments = isset($brake['comments']) && $brake['comments'] !== '' && $brake['comments'] !== null;
+                $hasImages = !empty($brake['images']) && is_array($brake['images']) && count($brake['images']) > 0;
+                
+                if ($hasPadLife || $hasPadCondition || $hasDiscLife || $hasDiscCondition || $hasComments || $hasImages) {
+                    $validBrakePositions[] = $brake;
+                }
+            }
+        }
+    @endphp
+    
+    @if(!empty($validBrakePositions))
+    @if(count($validBrakePositions) > 2)
+    <div style="page-break-before: always;"></div>
+    @endif
+    <div class="section-title">Braking System Assessment</div>
+    @foreach($validBrakePositions as $brake)
+    <div class="panel-card">
+        <div class="panel-header">
+            {{ ucwords(str_replace('_', ' ', $brake['position'] ?? 'Position')) }}
+        </div>
+        <div class="panel-body">
+            @if(!empty($brake['pad_life']))
+            <strong>Pad Life:</strong> {{ $brake['pad_life'] }}<br>
+            @endif
+            @if(!empty($brake['pad_condition']))
+            <strong>Pad Condition:</strong> 
+            <span class="condition-{{ strtolower($brake['pad_condition']) }}">
+                {{ ucfirst($brake['pad_condition']) }}
+            </span><br>
+            @endif
+            @if(!empty($brake['disc_life']))
+            <strong>Disc Life:</strong> {{ $brake['disc_life'] }}<br>
+            @endif
+            @if(!empty($brake['disc_condition']))
+            <strong>Disc Condition:</strong> 
+            <span class="condition-{{ strtolower($brake['disc_condition']) }}">
+                {{ ucfirst($brake['disc_condition']) }}
+            </span><br>
+            @endif
+            @if(!empty($brake['comments']))
+            <strong>Comments:</strong> {{ $brake['comments'] }}
+            @endif
+            
+            @if(!empty($brake['images']) && is_array($brake['images']) && count($brake['images']) > 0)
+            <div class="image-grid">
+                @foreach(array_slice($brake['images'], 0, 2) as $image)
+                @if(!empty($image['url']))
+                <div class="image-container">
+                    <a href="{{ $image['url'] }}" target="_blank">
+                        <img src="{{ $image['url'] }}" alt="{{ $brake['position'] ?? 'Brake' }}" />
+                    </a>
+                    <div class="image-caption">{{ ucwords(str_replace('_', ' ', $brake['position'] ?? 'Brake')) }}</div>
+                    <a href="{{ $image['url'] }}" target="_blank" class="view-link">View Full Image →</a>
+                </div>
+                @endif
+                @endforeach
+            </div>
+            @if(count($brake['images']) > 2)
+            <span class="image-count">+ {{ count($brake['images']) - 2 }} more image(s) in web report</span>
+            @endif
+            @endif
+        </div>
+    </div>
+    @endforeach
+    @endif
+
     <!-- Road Test Information -->
     @if(!empty($inspectionData['mechanical_report']['road_test']))
+    <div style="page-break-before: auto;"></div>
     <div class="section-title">Road Test Information</div>
     <div class="panel-card">
         <div class="panel-body">
@@ -531,6 +646,7 @@
 
     <!-- Service Booklet -->
     @if(!empty($inspectionData['service_booklet']))
+    <div style="page-break-before: auto;"></div>
     <div class="section-title">Service Booklet Documentation</div>
     <div class="panel-body">
         @if(!empty($inspectionData['service_booklet']['comments']))
@@ -584,6 +700,9 @@
     @endphp
     
     @if(!empty($validTyres))
+    @if(count($validTyres) > 2)
+    <div style="page-break-before: always;"></div>
+    @endif
     <div class="section-title">Tyres & Rims Assessment</div>
     @foreach($validTyres as $tyre)
     <div class="panel-card">
@@ -630,81 +749,9 @@
     @endforeach
     @endif
 
-    <!-- Braking System Assessment -->
-    @php
-        $validBrakePositions = [];
-        if (!empty($inspectionData['braking_system']) && is_array($inspectionData['braking_system'])) {
-            foreach ($inspectionData['braking_system'] as $brake) {
-                // Check each field individually - be more permissive with data checking
-                $hasPadLife = isset($brake['pad_life']) && $brake['pad_life'] !== '' && $brake['pad_life'] !== null;
-                $hasPadCondition = isset($brake['pad_condition']) && $brake['pad_condition'] !== '' && $brake['pad_condition'] !== null && $brake['pad_condition'] !== 'not_assessed';
-                $hasDiscLife = isset($brake['disc_life']) && $brake['disc_life'] !== '' && $brake['disc_life'] !== null;
-                $hasDiscCondition = isset($brake['disc_condition']) && $brake['disc_condition'] !== '' && $brake['disc_condition'] !== null && $brake['disc_condition'] !== 'not_assessed';
-                $hasComments = isset($brake['comments']) && $brake['comments'] !== '' && $brake['comments'] !== null;
-                $hasImages = !empty($brake['images']) && is_array($brake['images']) && count($brake['images']) > 0;
-                
-                if ($hasPadLife || $hasPadCondition || $hasDiscLife || $hasDiscCondition || $hasComments || $hasImages) {
-                    $validBrakePositions[] = $brake;
-                }
-            }
-        }
-    @endphp
-    
-    @if(!empty($validBrakePositions))
-    <div class="section-title">Braking System Assessment</div>
-    @foreach($validBrakePositions as $brake)
-    <div class="panel-card">
-        <div class="panel-header">
-            {{ ucwords(str_replace('_', ' ', $brake['position'] ?? 'Position')) }}
-        </div>
-        <div class="panel-body">
-            @if(!empty($brake['pad_life']))
-            <strong>Pad Life:</strong> {{ $brake['pad_life'] }}<br>
-            @endif
-            @if(!empty($brake['pad_condition']))
-            <strong>Pad Condition:</strong> 
-            <span class="condition-{{ strtolower($brake['pad_condition']) }}">
-                {{ ucfirst($brake['pad_condition']) }}
-            </span><br>
-            @endif
-            @if(!empty($brake['disc_life']))
-            <strong>Disc Life:</strong> {{ $brake['disc_life'] }}<br>
-            @endif
-            @if(!empty($brake['disc_condition']))
-            <strong>Disc Condition:</strong> 
-            <span class="condition-{{ strtolower($brake['disc_condition']) }}">
-                {{ ucfirst($brake['disc_condition']) }}
-            </span><br>
-            @endif
-            @if(!empty($brake['comments']))
-            <strong>Comments:</strong> {{ $brake['comments'] }}
-            @endif
-            
-            @if(!empty($brake['images']) && is_array($brake['images']) && count($brake['images']) > 0)
-            <div class="image-grid">
-                @foreach(array_slice($brake['images'], 0, 2) as $image)
-                @if(!empty($image['url']))
-                <div class="image-container">
-                    <a href="{{ $image['url'] }}" target="_blank">
-                        <img src="{{ $image['url'] }}" alt="{{ $brake['position'] ?? 'Brake' }}" />
-                    </a>
-                    <div class="image-caption">{{ ucwords(str_replace('_', ' ', $brake['position'] ?? 'Brake')) }}</div>
-                    <a href="{{ $image['url'] }}" target="_blank" class="view-link">View Full Image →</a>
-                </div>
-                @endif
-                @endforeach
-            </div>
-            @if(count($brake['images']) > 2)
-            <span class="image-count">+ {{ count($brake['images']) - 2 }} more image(s) in web report</span>
-            @endif
-            @endif
-        </div>
-    </div>
-    @endforeach
-    @endif
-
     <!-- Engine Compartment Assessment -->
     @if(!empty($inspectionData['engine_compartment']))
+    <div style="page-break-before: auto;"></div>
     <div class="section-title">Engine Compartment Assessment</div>
     
     @if(!empty($inspectionData['engine_compartment']['overall_condition']))
@@ -813,6 +860,9 @@
     @endphp
     
     @if(!empty($validHoistSections))
+    @if(count($validHoistSections) > 1)
+    <div style="page-break-before: always;"></div>
+    @endif
     <div class="section-title">Physical Hoist Inspection</div>
     @foreach($validHoistSections as $sectionName => $components)
     <div class="panel-card">
@@ -858,6 +908,7 @@
 
     <!-- Inspector Notes -->
     @if(!empty($inspectionData['inspection']['notes']))
+    <div style="page-break-before: auto;"></div>
     <div class="section-title">Inspector Notes</div>
     <div class="panel-body">
         {{ $inspectionData['inspection']['notes'] }}
@@ -865,6 +916,7 @@
     @endif
 
     <!-- Summary -->
+    <div style="page-break-before: auto;"></div>
     <div class="section-title">Inspection Summary</div>
     <div class="panel-body">
         <strong>Assessment Complete:</strong> This vehicle inspection report includes all completed assessments and findings.

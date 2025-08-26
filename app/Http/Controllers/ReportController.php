@@ -997,9 +997,12 @@ class ReportController extends Controller
     {
         $mechanicalData = [];
         
-        // Get mechanical report data from database
+        // Get mechanical report data from database - exclude braking components
+        $brakingComponents = ['footbrake', 'handbrake', 'brake_noise', 'brake_front_left', 'brake_front_right', 'brake_rear_left', 'brake_rear_right'];
+        
         $mechanicalReports = \DB::table('mechanical_reports')
             ->where('inspection_id', $inspection->id)
+            ->whereNotIn('component_name', $brakingComponents)
             ->get();
         
         foreach ($mechanicalReports as $component) {
