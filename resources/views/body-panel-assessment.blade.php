@@ -383,9 +383,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         sessionStorage.removeItem('engineCompartmentData');
         sessionStorage.removeItem('physicalHoistData');
         
-        // Set a new inspection ID
-        const newInspectionId = 'inspection_' + Date.now();
-        sessionStorage.setItem('currentInspectionId', newInspectionId);
+        // Don't create a temporary inspection ID - require starting from visual inspection
+        // The real inspection ID will be created when visual inspection is saved
+        console.warn('No inspection ID found - user should start from Visual Inspection');
     }
     
     // Load panel data from panelimages2.csv
@@ -482,6 +482,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Get current inspection ID from session storage
         const inspectionId = sessionStorage.getItem('currentInspectionId');
         console.log('Draft - Current Inspection ID:', inspectionId);
+        
+        // Validate inspection ID - must be a number (database ID)
+        if (!inspectionId || isNaN(inspectionId)) {
+            console.error('Invalid inspection ID:', inspectionId);
+            showNotification('Please start from Visual Inspection to create a valid inspection first', 'error');
+            return;
+        }
         
         // Prepare API data
         const apiData = {
@@ -595,6 +602,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Get current inspection ID from session storage
         const inspectionId = sessionStorage.getItem('currentInspectionId');
         console.log('Current Inspection ID:', inspectionId);
+        
+        // Validate inspection ID - must be a number (database ID)
+        if (!inspectionId || isNaN(inspectionId)) {
+            console.error('Invalid inspection ID:', inspectionId);
+            showNotification('Please start from Visual Inspection to create a valid inspection first', 'error');
+            return;
+        }
         
         // Prepare API data
         const apiData = {
