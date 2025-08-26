@@ -362,7 +362,10 @@
     
     @if(!empty($validBodyPanels))
     <!-- Force page break before major sections that are likely to be long -->
-    @if(count($validBodyPanels) > 3)
+    @php
+        $bodyPanelCount = is_array($validBodyPanels) ? count($validBodyPanels) : 0;
+    @endphp
+    @if($bodyPanelCount > 3)
     <div style="page-break-before: always;"></div>
     @endif
     <div class="section-title">Body Panel Assessment</div>
@@ -434,7 +437,10 @@
     @endphp
     
     @if(!empty($validInteriorComponents))
-    @if(count($validInteriorComponents) > 3)
+    @php
+        $interiorCount = is_array($validInteriorComponents) ? count($validInteriorComponents) : 0;
+    @endphp
+    @if($interiorCount > 3)
     <div style="page-break-before: always;"></div>
     @endif
     <div class="section-title">Interior Assessment</div>
@@ -506,7 +512,10 @@
     @endphp
     
     @if(!empty($validMechanicalComponents))
-    @if(count($validMechanicalComponents) > 2)
+    @php
+        $mechanicalCount = is_array($validMechanicalComponents) ? count($validMechanicalComponents) : 0;
+    @endphp
+    @if($mechanicalCount > 2)
     <div style="page-break-before: always;"></div>
     @endif
     <div class="section-title">Mechanical Assessment</div>
@@ -571,7 +580,10 @@
     @endphp
     
     @if(!empty($validBrakePositions))
-    @if(count($validBrakePositions) > 2)
+    @php
+        $brakeCount = is_array($validBrakePositions) ? count($validBrakePositions) : 0;
+    @endphp
+    @if($brakeCount > 2)
     <div style="page-break-before: always;"></div>
     @endif
     <div class="section-title">Braking System Assessment</div>
@@ -700,7 +712,10 @@
     @endphp
     
     @if(!empty($validTyres))
-    @if(count($validTyres) > 2)
+    @php
+        $tyreCount = is_array($validTyres) ? count($validTyres) : 0;
+    @endphp
+    @if($tyreCount > 2)
     <div style="page-break-before: always;"></div>
     @endif
     <div class="section-title">Tyres & Rims Assessment</div>
@@ -860,7 +875,10 @@
     @endphp
     
     @if(!empty($validHoistSections))
-    @if(count($validHoistSections) > 1)
+    @php
+        $hoistCount = is_array($validHoistSections) ? count($validHoistSections) : 0;
+    @endphp
+    @if($hoistCount > 1)
     <div style="page-break-before: always;"></div>
     @endif
     <div class="section-title">Physical Hoist Inspection</div>

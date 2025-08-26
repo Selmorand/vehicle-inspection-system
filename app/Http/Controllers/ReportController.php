@@ -1000,10 +1000,18 @@ class ReportController extends Controller
         // Get mechanical report data from database - exclude braking components
         $brakingComponents = ['footbrake', 'handbrake', 'brake_noise', 'brake_front_left', 'brake_front_right', 'brake_rear_left', 'brake_rear_right'];
         
-        $mechanicalReports = \DB::table('mechanical_reports')
-            ->where('inspection_id', $inspection->id)
-            ->whereNotIn('component_name', $brakingComponents)
-            ->get();
+        try {
+            $mechanicalReports = \DB::table('mechanical_reports')
+                ->where('inspection_id', $inspection->id)
+                ->whereNotIn('component_name', $brakingComponents)
+                ->get();
+        } catch (\Exception $e) {
+            // Fallback to original query if there's an issue
+            \Log::error('Error filtering mechanical components: ' . $e->getMessage());
+            $mechanicalReports = \DB::table('mechanical_reports')
+                ->where('inspection_id', $inspection->id)
+                ->get();
+        }
         
         foreach ($mechanicalReports as $component) {
             // Get images for this mechanical component
