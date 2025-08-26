@@ -781,6 +781,45 @@ class ReportController extends Controller
             }
         }
         
+        // Define the desired order as specified by user
+        $desiredOrder = [
+            'interior_83', // FR Door Panel
+            'interior_80', // Driver Seat
+            'interior_77', // Dash
+            'interior_78', // Steering Wheel
+            'interior_79', // Buttons
+            'interior_94', // Air Vents
+            'interior_91', // Centre Console
+            'interior_92', // Gear Lever
+            'interior_81', // Passenger Seat
+            'interior_84', // FL Door Panel
+            'interior_82', // Rooflining
+            'interior_85', // Rear Seat
+            'interior_88', // RR Door Panel
+            'interior_89', // LR Door Panel
+            'interior_87', // Backboard
+            'interior_90', // Boot
+            'interior_86', // Additional Seats
+            'interior_93'  // Other
+        ];
+        
+        // Sort the interior data according to the desired order
+        usort($interiorData, function($a, $b) use ($desiredOrder) {
+            $posA = array_search($a['component_id'], $desiredOrder);
+            $posB = array_search($b['component_id'], $desiredOrder);
+            
+            // If both are in the order array, sort by position
+            if ($posA !== false && $posB !== false) {
+                return $posA - $posB;
+            }
+            
+            // If only one is in the order array, it comes first
+            if ($posA !== false) return -1;
+            if ($posB !== false) return 1;
+            
+            // If neither is in the order array, maintain original order
+            return 0;
+        });
         
         return $interiorData;
     }

@@ -647,25 +647,25 @@ document.addEventListener('DOMContentLoaded', function() {
             { value: 'Other', text: 'Other' }
         ],
         
-        // Interior items data
+        // Interior items data - ordered as per user specification
         items: [
+            { id: 'interior_83', category: 'FR Door Panel', panelId: 'fr-door-panel' },
+            { id: 'interior_80', category: 'Driver Seat', panelId: 'driver-seat' },
             { id: 'interior_77', category: 'Dash', panelId: 'dash' },
             { id: 'interior_78', category: 'Steering Wheel', panelId: 'steering-wheel' },
             { id: 'interior_79', category: 'Buttons', panelId: 'buttons' },
-            { id: 'interior_80', category: 'Driver Seat', panelId: 'driver-seat' },
-            { id: 'interior_81', category: 'Passenger Seat', panelId: 'passenger-seat' },
-            { id: 'interior_82', category: 'Rooflining', panelId: null },
-            { id: 'interior_83', category: 'FR Door Panel', panelId: 'fr-door-panel' },
-            { id: 'interior_84', category: 'FL Door Panel', panelId: 'fl-door-panel' },
-            { id: 'interior_85', category: 'Rear Seat', panelId: 'rear-seat' },
-            { id: 'interior_86', category: 'Additional Seats', panelId: null },
-            { id: 'interior_87', category: 'Backboard', panelId: 'backboard' },
-            { id: 'interior_88', category: 'RR Door Panel', panelId: 'rr-door-panel' },
-            { id: 'interior_89', category: 'LR Door Panel', panelId: 'lr-door-panel' },
-            { id: 'interior_90', category: 'Boot', panelId: 'boot' },
+            { id: 'interior_94', category: 'Air Vents', panelId: 'air-vents' },
             { id: 'interior_91', category: 'Centre Console', panelId: 'centre-console' },
             { id: 'interior_92', category: 'Gear Lever', panelId: 'gearlever' },
-            { id: 'interior_94', category: 'Air Vents', panelId: 'air-vents' },
+            { id: 'interior_81', category: 'Passenger Seat', panelId: 'passenger-seat' },
+            { id: 'interior_84', category: 'FL Door Panel', panelId: 'fl-door-panel' },
+            { id: 'interior_82', category: 'Rooflining', panelId: null },
+            { id: 'interior_85', category: 'Rear Seat', panelId: 'rear-seat' },
+            { id: 'interior_88', category: 'RR Door Panel', panelId: 'rr-door-panel' },
+            { id: 'interior_89', category: 'LR Door Panel', panelId: 'lr-door-panel' },
+            { id: 'interior_87', category: 'Backboard', panelId: 'backboard' },
+            { id: 'interior_90', category: 'Boot', panelId: 'boot' },
+            { id: 'interior_86', category: 'Additional Seats', panelId: null },
             { id: 'interior_93', category: 'Other', panelId: null }
         ],
         
