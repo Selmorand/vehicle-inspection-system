@@ -150,6 +150,47 @@ Route::get('/test-pdf-simple', function() {
     }
 });
 
+// Ultra-minimal mPDF test 
+Route::get('/test-mpdf', function() {
+    try {
+        // Test if mPDF can be instantiated at all
+        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4']);
+        $mpdf->WriteHTML('<h1>Hello World</h1>');
+        return $mpdf->Output('test.pdf', 'I');
+    } catch (\Exception $e) {
+        \Log::error('mPDF Test Error: ' . $e->getMessage());
+        return response()->json(['error' => 'mPDF failed: ' . $e->getMessage()], 500);
+    }
+});
+
+// Test temp directory permissions
+Route::get('/test-temp', function() {
+    try {
+        $tempDir = storage_path('app/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        
+        $testFile = $tempDir . '/test.txt';
+        file_put_contents($testFile, 'test');
+        $canRead = file_exists($testFile);
+        
+        if ($canRead) {
+            unlink($testFile);
+        }
+        
+        return response()->json([
+            'temp_dir' => $tempDir,
+            'temp_exists' => file_exists($tempDir),
+            'temp_writable' => is_writable($tempDir),
+            'test_file_created' => $canRead
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Temp test failed: ' . $e->getMessage()], 500);
+    }
+});
+
 // Simple PDF generation route
 Route::get('/reports/{id}/pdf', function($id) {
     try {
