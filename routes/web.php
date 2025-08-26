@@ -163,6 +163,33 @@ Route::get('/test-mpdf', function() {
     }
 });
 
+// Test PHP extensions and mPDF requirements
+Route::get('/test-php-requirements', function() {
+    try {
+        $requirements = [
+            'mbstring' => extension_loaded('mbstring'),
+            'gd' => extension_loaded('gd'),
+            'dom' => extension_loaded('dom'),
+            'xml' => extension_loaded('xml'),
+            'iconv' => extension_loaded('iconv'),
+            'zlib' => extension_loaded('zlib'),
+            'curl' => extension_loaded('curl'),
+            'openssl' => extension_loaded('openssl')
+        ];
+        
+        return response()->json([
+            'php_version' => PHP_VERSION,
+            'extensions' => $requirements,
+            'missing_extensions' => array_keys(array_filter($requirements, function($loaded) { return !$loaded; })),
+            'composer_autoload_exists' => file_exists(base_path('vendor/autoload.php')),
+            'mpdf_vendor_exists' => class_exists('Mpdf\\Mpdf', false) // Check if already loaded
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Requirements test failed: ' . $e->getMessage()], 500);
+    }
+});
+
 // Test temp directory permissions
 Route::get('/test-temp', function() {
     try {
