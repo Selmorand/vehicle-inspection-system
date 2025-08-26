@@ -219,6 +219,9 @@ Route::get('/reports/{id}/pdf', function($id) {
             'baseUrl' => $baseUrl
         ])->render();
         
+        // Process vehicle diagrams to capture screenshots
+        $html = $pdfService->processVehicleDiagrams($html, $inspectionData);
+        
         return $pdfService->generatePdf($html, 'report_' . $report->report_number . '.pdf');
         
     } catch (\Exception $e) {
