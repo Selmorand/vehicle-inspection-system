@@ -123,3 +123,105 @@ Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])-
 Route::get('/reports/{id}', [App\Http\Controllers\ReportController::class, 'showWeb'])->name('reports.show');
 Route::delete('/reports/{id}', [App\Http\Controllers\ReportController::class, 'destroy'])->name('reports.destroy');
 Route::delete('/reports', [App\Http\Controllers\ReportController::class, 'destroyAll'])->name('reports.destroy-all');
+
+// Simple PDF generation route
+Route::get('/reports/{id}/pdf', function($id) {
+    try {
+        // Try to find the inspection report first
+        $inspectionReport = App\Models\InspectionReport::find($id);
+        
+        if ($inspectionReport) {
+            // Use existing method from ReportController to get processed data
+            $reportController = new App\Http\Controllers\ReportController();
+            $inspectionData = $reportController->processInspectionDataForWeb($inspectionReport);
+            $report = $inspectionReport;
+        } else {
+            // If not found, try to find an Inspection instead  
+            $inspection = App\Models\Inspection::with(['client', 'vehicle', 'images', 'bodyPanelAssessments', 'interiorAssessments'])->find($id);
+            
+            if (!$inspection) {
+                return response()->json(['error' => 'Report not found'], 404);
+            }
+            
+            // Get the ReportController instance to use its formatting methods
+            $reportController = new App\Http\Controllers\ReportController();
+            
+            // Build inspection data using the same format as showWeb method
+            $inspectionData = [
+                'client' => [
+                    'name' => $inspection->client->name ?? 'Not specified',
+                    'contact' => $inspection->client->phone ?? null,
+                    'email' => $inspection->client->email ?? null
+                ],
+                'vehicle' => [
+                    'make' => $inspection->vehicle->manufacturer ?? 'Not specified',
+                    'model' => $inspection->vehicle->model ?? 'Not specified',
+                    'year' => $inspection->vehicle->year ?? 'Not specified',
+                    'vin' => $inspection->vehicle->vin ?? 'Not specified',
+                    'license_plate' => $inspection->vehicle->registration_number ?? 'Not specified',
+                    'mileage' => $inspection->vehicle->mileage ?? 'Not specified',
+                    'vehicle_type' => $inspection->vehicle->vehicle_type ?? 'Not specified',
+                    'colour' => $inspection->vehicle->colour ?? 'Not specified',
+                    'fuel_type' => $inspection->vehicle->fuel_type ?? 'Not specified',
+                    'transmission' => $inspection->vehicle->transmission ?? 'Not specified',
+                    'doors' => $inspection->vehicle->doors ?? 'Not specified',
+                    'engine_number' => $inspection->vehicle->engine_number ?? 'Not specified'
+                ],
+                'inspection' => [
+                    'inspector' => $inspection->inspector_name ?? 'Not specified',
+                    'date' => $inspection->inspection_date ?? $inspection->created_at->format('Y-m-d H:i'),
+                    'diagnostic_report' => $inspection->diagnostic_report ?? null,
+                    'diagnostic_file' => $reportController->getDiagnosticFileData($inspection)
+                ],
+                'images' => $reportController->organizeImagesForReport($inspection->images),
+                'body_panels' => $reportController->formatBodyPanelsForReport($inspection),
+                'interior' => [
+                    'assessments' => $reportController->formatInteriorAssessmentsForReport($inspection)
+                ],
+                'service_booklet' => $reportController->formatServiceBookletForReport($inspection),
+                'tyres_rims' => $reportController->formatTyresRimsForReport($inspection),
+                'mechanical_report' => $reportController->formatMechanicalReportForReport($inspection),
+                'braking_system' => $reportController->formatBrakingSystemForReport($inspection),
+                'engine_compartment' => $reportController->formatEngineCompartmentForReport($inspection),
+                'physical_hoist' => $reportController->formatPhysicalHoistForReport($inspection)
+            ];
+            
+            // Create report object same as ReportController
+            $report = (object)[
+                'id' => $inspection->id,
+                'report_number' => 'INS-' . str_pad($inspection->id, 6, '0', STR_PAD_LEFT),
+                'client_name' => $inspection->client->name ?? 'Not specified',
+                'client_email' => $inspection->client->email ?? null,
+                'client_phone' => $inspection->client->phone ?? null,
+                'vehicle_make' => $inspection->vehicle->manufacturer ?? 'Unknown Make',
+                'vehicle_model' => $inspection->vehicle->model ?? 'Unknown Model',
+                'vehicle_year' => $inspection->vehicle->year ?? date('Y'),
+                'vin_number' => $inspection->vehicle->vin ?? null,
+                'license_plate' => $inspection->vehicle->registration_number ?? null,
+                'mileage' => $inspection->vehicle->mileage ?? null,
+                'inspection_date' => $inspection->inspection_date ?? $inspection->created_at->toDateString(),
+                'inspector_name' => $inspection->inspector_name ?? 'Unknown Inspector',
+                'status' => $inspection->status ?? 'draft',
+                'created_at' => $inspection->created_at,
+                'updated_at' => $inspection->updated_at
+            ];
+        }
+        
+        // Generate PDF using the simple template
+        $pdfService = new App\Services\PdfService();
+        
+        // Add base URL for links
+        $baseUrl = config('app.url', 'http://localhost/vehicle-inspection');
+        
+        $html = view('pdf.simple-report', [
+            'report' => $report,
+            'inspectionData' => $inspectionData,
+            'baseUrl' => $baseUrl
+        ])->render();
+        
+        return $pdfService->generatePdf($html, 'report_' . $report->report_number . '.pdf');
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'PDF generation failed: ' . $e->getMessage()], 500);
+    }
+})->name('reports.pdf');

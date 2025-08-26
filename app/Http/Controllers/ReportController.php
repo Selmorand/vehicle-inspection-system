@@ -132,7 +132,7 @@ class ReportController extends Controller
     /**
      * Process inspection data for web display
      */
-    private function processInspectionDataForWeb($report)
+    public function processInspectionDataForWeb($report)
     {
         $data = $report->inspection_data;
         
@@ -457,7 +457,7 @@ class ReportController extends Controller
     /**
      * Organize images into different categories for report display
      */
-    private function organizeImagesForReport($images)
+    public function organizeImagesForReport($images)
     {
         $organizedImages = [
             'visual' => [],
@@ -543,7 +543,7 @@ class ReportController extends Controller
     /**
      * Format images from database for report display (DEPRECATED - use organizeImagesForReport)
      */
-    private function formatImagesForReport($images)
+    public function formatImagesForReport($images)
     {
         $formattedImages = [];
         
@@ -585,7 +585,7 @@ class ReportController extends Controller
     /**
      * Format body panels data for report display
      */
-    private function formatBodyPanelsForReport($inspection)
+    public function formatBodyPanelsForReport($inspection)
     {
         $bodyPanelData = [];
         
@@ -638,7 +638,7 @@ class ReportController extends Controller
     /**
      * Format interior assessments for report display
      */
-    private function formatInteriorAssessmentsForReport($inspection)
+    public function formatInteriorAssessmentsForReport($inspection)
     {
         $interiorData = [];
         
@@ -758,7 +758,7 @@ class ReportController extends Controller
     /**
      * Format service booklet data for report display
      */
-    private function formatServiceBookletForReport($inspection)
+    public function formatServiceBookletForReport($inspection)
     {
         $serviceBookletData = [
             'comments' => $inspection->service_comments,
@@ -905,7 +905,7 @@ class ReportController extends Controller
     /**
      * Get diagnostic file data for an inspection
      */
-    private function getDiagnosticFileData($inspection)
+    public function getDiagnosticFileData($inspection)
     {
         // Look for diagnostic PDF in the images table
         $diagnosticFile = $inspection->images()->where('image_type', 'diagnostic_pdf')->first();
@@ -933,7 +933,7 @@ class ReportController extends Controller
     /**
      * Format tyres & rims data for report display
      */
-    private function formatTyresRimsForReport($inspection)
+    public function formatTyresRimsForReport($inspection)
     {
         $tyresData = [];
         
@@ -993,7 +993,7 @@ class ReportController extends Controller
         return $tyresData;
     }
 
-    private function formatMechanicalReportForReport($inspection)
+    public function formatMechanicalReportForReport($inspection)
     {
         $mechanicalData = [];
         
@@ -1080,7 +1080,7 @@ class ReportController extends Controller
         return $result;
     }
 
-    private function formatBrakingSystemForReport($inspection)
+    public function formatBrakingSystemForReport($inspection)
     {
         $brakingData = [];
         
@@ -1144,7 +1144,7 @@ class ReportController extends Controller
         return $brakingData;
     }
 
-    private function formatEngineCompartmentForReport($inspection)
+    public function formatEngineCompartmentForReport($inspection)
     {
         $engineCompartmentData = [];
         
@@ -1243,7 +1243,7 @@ class ReportController extends Controller
         return $result;
     }
 
-    private function formatPhysicalHoistForReport($inspection)
+    public function formatPhysicalHoistForReport($inspection)
     {
         $physicalHoistData = [];
         
