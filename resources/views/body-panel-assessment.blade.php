@@ -242,18 +242,20 @@ async function loadBodyPanelData() {
         
         // Reorder exactly as specified by user
         const desiredOrder = [
-            // 1. Right components
-            'fr-fender', 'fr-door', 'rf-rim', 'rr-door', 'rr-rim', 'rr-quarter-panel',
-            // 2. Center/Main components
-            'bonnet', 'windscreen', 'roof', 'rear-window', 'boot',
-            // 3. Left components
-            'lf-fender', 'lf-door', 'lf-rim', 'lr-door', 'lr-rim', 'lr-quarter-panel',
-            // 4. Front components
-            'front-bumper', 'lf-headlight', 'fr-headlight', 'fr-mirror', 'lf-mirror',
-            // 5. Rear components
-            'lr-taillight', 'rr-taillight', 'rear-bumper',
-            // 6. Skirting and Other
-            'left-skirting', 'right-skirting'
+            // Front section
+            'front-bumper', 'fr-headlight', 'lf-headlight',
+            // Front/Top section
+            'bonnet', 'windscreen',
+            // Right side (front to back)
+            'fr-fender', 'rf-rim', 'fr-mirror', 'fr-door', 'right-skirting',
+            'rr-door', 'rr-quarter-panel', 'rr-rim',
+            // Rear section
+            'boot', 'rear-window', 'lr-taillight', 'rr-taillight', 'rear-bumper',
+            // Left side (back to front)
+            'lr-quarter-panel', 'lr-rim', 'lr-door', 'left-skirting',
+            'lf-door', 'lf-mirror', 'lf-fender', 'lf-rim',
+            // Top
+            'roof'
         ];
         
         const orderedPanels = [];

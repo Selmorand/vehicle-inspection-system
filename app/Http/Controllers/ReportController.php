@@ -632,6 +632,36 @@ class ReportController extends Controller
             }
         }
         
+        // Define the desired order as specified by user
+        $desiredOrder = [
+            'front-bumper', 'fr-headlight', 'lf-headlight',
+            'bonnet', 'windscreen',
+            'fr-fender', 'rf-rim', 'fr-mirror', 'fr-door', 'right-skirting',
+            'rr-door', 'rr-quarter-panel', 'rr-rim',
+            'boot', 'rear-window', 'lr-taillight', 'rr-taillight', 'rear-bumper',
+            'lr-quarter-panel', 'lr-rim', 'lr-door', 'left-skirting',
+            'lf-door', 'lf-mirror', 'lf-fender', 'lf-rim',
+            'roof', 'other'
+        ];
+        
+        // Sort the body panel data according to the desired order
+        usort($bodyPanelData, function($a, $b) use ($desiredOrder) {
+            $posA = array_search($a['panel_id'], $desiredOrder);
+            $posB = array_search($b['panel_id'], $desiredOrder);
+            
+            // If both are in the order array, sort by position
+            if ($posA !== false && $posB !== false) {
+                return $posA - $posB;
+            }
+            
+            // If only one is in the order array, it comes first
+            if ($posA !== false) return -1;
+            if ($posB !== false) return 1;
+            
+            // If neither is in the order array, maintain original order
+            return 0;
+        });
+        
         return $bodyPanelData;
     }
     
@@ -896,7 +926,11 @@ class ReportController extends Controller
             'roof' => 'Roof',
             'rear-window' => 'Rear Window',
             'boot' => 'Boot',
-            'front-bumper' => 'Front Bumper'
+            'front-bumper' => 'Front Bumper',
+            'rear-bumper' => 'Rear Bumper',
+            'left-skirting' => 'Left Skirting',
+            'right-skirting' => 'Right Skirting',
+            'other' => 'Other'
         ];
         
         return $names[$normalizedId] ?? ucwords(str_replace(['-', '_'], ' ', $panelId));
