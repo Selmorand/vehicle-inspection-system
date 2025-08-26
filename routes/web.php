@@ -153,11 +153,16 @@ Route::get('/test-pdf-simple', function() {
 // Ultra-minimal mPDF test 
 Route::get('/test-mpdf', function() {
     try {
+        // Check if mPDF class exists first
+        if (!class_exists('Mpdf\\Mpdf')) {
+            return response()->json(['error' => 'mPDF class not found - composer install needed'], 500);
+        }
+        
         // Test if mPDF can be instantiated at all
         $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4']);
         $mpdf->WriteHTML('<h1>Hello World</h1>');
         return $mpdf->Output('test.pdf', 'I');
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         \Log::error('mPDF Test Error: ' . $e->getMessage());
         return response()->json(['error' => 'mPDF failed: ' . $e->getMessage()], 500);
     }
@@ -185,7 +190,7 @@ Route::get('/test-php-requirements', function() {
             'mpdf_vendor_exists' => class_exists('Mpdf\\Mpdf', false) // Check if already loaded
         ]);
         
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         return response()->json(['error' => 'Requirements test failed: ' . $e->getMessage()], 500);
     }
 });
