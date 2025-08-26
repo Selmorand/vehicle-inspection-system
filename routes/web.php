@@ -213,16 +213,32 @@ Route::get('/reports/{id}/pdf', function($id) {
         // Add base URL for links
         $baseUrl = config('app.url', 'http://localhost/vehicle-inspection');
         
-        $html = view('pdf.simple-report', [
-            'report' => $report,
-            'inspectionData' => $inspectionData,
-            'baseUrl' => $baseUrl
-        ])->render();
+        try {
+            // Try to render the Blade template
+            $html = view('pdf.simple-report', [
+                'report' => $report,
+                'inspectionData' => $inspectionData,
+                'baseUrl' => $baseUrl
+            ])->render();
+        } catch (\Exception $e) {
+            \Log::error('PDF Template Rendering Error: ' . $e->getMessage());
+            return response()->json(['error' => 'PDF template error: ' . $e->getMessage()], 500);
+        }
         
-        // Process vehicle diagrams to capture screenshots
-        $html = $pdfService->processVehicleDiagrams($html, $inspectionData);
+        try {
+            // Process vehicle diagrams to capture screenshots
+            $html = $pdfService->processVehicleDiagrams($html, $inspectionData);
+        } catch (\Exception $e) {
+            \Log::error('PDF Diagram Processing Error: ' . $e->getMessage());
+            // Continue without diagram processing if it fails
+        }
         
-        return $pdfService->generatePdf($html, 'report_' . $report->report_number . '.pdf');
+        try {
+            return $pdfService->generatePdf($html, 'report_' . $report->report_number . '.pdf');
+        } catch (\Exception $e) {
+            \Log::error('PDF Generation Error: ' . $e->getMessage());
+            return response()->json(['error' => 'PDF generation error: ' . $e->getMessage()], 500);
+        }
         
     } catch (\Exception $e) {
         return response()->json(['error' => 'PDF generation failed: ' . $e->getMessage()], 500);

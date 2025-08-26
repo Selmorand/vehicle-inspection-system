@@ -372,7 +372,13 @@
     
     <!-- Vehicle Diagram -->
     <div style="text-align: center; margin: 20px 0; page-break-inside: avoid;">
-        <img src="{{ public_path('images/panels/FullVehicle.png') }}" alt="Vehicle Body Panels" style="max-width: 600px; width: 100%; height: auto; border: 1px solid #ddd;">
+        @php
+            $vehicleDiagramPath = public_path('images/panels/FullVehicle.png');
+            $vehicleDiagramExists = file_exists($vehicleDiagramPath);
+        @endphp
+        @if($vehicleDiagramExists)
+        <img src="{{ $vehicleDiagramPath }}" alt="Vehicle Body Panels" style="max-width: 600px; width: 100%; height: auto; border: 1px solid #ddd;">
+        @endif
         
     </div>
     @foreach($validBodyPanels as $panel)
@@ -447,7 +453,13 @@
     
     <!-- Interior Diagram -->
     <div style="text-align: center; margin: 20px 0; page-break-inside: avoid;">
-        <img src="{{ public_path('images/interior/interiorMain.png') }}" alt="Vehicle Interior" style="max-width: 600px; width: 100%; height: auto; border: 1px solid #ddd;">
+        @php
+            $interiorDiagramPath = public_path('images/interior/interiorMain.png');
+            $interiorDiagramExists = file_exists($interiorDiagramPath);
+        @endphp
+        @if($interiorDiagramExists)
+        <img src="{{ $interiorDiagramPath }}" alt="Vehicle Interior" style="max-width: 600px; width: 100%; height: auto; border: 1px solid #ddd;">
+        @endif
         
         <!-- Interior Condition Legend -->
     </div>
