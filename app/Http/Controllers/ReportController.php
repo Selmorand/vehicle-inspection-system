@@ -256,35 +256,88 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         try {
-            // Get saved inspections from the inspections table, not just inspection_reports
-            $query = \App\Models\Inspection::with(['client', 'vehicle']);
+            // Get saved inspections - ALL REPORTS WITH REPORT NUMBERS
+            // Since report numbers are generated from IDs, all inspections have report numbers
+            // Show ALL reports regardless of status (as requested)
+            $query = \App\Models\Inspection::with(['client', 'vehicle']); // No status filtering
             
-            // Search functionality
-            if ($request->has('search')) {
-                $search = $request->search;
-                $query->where(function($q) use ($search) {
-                    $q->where('inspector_name', 'like', "%{$search}%")
-                      ->orWhereHas('client', function($clientQuery) use ($search) {
-                          $clientQuery->where('name', 'like', "%{$search}%")
-                                    ->orWhere('email', 'like', "%{$search}%");
-                      })
-                      ->orWhereHas('vehicle', function($vehicleQuery) use ($search) {
-                          $vehicleQuery->where('manufacturer', 'like', "%{$search}%")
-                                     ->orWhere('model', 'like', "%{$search}%")
-                                     ->orWhere('vin', 'like', "%{$search}%");
-                      });
-                });
+            // Enhanced search functionality with partial matching
+            if ($request->has('search') && !empty($request->search)) {
+                $search = trim($request->search);
+                
+                // Determine search type and apply appropriate logic
+                if (stripos($search, 'INS-') === 0) {
+                    // Full report number search (INS-XXXXXX format)
+                    $reportId = str_replace(['INS-', 'ins-'], '', $search);
+                    $reportId = ltrim($reportId, '0'); // Remove leading zeros
+                    if (is_numeric($reportId)) {
+                        $query->where('id', $reportId);
+                    }
+                } elseif (is_numeric($search)) {
+                    // Numeric search - could be partial report ID, VIN digits, or registration
+                    $searchLength = strlen($search);
+                    
+                    if ($searchLength >= 3 && $searchLength <= 6) {
+                        // Partial report number search (3-6 digits) 
+                        $query->where(function($q) use ($search) {
+                            // Search by partial ID (report number digits)
+                            $q->where('id', 'like', "%{$search}%")
+                              // Also search in vehicle fields for numeric matches
+                              ->orWhereHas('vehicle', function($vehicleQuery) use ($search) {
+                                  $vehicleQuery->where('vin', 'like', "%{$search}%")
+                                             ->orWhere('registration_number', 'like', "%{$search}%")
+                                             ->orWhere('engine_number', 'like', "%{$search}%");
+                              });
+                        });
+                    } elseif ($searchLength >= 4) {
+                        // Longer numeric search - likely VIN or full registration
+                        $query->whereHas('vehicle', function($vehicleQuery) use ($search) {
+                            $vehicleQuery->where('vin', 'like', "%{$search}%")
+                                       ->orWhere('registration_number', 'like', "%{$search}%")
+                                       ->orWhere('engine_number', 'like', "%{$search}%");
+                        });
+                    } else {
+                        // Short numeric search (1-2 digits) - search everywhere
+                        $query->where(function($q) use ($search) {
+                            $q->where('id', 'like', "%{$search}%")
+                              ->orWhereHas('vehicle', function($vehicleQuery) use ($search) {
+                                  $vehicleQuery->where('vin', 'like', "%{$search}%")
+                                             ->orWhere('registration_number', 'like', "%{$search}%")
+                                             ->orWhere('engine_number', 'like', "%{$search}%");
+                              });
+                        });
+                    }
+                } else {
+                    // Text-based search - search in vehicle fields with partial matching
+                    $query->whereHas('vehicle', function($vehicleQuery) use ($search) {
+                        $vehicleQuery->where('vin', 'like', "%{$search}%")
+                                   ->orWhere('registration_number', 'like', "%{$search}%")
+                                   ->orWhere('engine_number', 'like', "%{$search}%");
+                    });
+                }
             }
             
-            // Date filter
-            if ($request->has('from_date')) {
+            // Date filter - only apply if dates are actually provided (not empty strings)
+            if ($request->filled('from_date')) {
                 $query->whereDate('inspection_date', '>=', $request->from_date);
             }
-            if ($request->has('to_date')) {
+            if ($request->filled('to_date')) {
                 $query->whereDate('inspection_date', '<=', $request->to_date);
             }
             
-            $inspections = $query->orderBy('created_at', 'desc')->paginate(15);
+            // Get page size from request or use default
+            $perPage = $request->input('per_page', 10); // Default to 10 per page
+            $validPageSizes = [10, 25, 50, 100];
+            
+            // Ensure valid page size
+            if (!in_array($perPage, $validPageSizes)) {
+                $perPage = 10;
+            }
+            
+            $inspections = $query->orderBy('created_at', 'desc')->paginate($perPage);
+            
+            // Preserve all query parameters in pagination links
+            $inspections->appends($request->all());
             
             // Transform inspections to reports format for the view
             $reports = $inspections->through(function ($inspection) {
@@ -301,14 +354,16 @@ class ReportController extends Controller
                 $report->status = $inspection->status ?? 'draft';
                 $report->inspector_name = $inspection->inspector_name ?? 'N/A';
                 $report->vin_number = $inspection->vehicle->vin ?? 'N/A';
+                $report->license_plate = $inspection->vehicle->registration_number ?? 'N/A';
+                $report->engine_number = $inspection->vehicle->engine_number ?? 'N/A';
                 $report->created_at = $inspection->created_at;
                 $report->updated_at = $inspection->updated_at;
                 $report->formatted_file_size = 'N/A'; // Inspections don't have file size
                 return $report;
             });
             
-            // If no reports exist, add sample data
-            if ($reports->isEmpty()) {
+            // If no reports exist and this is not a search request, add sample data
+            if ($reports->isEmpty() && !$request->has('search')) {
                 $sampleReport = new \stdClass();
                 $sampleReport->id = 1;
                 $sampleReport->report_number = 'SAMPLE-001';
@@ -321,6 +376,8 @@ class ReportController extends Controller
                 $sampleReport->status = 'completed';
                 $sampleReport->inspector_name = 'Sample Inspector';
                 $sampleReport->vin_number = 'SAMPLE123456789';
+                $sampleReport->license_plate = 'SAMPLE-REG';
+                $sampleReport->engine_number = 'SAMPLE-ENG-001';
                 $sampleReport->created_at = now();
                 $sampleReport->updated_at = now();
                 $sampleReport->formatted_file_size = 'N/A';
@@ -335,9 +392,13 @@ class ReportController extends Controller
                 );
             }
             
-            return view('reports.index', compact('reports'));
+            return view('reports.index', compact('reports', 'perPage', 'validPageSizes'));
             
         } catch (\Exception $e) {
+            // Set default pagination values for error case
+            $perPage = 10;
+            $validPageSizes = [10, 25, 50, 100];
+            
             // If there's an error (like missing table), show sample data
             $sampleReport = new InspectionReport();
             $sampleReport->id = 1;

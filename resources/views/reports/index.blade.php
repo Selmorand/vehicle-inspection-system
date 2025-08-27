@@ -2,6 +2,66 @@
 
 @section('title', 'Inspection Reports')
 
+@section('styles')
+<style>
+/* Custom Pagination Styles */
+.pagination {
+    margin-bottom: 0;
+}
+
+.pagination .page-link {
+    color: #4f959b;
+    border-color: #dee2e6;
+    padding: 0.375rem 0.75rem;
+}
+
+.pagination .page-link:hover {
+    color: #3a6f74;
+    background-color: #f8f9fa;
+    border-color: #4f959b;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #4f959b;
+    border-color: #4f959b;
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+/* Page size selector styling */
+.form-select-sm {
+    padding: 0.25rem 2rem 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Pagination info text */
+.pagination-info {
+    display: flex;
+    align-items: center;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pagination-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .pagination-info {
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+}
+</style>
+@endsection
+
 @section('content')
 <div class="container-fluid px-4">
     <div class="row mb-4">
@@ -44,11 +104,12 @@
         <div class="card-body">
             <form method="GET" action="{{ route('reports.index') }}">
                 <div class="d-flex flex-wrap gap-3 align-items-end">
-                    <div class="flex-fill" style="min-width: 200px;">
-                        <label for="search" class="form-label">Search</label>
+                    <div class="flex-fill" style="min-width: 250px;">
+                        <label for="search" class="form-label">Enhanced Search - Partial Matches Supported</label>
                         <input type="text" class="form-control" id="search" name="search" 
-                               placeholder="Vehicle, VIN, report #..." 
+                               placeholder="e.g., 1234 (VIN digits), 005 (report digits), INS-000011 (full report), ABC123 (registration)" 
                                value="{{ request('search') }}">
+                        <small class="form-text text-muted">🔍 <strong>Partial Search:</strong> 4+ digits for VIN, 3+ digits for reports, full text for registrations • <strong>Shows:</strong> All reports with numbers</small>
                     </div>
                     <div class="flex-shrink-0" style="min-width: 150px;">
                         <label for="from_date" class="form-label">From Date</label>
@@ -67,6 +128,9 @@
                         <a href="{{ route('reports.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle"></i> Clear
                         </a>
+                        <a href="{{ route('debug.search') }}" class="btn btn-outline-info btn-sm" title="Debug Search">
+                            <i class="bi bi-bug"></i>
+                        </a>
                     </div>
                 </div>
             </form>
@@ -75,20 +139,47 @@
 
     <!-- Reports Table -->
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">All Reports</h5>
-            @if($reports->count() > 0)
-            <form action="{{ route('reports.destroy-all') }}" 
-                  method="POST" 
-                  class="d-inline"
-                  onsubmit="return confirm('⚠️ WARNING: This will permanently delete ALL reports and associated images. This action cannot be undone. Are you absolutely sure you want to proceed?');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-outline-danger">
-                    <i class="bi bi-trash3"></i> Clear All Reports
-                </button>
-            </form>
-            @endif
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0">
+                        All Inspection Reports 
+                        <span class="badge bg-success ms-2" title="Shows all reports with report numbers">
+                            <i class="bi bi-file-earmark-text"></i> All Reports
+                        </span>
+                    </h5>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end align-items-center gap-2">
+                        <!-- Page Size Selector -->
+                        @if(isset($validPageSizes) && isset($perPage))
+                        <div class="d-flex align-items-center">
+                            <label for="perPageSelect" class="form-label mb-0 me-2">Show:</label>
+                            <select id="perPageSelect" class="form-select form-select-sm" style="width: auto;" onchange="changePageSize(this.value)">
+                                @foreach($validPageSizes as $size)
+                                    <option value="{{ $size }}" {{ $perPage == $size ? 'selected' : '' }}>
+                                        {{ $size }} per page
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @endif
+                        
+                        @if($reports->count() > 0)
+                        <form action="{{ route('reports.destroy-all') }}" 
+                              method="POST" 
+                              class="d-inline"
+                              onsubmit="return confirm('⚠️ WARNING: This will permanently delete ALL reports and associated images. This action cannot be undone. Are you absolutely sure you want to proceed?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash3"></i> Clear All
+                            </button>
+                        </form>
+                        @endif
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="card-body">
             @if($reports->count() > 0)
@@ -98,37 +189,43 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="row align-items-center">
-                                    <div class="col-md-2">
+                                    <div class="col-lg-2 col-md-6">
                                         <div class="report-heading">Report #</div>
                                         <div class="report-data">
                                             <span class="badge bg-primary">{{ $report->report_number }}</span>
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-lg-1 col-md-6">
                                         <div class="report-heading">Date</div>
                                         <div class="report-data">
                                             {{ is_string($report->inspection_date) ? $report->inspection_date : $report->inspection_date->format('Y-m-d') }}
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-lg-2 col-md-6">
                                         <div class="report-heading">Vehicle</div>
                                         <div class="report-data">
                                             {{ ($report->vehicle_make ?? '') . ' ' . ($report->vehicle_model ?? '') . ' ' . ($report->vehicle_year ?? '') }}
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-lg-2 col-md-6">
                                         <div class="report-heading">VIN</div>
-                                        <div class="report-data">
+                                        <div class="report-data" style="font-size: 0.85rem;">
                                             {{ $report->vin_number ?: 'N/A' }}
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-lg-2 col-md-6">
+                                        <div class="report-heading">Registration</div>
+                                        <div class="report-data">
+                                            {{ $report->license_plate ?: 'N/A' }}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 col-md-6">
                                         <div class="report-heading">Inspector</div>
                                         <div class="report-data">
                                             {{ $report->inspector_name ?: 'N/A' }}
                                         </div>
                                     </div>
-                                    <div class="col-md-1">
+                                    <div class="col-lg-1 col-md-12">
                                         <div class="report-actions">
                                             <div class="d-flex gap-1 justify-content-end">
                                                 <a href="{{ route('reports.show', $report->id) }}" 
@@ -170,10 +267,20 @@
                     @endforeach
                 </div>
 
-                <!-- Pagination -->
+                <!-- Pagination with Info -->
                 @if(method_exists($reports, 'withQueryString'))
-                <div class="d-flex justify-content-center mt-4">
-                    {{ $reports->withQueryString()->links() }}
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="text-muted">
+                            Showing {{ $reports->firstItem() ?? 0 }} to {{ $reports->lastItem() ?? 0 }} 
+                            of {{ $reports->total() }} reports
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-end">
+                            {{ $reports->withQueryString()->links('pagination::bootstrap-5') }}
+                        </div>
+                    </div>
                 </div>
                 @endif
             @else
@@ -494,5 +601,42 @@ function hideSuccessAlert() {
         alert.style.opacity = '0';
     }
 }
+
+// Function to change page size
+function changePageSize(size) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', size);
+    url.searchParams.delete('page'); // Reset to first page when changing page size
+    window.location.href = url.toString();
+}
+
+// Cache busting for search form to prevent stale results
+document.addEventListener('DOMContentLoaded', function() {
+    // Add debug info if search parameters are present
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('search') && urlParams.get('search').trim() !== '') {
+        console.log('🔍 Search Debug Info:', {
+            search_term: urlParams.get('search'),
+            from_date: urlParams.get('from_date'),
+            to_date: urlParams.get('to_date'),
+            page_loaded_at: new Date().toISOString(),
+            reports_found: document.querySelectorAll('.report-card').length,
+            showing_no_results: !!document.querySelector('.text-center.py-5'),
+            has_sample_data: document.querySelector('[data-report-type="sample"]') !== null
+        });
+    }
+    
+    // Force form submission with cache busting
+    const searchForm = document.querySelector('form[method="GET"]');
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            // Add timestamp to prevent caching
+            const timestamp = Date.now();
+            let actionUrl = new URL(this.action);
+            actionUrl.searchParams.set('_t', timestamp);
+            this.action = actionUrl.toString();
+        });
+    }
+});
 </script>
 @endsection

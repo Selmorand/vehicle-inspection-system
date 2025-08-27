@@ -127,6 +127,10 @@ Route::delete('/reports', [App\Http\Controllers\ReportController::class, 'destro
 // Email report functionality
 Route::post('/api/reports/email/{id}', [App\Http\Controllers\ReportController::class, 'emailReport'])->name('api.reports.email');
 
+// Debug routes for search functionality
+Route::get('/debug/search', [App\Http\Controllers\DebugController::class, 'searchDebug'])->name('debug.search');
+Route::post('/debug/search-ajax', [App\Http\Controllers\DebugController::class, 'searchAjax'])->name('debug.search-ajax');
+
 // Simple email test route
 Route::get('/test-simple-email', function() {
     try {
