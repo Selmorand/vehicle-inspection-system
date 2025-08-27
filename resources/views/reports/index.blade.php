@@ -166,6 +166,7 @@
                         @endif
                         
                         @if($reports->count() > 0)
+                        @candelete
                         <form action="{{ route('reports.destroy-all') }}" 
                               method="POST" 
                               class="d-inline"
@@ -176,6 +177,7 @@
                                 <i class="bi bi-trash3"></i> Clear All
                             </button>
                         </form>
+                        @endcandelete
                         @endif
                     </div>
                 </div>
@@ -245,6 +247,7 @@
                                                         onclick="openEmailModal({{ $report->id }}, '{{ $report->report_number }}', '{{ $report->client_email ?? '' }}')">
                                                     <i class="bi bi-envelope"></i>
                                                 </button>
+                                                @candelete
                                                 <form action="{{ route('reports.destroy', $report->id) }}" 
                                                       method="POST" 
                                                       class="d-inline"
@@ -257,6 +260,7 @@
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
+                                                @endcandelete
                                             </div>
                                         </div>
                                     </div>

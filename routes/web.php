@@ -3,53 +3,94 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
+// Public routes
 Route::get('/', function () {
-    return redirect('/dashboard');
+    if (auth()->check()) {
+        $user = auth()->user();
+        if ($user->isUser()) {
+            return redirect()->route('reports.index');
+        }
+        return redirect('/dashboard');
+    }
+    return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    // Get last 6 inspections (draft and completed) ordered by most recent
-    $recentInspections = App\Models\Inspection::with(['client', 'vehicle'])
-        ->whereIn('status', ['draft', 'completed'])
-        ->orderBy('inspection_date', 'desc')
-        ->orderBy('created_at', 'desc')
-        ->limit(6)
-        ->get();
+// Test session route
+Route::get('/test-session', function () {
+    session(['test' => 'Session is working!']);
+    return response()->json([
+        'session_id' => session()->getId(),
+        'csrf_token' => csrf_token(),
+        'test_value' => session('test'),
+        'session_driver' => config('session.driver'),
+    ]);
+});
+
+// Test login page
+Route::get('/test-login', function () {
+    return view('test-login');
+});
+
+// Authentication routes
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Admin-only registration routes
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+
+// Protected routes requiring authentication
+Route::middleware(['auth'])->group(function () {
+    // Dashboard - available to inspectors and admins
+    Route::get('/dashboard', function () {
+        // Get last 6 inspections (draft and completed) ordered by most recent
+        $recentInspections = App\Models\Inspection::with(['client', 'vehicle'])
+            ->whereIn('status', ['draft', 'completed'])
+            ->orderBy('inspection_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(6)
+            ->get();
+        
+        return view('dashboard', compact('recentInspections'));
+    })->middleware('role:inspector,admin')->name('dashboard');
+
+    // Admin-only routes
+    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/users', [AdminController::class, 'users'])->name('users');
+        Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('users.edit');
+        Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('users.update');
+        Route::delete('/users/{id}', [AdminController::class, 'deleteUser'])->name('users.delete');
+    });
     
-    return view('dashboard', compact('recentInspections'));
-});
-
-// Test page for visual report
-Route::get('/test-visual-report', function () {
-    return view('visual-inspection-test');
-});
-
-// Inspection routes
-Route::controller(InspectionController::class)->group(function () {
-    // View routes
-    Route::get('/inspection/visual', 'visualInspection')->name('inspection.visual');
-    Route::get('/inspection/body-panel', 'bodyPanelAssessment')->name('inspection.body-panel');
-    Route::get('/inspection/interior', 'interiorAssessment')->name('inspection.interior');
-    Route::get('/inspection/service-booklet', 'serviceBooklet')->name('inspection.service-booklet');
-    Route::get('/inspection/tyres-rims', 'tyresRimsAssessment')->name('inspection.tyres-rims');
-    Route::get('/inspection/mechanical-report', 'mechanicalReport')->name('inspection.mechanical-report');
-    Route::get('/inspection/engine-compartment', 'engineCompartmentAssessment')->name('inspection.engine-compartment');
-    Route::get('/inspection/physical-hoist', 'physicalHoistInspection')->name('inspection.physical-hoist');
-    
-    // API routes for saving data
-    Route::post('/api/inspection/visual', 'saveVisualInspection')->name('api.inspection.visual');
-    Route::post('/api/inspection/body-panel', 'saveBodyPanelAssessment')->name('api.inspection.body-panel');
-    Route::post('/api/inspection/interior', 'saveInteriorAssessment')->name('api.inspection.interior');
-    Route::post('/api/inspection/service-booklet', 'saveServiceBooklet')->name('api.inspection.service-booklet');
-    Route::post('/api/inspection/tyres-rims', 'saveTyresRimsAssessment')->name('api.inspection.tyres-rims');
-    Route::post('/api/inspection/mechanical-report', 'saveMechanicalReport')->name('api.inspection.mechanical-report');
-    Route::post('/api/inspection/engine-compartment', 'saveEngineCompartmentAssessment')->name('api.inspection.engine-compartment');
-    Route::post('/api/inspection/physical-hoist', 'savePhysicalHoistInspection')->name('api.inspection.physical-hoist');
-    Route::post('/api/inspection/upload-image', 'uploadImage')->name('api.inspection.upload-image');
-    Route::post('/api/inspection/complete', 'completeInspection')->name('api.inspection.complete');
+    // Inspection routes - only for inspectors and admins
+    Route::controller(InspectionController::class)->middleware(['role:inspector,admin'])->group(function () {
+        // View routes
+        Route::get('/inspection/visual', 'visualInspection')->name('inspection.visual');
+        Route::get('/inspection/body-panel', 'bodyPanelAssessment')->name('inspection.body-panel');
+        Route::get('/inspection/interior', 'interiorAssessment')->name('inspection.interior');
+        Route::get('/inspection/service-booklet', 'serviceBooklet')->name('inspection.service-booklet');
+        Route::get('/inspection/tyres-rims', 'tyresRimsAssessment')->name('inspection.tyres-rims');
+        Route::get('/inspection/mechanical-report', 'mechanicalReport')->name('inspection.mechanical-report');
+        Route::get('/inspection/engine-compartment', 'engineCompartmentAssessment')->name('inspection.engine-compartment');
+        Route::get('/inspection/physical-hoist', 'physicalHoistInspection')->name('inspection.physical-hoist');
+        
+        // API routes for saving data
+        Route::post('/api/inspection/visual', 'saveVisualInspection')->name('api.inspection.visual');
+        Route::post('/api/inspection/body-panel', 'saveBodyPanelAssessment')->name('api.inspection.body-panel');
+        Route::post('/api/inspection/interior', 'saveInteriorAssessment')->name('api.inspection.interior');
+        Route::post('/api/inspection/service-booklet', 'saveServiceBooklet')->name('api.inspection.service-booklet');
+        Route::post('/api/inspection/tyres-rims', 'saveTyresRimsAssessment')->name('api.inspection.tyres-rims');
+        Route::post('/api/inspection/mechanical-report', 'saveMechanicalReport')->name('api.inspection.mechanical-report');
+        Route::post('/api/inspection/engine-compartment', 'saveEngineCompartmentAssessment')->name('api.inspection.engine-compartment');
+        Route::post('/api/inspection/physical-hoist', 'savePhysicalHoistInspection')->name('api.inspection.physical-hoist');
+        Route::post('/api/inspection/upload-image', 'uploadImage')->name('api.inspection.upload-image');
+        Route::post('/api/inspection/complete', 'completeInspection')->name('api.inspection.complete');
     Route::match(['GET', 'POST'], '/test/visual-report', 'testVisualReport')->name('test.visual-report');
     Route::match(['GET', 'POST'], '/test-reports/body-panel', 'testBodyPanelReport')->name('test.body-panel-report');
     Route::match(['GET', 'POST'], '/debug/body-panel-data', 'debugBodyPanelData')->name('debug.body-panel-data');
@@ -61,13 +102,13 @@ Route::controller(InspectionController::class)->group(function () {
     Route::post('/preview/mechanical-report', 'previewMechanicalReport')->name('preview.mechanical-report');
     Route::post('/preview/engine-compartment', 'previewEngineCompartment')->name('preview.engine-compartment');
     Route::post('/preview/physical-hoist', 'previewPhysicalHoist')->name('preview.physical-hoist');
-});
+    });
 
-// Image handling routes
-Route::controller(ImageController::class)->group(function () {
-    Route::post('/api/image/upload', 'upload')->name('api.image.upload');
-    Route::get('/api/image/compress', 'compress')->name('api.image.compress');
-});
+    // Image handling routes - for authenticated users
+    Route::controller(ImageController::class)->middleware(['role:inspector,admin'])->group(function () {
+        Route::post('/api/image/upload', 'upload')->name('api.image.upload');
+        Route::get('/api/image/compress', 'compress')->name('api.image.compress');
+    });
 
 // Diagnostic route for staging debugging
 Route::get('/debug-reports', function () {
@@ -109,6 +150,19 @@ Route::get('/debug-reports', function () {
 });
 
 // Test routes (keep for development)
+    // Report management routes - available to all authenticated users
+    Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{id}', [App\Http\Controllers\ReportController::class, 'showWeb'])->name('reports.show');
+    
+    // Email report functionality - all authenticated users can email
+    Route::post('/api/reports/email/{id}', [App\Http\Controllers\ReportController::class, 'emailReport'])->name('api.reports.email');
+    
+    // Delete functionality - admin only
+    Route::delete('/reports/{id}', [App\Http\Controllers\ReportController::class, 'destroy'])->name('reports.destroy')->middleware('role:admin');
+    Route::delete('/reports', [App\Http\Controllers\ReportController::class, 'destroyAll'])->name('reports.destroy-all')->middleware('role:admin');
+});
+
+// Test pages (not protected)
 Route::get('/test', function () {
     return view('test-panel');
 });
@@ -118,14 +172,9 @@ Route::get('/positioning-tool', function () {
 Route::get('/interior-test', function () {
     return view('interior-panel-test');
 });
-// Report management routes - Web view only (PDF functionality removed)
-Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
-Route::get('/reports/{id}', [App\Http\Controllers\ReportController::class, 'showWeb'])->name('reports.show');
-Route::delete('/reports/{id}', [App\Http\Controllers\ReportController::class, 'destroy'])->name('reports.destroy');
-Route::delete('/reports', [App\Http\Controllers\ReportController::class, 'destroyAll'])->name('reports.destroy-all');
-
-// Email report functionality
-Route::post('/api/reports/email/{id}', [App\Http\Controllers\ReportController::class, 'emailReport'])->name('api.reports.email');
+Route::get('/test-visual-report', function () {
+    return view('visual-inspection-test');
+});
 
 // Debug routes for search functionality
 Route::get('/debug/search', [App\Http\Controllers\DebugController::class, 'searchDebug'])->name('debug.search');

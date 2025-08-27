@@ -27,7 +27,13 @@
                 <div class="col-md-6">
                     <div class="form-row">
                         <label for="inspector_name" class="form-label fw-bold">Inspector:</label>
-                        <input type="text" class="form-control" id="inspector_name" name="inspector_name" placeholder="Inspector name">
+                        <input type="text" class="form-control" id="inspector_name" name="inspector_name" 
+                               value="{{ Auth::user()->name }}" 
+                               placeholder="Inspector name" 
+                               @if(!Auth::user()->isAdmin()) readonly @endif>
+                        @if(!Auth::user()->isAdmin())
+                            <div class="form-text">Inspector name is automatically set from your login</div>
+                        @endif
                     </div>
                 </div>
             </div>
