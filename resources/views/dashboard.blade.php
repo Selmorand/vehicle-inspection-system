@@ -55,7 +55,7 @@
 
     <!-- Management Actions -->
     <div class="row g-4 mb-5">
-        <div class="col-lg-4 col-md-6">
+        <div class="col-lg-6 col-md-6">
             <div class="card action-card h-100">
                 <div class="card-body">
                     <h5 class="card-title">View All Reports</h5>
@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <div class="col-lg-4 col-md-6">
+        <div class="col-lg-6 col-md-6">
             <div class="card action-card h-100">
                 <div class="card-body">
                     <h5 class="card-title">Quick Search</h5>
@@ -74,7 +74,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <!-- Recent Reports -->
