@@ -95,6 +95,12 @@ body {
     border-radius: 15px;
 }
 
+.min-vh-100.align-items-center {
+    padding-top: 60px;
+    min-height: auto !important;
+    align-items: flex-start !important;
+}
+
 .card-header {
     border-radius: 15px 15px 0 0 !important;
     background-color: #4f959b !important;

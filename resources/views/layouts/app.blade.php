@@ -21,6 +21,49 @@
     @yield('additional-css')
     @yield('styles')
     <!-- Custom CSS - MUST COME AFTER BOOTSTRAP -->
+    <style>
+        /* Responsive navbar styling */
+        @media (max-width: 1199px) {
+            .navbar-nav .nav-link {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.95rem;
+            }
+            .navbar-nav .nav-link i {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .navbar-nav .nav-link {
+                padding: 0.5rem 0.5rem;
+                font-size: 0.9rem;
+            }
+            .navbar-brand img {
+                height: 150px !important;
+            }
+        }
+        
+        /* Ensure icons stay inline */
+        .navbar-nav .nav-link i {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        .navbar-nav .nav-link {
+            white-space: nowrap;
+        }
+        
+        /* Dropdown improvements */
+        .dropdown-menu {
+            min-width: 200px;
+        }
+        
+        .dropdown-item i {
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
@@ -33,16 +76,16 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 @auth
-                    <ul class="navbar-nav me-auto">
+                    <ul class="navbar-nav ms-auto">
                         @inspector
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url('/dashboard') }}" style="color: #4f959b;">
-                                    <i class="bi bi-house me-1"></i>Dashboard
+                                    <i class="bi bi-house me-1 mb-1"></i>Dashboard
                                 </a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="newInspectionDropdown" role="button" data-bs-toggle="dropdown" style="color: #4f959b;">
-                                    <i class="bi bi-plus-circle me-1"></i>New Inspection
+                                    <i class="bi bi-plus-circle me-1 mb-1"></i>New Inspection
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>
@@ -60,13 +103,13 @@
                         @endinspector
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('reports.index') }}" style="color: #4f959b;">
-                                <i class="bi bi-file-earmark-pdf me-1"></i>Reports
+                                <i class="bi bi-file-earmark-pdf me-1 mb-1"></i>Reports
                             </a>
                         </li>
                         @admin
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('admin.users') }}" style="color: #4f959b;">
-                                    <i class="bi bi-people me-1"></i>User Management
+                                    <i class="bi bi-people me-1 mb-1"></i>User Management
                                 </a>
                             </li>
                         @endadmin
@@ -74,7 +117,7 @@
                     <ul class="navbar-nav">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" style="color: #4f959b;">
-                                <i class="bi bi-person-circle me-1"></i>
+                                <i class="bi bi-person-circle me-1 mb-1"></i>
                                 {{ Auth::user()->name }}
                                 <span class="badge bg-secondary ms-1">{{ ucfirst(Auth::user()->role) }}</span>
                             </a>
@@ -95,7 +138,7 @@
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('login') }}" style="color: #4f959b;">
-                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                                <i class="bi bi-box-arrow-in-right me-1 mb-1"></i>Login
                             </a>
                         </li>
                     </ul>
