@@ -7,7 +7,7 @@
     <div class="row justify-content-center align-items-center min-vh-100">
         <div class="col-md-6 col-lg-4">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white text-center">
+                <div class="card-header text-white text-center">
                     <h4 class="mb-0">Vehicle Inspection System</h4>
                     <small>Please login to continue</small>
                 </div>
@@ -87,7 +87,7 @@
 @section('styles')
 <style>
 body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4f959b 0%, #28a745 100%);
 }
 
 .card {
@@ -97,23 +97,25 @@ body {
 
 .card-header {
     border-radius: 15px 15px 0 0 !important;
+    background-color: #4f959b !important;
+    border-color: #4f959b !important;
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: #4f959b;
     border: none;
     border-radius: 8px;
     font-weight: 600;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(45deg, #5a6fd8, #6a4190);
+    background: #3d757a;
     transform: translateY(-1px);
 }
 
 .form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    border-color: #4f959b;
+    box-shadow: 0 0 0 0.2rem rgba(79, 149, 155, 0.25);
 }
 </style>
 @endsection
