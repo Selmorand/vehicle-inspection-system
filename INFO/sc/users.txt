@@ -1,0 +1,5 @@
+  | Role      | Email                            | Password     |
+  |-----------|----------------------------------|--------------|
+  | Admin     | admin@alphainspections.co.za     | password123     |
+  | Inspector | inspector@alphainspections.co.za | password123 |
+  | User      | user@alphainspections.co.za      | password123     |

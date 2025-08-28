@@ -1,0 +1,21 @@
+  cd public_html/staging.alphainspections.co.za
+# Clear all Laravel caches
+  php artisan config:clear
+  php artisan cache:clear
+  php artisan route:clear
+  php artisan view:clear
+  php artisan optimize:clear
+
+  # Regenerate autoload files
+  composer dump-autoload --optimize
+
+  # Optional: Clear opcache if available
+  php artisan optimize
+
+
+
+
+
+
+
+

@@ -14,7 +14,10 @@
       "Bash(git restore:*)",
       "Bash(php tools/field_map_check.php:*)",
       "Bash(find:*)",
-      "Bash(grep:*)"
-    ]
+      "Bash(grep:*)",
+      "Bash(php:*)",
+      "Bash(ssh:*)"
+    ],
+    "defaultMode": "acceptEdits"
   }
 }

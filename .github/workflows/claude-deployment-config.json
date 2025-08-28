@@ -1,0 +1,40 @@
+# Claude Code Deployment System
+
+## Overview
+This system lets you use Claude Code to automatically deploy your local changes to staging with simple commands.
+
+## Setup (One-time)
+
+### Step 1: Create Deployment Configuration
+
+Create a file called `claude-deployment-config.json` in your project root:
+
+```json
+{
+    "staging": {
+        "ftp_host": "wp20.domains.co.za",
+        "ftp_user": "profirea",
+        "ftp_password": "tv1+TkUY53@1Yz",
+        "remote_path": "/public_html/alpha.selpro.co.za/",
+        "url": "https://alpha.selpro.co.za",
+        "database": {
+            "host": "localhost",
+            "database": "alphatest",
+            "username": "alphatest",
+            "password": "qz2rg4QZ@RG$"
+        }
+    },
+    "production": {
+        "ftp_host": "wp20.domains.co.za",
+        "ftp_user": "profirea",
+        "ftp_password": "tv1+TkUY53@1Yz",
+        "remote_path": "/public_html/AlphaVehicleInspections.co.za/",
+        "url": "https://AlphaVehicleInspections.co.za",
+        "database": {
+            "host": "localhost",
+            "database": "production_vehicle_db",
+            "username": "prod_user",
+            "password": "secure_production_password"
+        }
+    }
+}

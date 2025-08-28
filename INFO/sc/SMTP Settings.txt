@@ -1,0 +1,11 @@
+INCOMING MAIL SERVER:
+• Server/Host: mail.yourDomain
+• Port: 143 (IMAP) for non-SSL or 993 (IMAP) for SSL
+• SSL/Encryption: Disabled or Enabled
+• Username: Your full email address
+• Password: For the above email address
+OUTGOING MAIL SERVER:
+• Server/Host: mail.yourDomain
+• Port: 587 for non-SSL or 465 for SSL
+• SSL/Encryption: Disabled or Enabled
+• SMTP Authentication: Enabled

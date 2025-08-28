@@ -1,0 +1,40 @@
+Suspenssion:	
+	LF Shock leaks
+	RF Shock leaks
+	LR Shock leaks
+	RR Shock leaks
+	LF Shock mounts
+	RF Shock mounts
+	LR Shock mounts
+	RR Shock mounts
+	LF Control arm cracks
+	RF Control arm cracks
+	LF control arm play
+	RF control arm play
+	Suspension Bushes
+	Springs
+Engine:	
+	Engine mountings
+	Engine oil viscosity
+	Engine oil level
+	Gearbox mountings
+	Timing cover
+	Sump
+	Side shafts
+	Front main seal
+	Rear main seal
+	Coolant lines
+	Fuel Lines
+	Exhaust system
+Driveterain:	
+	LF CV joint
+	RF CV joint
+	Propshaft
+	Centre Bearing
+	Differental mounting
+	Transfer Case
+
+rh-skirting	313	116	387	27
+lh-skirting	300	922	387	27
+
+	
