@@ -87,7 +87,7 @@
 @section('styles')
 <style>
 body {
-    background: linear-gradient(135deg, #4f959b 0%, #28a745 100%);
+    background: white;
 }
 
 .card {
@@ -99,6 +99,11 @@ body {
     border-radius: 15px 15px 0 0 !important;
     background-color: #4f959b !important;
     border-color: #4f959b !important;
+    color: white !important;
+}
+
+.card-header h4, .card-header small {
+    color: white !important;
 }
 
 .btn-primary {
