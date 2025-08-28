@@ -31,6 +31,10 @@ php artisan view:cache
 echo "🗄️ Running database migrations..."
 php artisan migrate --force
 
+# 6. Seed default users
+echo "👤 Creating default users..."
+php artisan db:seed --class=UserSeeder --force
+
 # 6. Create storage symlink
 echo "🔗 Creating storage symlink..."
 php artisan storage:link
