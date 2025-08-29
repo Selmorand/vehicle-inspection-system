@@ -45,3 +45,6 @@ I need help understanding and implementing best practices for managing user pass
 - VS Code as development environment
 
 Please provide code examples, configuration suggestions, and step-by-step guidance for implementing a secure and practical password management strategy across my development pipeline.
+
+- inspector@alphainspections.co.za / password123
+  - admin@alphainspections.co.za / admin123

@@ -112,6 +112,11 @@
                                     <i class="bi bi-people me-1 mb-1"></i>User Management
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.activity-logs') }}" style="color: #dc3545;">
+                                    <i class="bi bi-shield-lock me-1 mb-1"></i>Activity Logs
+                                </a>
+                            </li>
                         @endadmin
                     </ul>
                     <ul class="navbar-nav">

@@ -66,6 +66,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('users.edit');
         Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('users.update');
         Route::delete('/users/{id}', [AdminController::class, 'deleteUser'])->name('users.delete');
+        
+        // Activity Logs - Admin and Super Admin only
+        Route::get('/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity-logs');
+        Route::get('/activity-logs/{id}', [\App\Http\Controllers\ActivityLogController::class, 'show'])->name('activity-logs.show');
+        Route::get('/activity-logs-export', [\App\Http\Controllers\ActivityLogController::class, 'export'])->name('activity-logs.export');
     });
     
     // Inspection routes - only for inspectors and admins

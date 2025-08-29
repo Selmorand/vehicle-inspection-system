@@ -19,7 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Register role middleware
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
+            'log.activity' => \App\Http\Middleware\LogActivity::class,
         ]);
+        
+        // Apply activity logging to all web routes
+        $middleware->appendToGroup('web', \App\Http\Middleware\LogActivity::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
