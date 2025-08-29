@@ -17,7 +17,8 @@ class ActivityLogController extends Controller
             }
             
             $user = auth()->user();
-            if (!$user->isAdmin() && !$user->isSuperAdmin()) {
+            // Check for admin role or super admin status
+            if ($user->role !== 'admin' && !($user->is_super_admin ?? false)) {
                 abort(403, 'Access denied. Admin privileges required.');
             }
             
@@ -96,7 +97,8 @@ class ActivityLogController extends Controller
         $log = ActivityLog::findOrFail($id);
         
         // Only admin can view details
-        if (!auth()->user()->isAdmin() && !auth()->user()->isSuperAdmin()) {
+        $user = auth()->user();
+        if ($user->role !== 'admin' && !($user->is_super_admin ?? false)) {
             abort(403);
         }
         
@@ -106,7 +108,7 @@ class ActivityLogController extends Controller
     public function export(Request $request)
     {
         // Only super admin can export
-        if (!auth()->user()->isSuperAdmin()) {
+        if (!(auth()->user()->is_super_admin ?? false)) {
             abort(403, 'Only super admin can export logs');
         }
         

@@ -170,11 +170,11 @@
                     
                     <!-- Pagination -->
                     <div class="d-flex justify-content-center">
-                        {{ $logs->links() }}
+                        {{ $logs->appends(request()->query())->links('pagination::bootstrap-5') }}
                     </div>
                     
                     <!-- Export Button (Super Admin Only) -->
-                    @if(auth()->user()->isSuperAdmin())
+                    @if(auth()->user()->is_super_admin ?? false)
                         <div class="mt-3">
                             <form action="{{ route('admin.activity-logs.export') }}" method="GET" class="d-inline">
                                 <button type="submit" class="btn btn-success">
