@@ -1,3 +1,9 @@
 Suq8h0QkFB[+18
 
 ssh -p 22000 alphains@alphainspections.co.za
+
+
+cd "F:\Xampp\htdocs\vehicle-inspection"
+
+
+cd public_html/staging.alphainspections.co.za

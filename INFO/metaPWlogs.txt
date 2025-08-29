@@ -1,3 +1,2 @@
-admin@alphainspections.co.za - admin123
-user@alphainspections.co.za - user123
-inspector@alphainspections.co.za inspector123
+  - inspector@alphainspections.co.za / password123
+  - admin@alphainspections.co.za / admin123

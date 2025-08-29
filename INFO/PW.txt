@@ -1,0 +1,47 @@
+# Laravel Password Management Across Development Environments
+
+I'm working with a Laravel application that follows this deployment flow:
+**Local Development → Staging → Production**
+
+I need help understanding and implementing best practices for managing user passwords across these environments. Here are my specific concerns:
+
+## Current Scenario:
+- I develop locally and push changes to staging for user testing
+- Staging gets deployed to production via git branch merges
+- Users change their passwords on the production site
+- When I need to test new features on staging, the password data is outdated
+
+## Questions I Need Help With:
+
+### 1. Password Storage & Security
+- How does Laravel hash and store passwords in the database?
+- What happens to password hashes when code moves between environments?
+- Are there security implications I should be aware of?
+
+### 2. Database Management Strategy
+- Should user passwords be included in database seeds or migrations?
+- How do I handle the situation where production has newer user data than staging?
+- What's the best way to sync user accounts for testing without compromising security?
+
+### 3. Environment-Specific Configuration
+- How should I configure Laravel's authentication settings across environments?
+- What environment variables should be different between staging and production?
+- How do I ensure password reset functionality works correctly in each environment?
+
+### 4. Deployment Best Practices
+- Should I ever copy production user data (including passwords) to staging?
+- How do I create test accounts for staging that don't interfere with production?
+- What's the safest way to handle user authentication during the deployment process?
+
+### 5. Practical Solutions
+- Can you suggest a workflow for managing test users on staging?
+- How do I handle cases where stakeholders need to test with realistic data?
+- What tools or Laravel features can help automate this process?
+
+## My Current Setup:
+- Laravel application with standard authentication
+- Using git for version control
+- Separate databases for each environment
+- VS Code as development environment
+
+Please provide code examples, configuration suggestions, and step-by-step guidance for implementing a secure and practical password management strategy across my development pipeline.
