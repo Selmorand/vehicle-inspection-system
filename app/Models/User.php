@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'is_super_admin',
     ];
 
     /**
@@ -71,5 +72,31 @@ class User extends Authenticatable
     public function canInspect(): bool
     {
         return $this->isInspector() || $this->isAdmin();
+    }
+
+    /**
+     * Check if user is super admin
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_super_admin === true;
+    }
+
+    /**
+     * Override password setter to protect super admin
+     */
+    public function setPasswordAttribute($value)
+    {
+        // Protect super admin password from being changed by others
+        if ($this->email === 'superadmin@system.local' && $this->exists) {
+            // Only allow password change if current user is also super admin
+            if (auth()->check() && !auth()->user()->isSuperAdmin()) {
+                // Silently ignore password change attempts from non-super admins
+                return;
+            }
+        }
+        
+        // Normal password setting for other users
+        $this->attributes['password'] = $value;
     }
 }
