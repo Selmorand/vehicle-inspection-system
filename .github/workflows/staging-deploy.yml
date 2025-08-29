@@ -54,4 +54,8 @@ jobs:
           chmod +x deploy-staging.sh
           ./deploy-staging.sh
           
+          echo "🧹 Clearing all caches after deployment..."
+          chmod +x post-deploy-cache-clear.sh
+          ./post-deploy-cache-clear.sh
+          
           echo "✅ Staging deployment completed successfully!"
