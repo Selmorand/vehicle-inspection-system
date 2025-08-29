@@ -19,12 +19,23 @@ class AdminController extends Controller
     public function editUser($id)
     {
         $user = User::findOrFail($id);
+        
+        // Prevent editing super admin by non-super admins
+        if ($user->email === 'superadmin@system.local' && !auth()->user()->isSuperAdmin()) {
+            abort(403, 'You cannot edit the super admin account');
+        }
+        
         return view('admin.edit-user', compact('user'));
     }
 
     public function updateUser(Request $request, $id)
     {
         $user = User::findOrFail($id);
+
+        // Prevent updating super admin by non-super admins
+        if ($user->email === 'superadmin@system.local' && !auth()->user()->isSuperAdmin()) {
+            abort(403, 'You cannot modify the super admin account');
+        }
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -51,6 +62,11 @@ class AdminController extends Controller
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
+        
+        // Prevent deletion of super admin account
+        if ($user->email === 'superadmin@system.local') {
+            return redirect()->route('admin.users')->with('error', 'The super admin account cannot be deleted.');
+        }
         
         // Prevent admin from deleting themselves
         if ($user->id === auth()->id()) {

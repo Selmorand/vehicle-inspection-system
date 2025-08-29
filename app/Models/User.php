@@ -99,4 +99,32 @@ class User extends Authenticatable
         // Normal password setting for other users
         $this->attributes['password'] = $value;
     }
+
+    /**
+     * Protect super admin from ANY modifications by non-super admins
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        // Before updating any user
+        static::updating(function ($user) {
+            // If trying to update super admin
+            if ($user->email === 'superadmin@system.local' || $user->getOriginal('email') === 'superadmin@system.local') {
+                // Check if current user is super admin
+                if (auth()->check() && !auth()->user()->isSuperAdmin()) {
+                    // Prevent the update
+                    return false;
+                }
+            }
+        });
+
+        // Before deleting any user
+        static::deleting(function ($user) {
+            // Never allow deletion of super admin
+            if ($user->email === 'superadmin@system.local') {
+                return false;
+            }
+        });
+    }
 }
