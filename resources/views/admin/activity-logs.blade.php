@@ -18,34 +18,34 @@
                 <div class="card-body">
                     <div class="row mb-4">
                         <div class="col-md-3">
-                            <div class="card bg-primary text-white">
+                            <div class="card bg-primary" style="color: white !important;">
                                 <div class="card-body">
-                                    <h5>Total Activity Today</h5>
-                                    <h2>{{ $stats['total_today'] }}</h2>
+                                    <h5 style="color: white !important;">Total Activity Today</h5>
+                                    <h2 style="color: white !important;">{{ $stats['total_today'] }}</h2>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-info text-white">
+                            <div class="card bg-info" style="color: white !important;">
                                 <div class="card-body">
-                                    <h5>Unique Visitors</h5>
-                                    <h2>{{ $stats['unique_visitors_today'] }}</h2>
+                                    <h5 style="color: white !important;">Unique Visitors</h5>
+                                    <h2 style="color: white !important;">{{ $stats['unique_visitors_today'] }}</h2>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-warning text-white">
+                            <div class="card bg-warning" style="color: white !important;">
                                 <div class="card-body">
-                                    <h5>Failed Logins</h5>
-                                    <h2>{{ $stats['failed_logins_today'] }}</h2>
+                                    <h5 style="color: white !important;">Failed Logins</h5>
+                                    <h2 style="color: white !important;">{{ $stats['failed_logins_today'] }}</h2>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-success text-white">
+                            <div class="card bg-success" style="color: white !important;">
                                 <div class="card-body">
-                                    <h5>Active Users</h5>
-                                    <h2>{{ $stats['active_users_today'] }}</h2>
+                                    <h5 style="color: white !important;">Active Users</h5>
+                                    <h2 style="color: white !important;">{{ $stats['active_users_today'] }}</h2>
                                 </div>
                             </div>
                         </div>

@@ -7,3 +7,5 @@ cd "F:\Xampp\htdocs\vehicle-inspection"
 
 
 cd public_html/staging.alphainspections.co.za
+
+php artisan optimize:clear
