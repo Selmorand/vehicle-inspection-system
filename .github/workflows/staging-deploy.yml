@@ -55,7 +55,22 @@ jobs:
           ./deploy-staging.sh
           
           echo "🧹 Clearing all caches after deployment..."
-          chmod +x post-deploy-cache-clear.sh
-          ./post-deploy-cache-clear.sh
+          chmod +x post-deploy-cache-clear.sh 2>/dev/null || true
+          ./post-deploy-cache-clear.sh 2>/dev/null || true
+          
+          echo "🔄 Force clearing Laravel caches..."
+          php artisan cache:clear --force
+          php artisan config:clear
+          php artisan route:clear  
+          php artisan view:clear
+          php artisan optimize:clear
+          
+          echo "🔨 Rebuilding caches..."
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          
+          echo "🌐 Triggering web cache clear..."
+          curl -s "https://staging.alphainspections.co.za/clear-cache?key=${{ secrets.CACHE_CLEAR_KEY }}" || true
           
           echo "✅ Staging deployment completed successfully!"

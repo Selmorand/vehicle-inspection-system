@@ -41,6 +41,10 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Cache clear routes
+Route::get('/clear-cache', [\App\Http\Controllers\CacheClearController::class, 'clearCache'])->name('cache.clear');
+Route::post('/admin/clear-cache', [\App\Http\Controllers\CacheClearController::class, 'adminClearCache'])->middleware('auth')->name('admin.cache.clear');
+
 // Admin-only registration routes
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
